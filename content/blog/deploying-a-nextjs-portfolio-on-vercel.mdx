@@ -1,0 +1,119 @@
+---
+title: "How To Deploy A Next.js Portfolio On Vercel"
+date: "2026-06-29"
+tags: ["Vercel", "Next.js", "Deployment", "GitHub"]
+summary: "A step-by-step guide to deploying a portfolio website from GitHub to Vercel and keeping it updated automatically."
+---
+
+# How To Deploy A Next.js Portfolio On Vercel
+
+Vercel is one of the easiest ways to deploy a Next.js portfolio. It connects directly to GitHub, builds the project, and gives you a live URL.
+
+## Step 1: Push The Project To GitHub
+
+Before deploying, make sure your project is available in a GitHub repository.
+
+Run:
+
+```txt
+git status
+```
+
+Then push your latest work:
+
+```txt
+git push
+```
+
+## Step 2: Sign In To Vercel
+
+- Go to vercel.com.
+- Sign in with GitHub.
+- Allow Vercel to access the repository you want to deploy.
+
+## Step 3: Import The Repository
+
+- Click Add New Project.
+- Select the GitHub repository.
+- Click Import.
+
+## Step 4: Confirm Project Settings
+
+For a standard Next.js project, Vercel usually detects everything automatically.
+
+Recommended settings:
+
+```txt
+Framework Preset: Next.js
+Install Command: pnpm install
+Build Command: pnpm build
+Output Directory: leave empty
+Development Command: pnpm dev
+```
+
+Do not set the output directory to .next. Vercel handles the Next.js output internally.
+
+## Step 5: Deploy
+
+Click Deploy.
+
+Vercel will:
+
+- Install dependencies.
+- Build the Next.js app.
+- Generate static pages where possible.
+- Publish the deployment.
+- Provide a live URL.
+
+## Step 6: Verify The Live Site
+
+Check:
+
+- Homepage loads.
+- Blog listing loads.
+- Individual blog posts load.
+- Project pages load.
+- Resume PDF downloads correctly.
+- Navigation works on mobile and desktop.
+
+## Step 7: Disable Deployment Protection If Needed
+
+If the live URL redirects visitors to Vercel login, deployment protection may be enabled.
+
+To make it public:
+
+- Open the Vercel project settings.
+- Find Deployment Protection or Security.
+- Disable protection for production deployments.
+- Save changes.
+
+## Step 8: Check Search Engine Indexing
+
+Use a header check or browser inspection to confirm the site is not sending:
+
+```txt
+x-robots-tag: noindex
+```
+
+If noindex is present, check Vercel settings for search engine indexing or project visibility.
+
+## Step 9: Understand Auto Deployments
+
+After GitHub is connected:
+
+- Push to main creates a production deployment.
+- Push to another branch creates a preview deployment.
+- Pull requests get preview URLs.
+- Merging to main updates the live site.
+
+## Step 10: Keep Improving The Site
+
+Use the same workflow for future updates:
+
+```txt
+git add .
+git commit -m "Add new blog post"
+git push
+```
+
+Vercel will automatically rebuild and publish the latest version.

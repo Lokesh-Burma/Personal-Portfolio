@@ -1,0 +1,127 @@
+---
+title: "How To Set Up GitHub SSH Keys On macOS"
+date: "2026-06-29"
+tags: ["GitHub", "SSH", "Git", "macOS"]
+summary: "A step-by-step guide to creating an SSH key, adding it to GitHub, and pushing code without repeated password prompts."
+---
+
+# How To Set Up GitHub SSH Keys On macOS
+
+SSH keys let your computer authenticate with GitHub securely. After setup, you can push and pull code without entering a GitHub password each time.
+
+## Step 1: Check For Existing SSH Keys
+
+Run:
+
+```txt
+ls -al ~/.ssh
+```
+
+Look for files like:
+
+```txt
+id_ed25519
+id_ed25519.pub
+```
+
+The .pub file is the public key. The file without .pub is the private key.
+
+## Step 2: Generate A New SSH Key
+
+Run:
+
+```txt
+ssh-keygen -t ed25519 -C "your-email@example.com"
+```
+
+When it asks for a file location, press Enter to accept the default path:
+
+```txt
+~/.ssh/id_ed25519
+```
+
+You can add a passphrase for extra protection or press Enter to skip it.
+
+## Step 3: Start The SSH Agent
+
+Run:
+
+```txt
+eval "$(ssh-agent -s)"
+```
+
+This starts the local SSH agent.
+
+## Step 4: Add The Key To The Agent
+
+Run:
+
+```txt
+ssh-add ~/.ssh/id_ed25519
+```
+
+If you used a passphrase, macOS may ask for it.
+
+## Step 5: Copy The Public Key
+
+Run:
+
+```txt
+pbcopy < ~/.ssh/id_ed25519.pub
+```
+
+This copies the public key to your clipboard.
+
+## Step 6: Add The Key To GitHub
+
+- Open GitHub.
+- Go to Settings.
+- Open SSH and GPG keys.
+- Click New SSH key.
+- Add a clear title such as MacBook Personal Portfolio.
+- Paste the full public key.
+- Save it.
+
+The public key usually starts with:
+
+```txt
+ssh-ed25519
+```
+
+It is safe to paste the public key into GitHub. Never share the private key.
+
+## Step 7: Test The Connection
+
+Run:
+
+```txt
+ssh -T git@github.com
+```
+
+The first time, type yes if Git asks whether to trust github.com.
+
+If setup worked, GitHub responds with a success message that includes your username.
+
+## Step 8: Use SSH For Your Repository
+
+Inside your project folder, run:
+
+```txt
+git remote set-url origin git@github.com:your-username/your-repo.git
+```
+
+Then push:
+
+```txt
+git push
+```
+
+## Step 9: Troubleshoot Common Issues
+
+- Permission denied publickey means GitHub does not recognize your SSH key.
+- Host key verification failed means github.com is not trusted in known_hosts yet.
+- Could not resolve hostname usually means the remote URL is incorrect.
+
+## Final Safety Note
+
+The public key can be added to GitHub. The private key should stay only on your machine.

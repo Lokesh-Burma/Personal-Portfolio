@@ -1,0 +1,89 @@
+---
+title: "How To Build A Personal Portfolio Website"
+date: "2026-06-29"
+tags: ["Portfolio", "Next.js", "TypeScript", "Career"]
+summary: "A step-by-step guide to planning and building a personal portfolio website that works as an extension of your resume."
+---
+
+# How To Build A Personal Portfolio Website
+
+A personal portfolio should do more than repeat your resume. It should show your engineering story, the type of systems you have worked on, the problems you can solve, and the way you think through tradeoffs.
+
+For a backend engineer, the best portfolio is usually simple, fast, and content-focused. The goal is not to build a flashy landing page. The goal is to create a clear technical profile that recruiters, hiring managers, and engineers can scan quickly.
+
+## Step 1: Define The Purpose
+
+- Decide who the site is for: recruiters, engineering managers, technical peers, or all three.
+- Decide what the site should prove: backend depth, cloud experience, architecture thinking, writing ability, or project ownership.
+- Keep the first version focused on clarity instead of adding too many features.
+
+## Step 2: Choose The Main Sections
+
+- Home: short introduction and strongest engineering highlights.
+- Experience: resume-style work history with impact.
+- Projects: case studies that explain problem, architecture, decisions, and outcomes.
+- Blog: technical learnings and implementation notes.
+- About: professional summary and engineering style.
+- Contact: email, LinkedIn, GitHub, and resume download.
+
+## Step 3: Pick A Practical Tech Stack
+
+- Use Next.js for the website framework.
+- Use TypeScript for type safety and maintainability.
+- Use Tailwind CSS for fast, consistent styling.
+- Use MDX files for blog posts and project writeups.
+- Deploy using Vercel for simple Next.js hosting.
+
+## Step 4: Create The Project
+
+- Create a new project folder.
+- Initialize a Next.js app.
+- Add TypeScript and Tailwind CSS.
+- Create reusable layout, navigation, section, and card components.
+- Add routes for home, experience, projects, blog, about, and contact.
+
+## Step 5: Add Resume-Based Content
+
+- Start with your real resume instead of generic placeholder text.
+- Convert work experience into concise impact statements.
+- Highlight measurable results where possible.
+- Avoid confidential company details.
+- Add your resume PDF to the public folder for download.
+
+## Step 6: Make Blog Posts File-Based
+
+- Store blog posts in a content/blog folder.
+- Use one MDX file per post.
+- Add frontmatter for title, date, tags, and summary.
+- Generate blog listing pages automatically from the content folder.
+
+## Step 7: Add Project Case Studies
+
+- Store project writeups in a content/projects folder.
+- Explain the problem, constraints, architecture, tradeoffs, and outcome.
+- Add technologies used, but keep the story focused on engineering decisions.
+
+## Step 8: Verify Locally
+
+- Run the development server.
+- Check the homepage, blog list, project list, and individual post pages.
+- Verify the resume download link.
+- Run a production build before deployment.
+
+## Step 9: Push To GitHub
+
+- Initialize Git.
+- Commit the first version.
+- Create a GitHub repository.
+- Push the local project to the remote repository.
+
+## Step 10: Deploy
+
+- Import the GitHub repository into Vercel.
+- Keep the Next.js defaults.
+- Deploy the site.
+- Verify that the live homepage, blog posts, project pages, and resume PDF work.
+
+## Final Thoughts
+
+The best portfolio is one you can keep updating. Start with a clean version, then add blog posts and case studies as you learn or build new things.
