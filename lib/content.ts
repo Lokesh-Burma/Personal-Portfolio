@@ -33,10 +33,11 @@ type ContentKind = "blog" | "projects" | "cheatsheets";
 const contentRoot = path.join(process.cwd(), "content");
 
 const blogPriority: Record<string, number> = {
-  "zero-downtime-data-migration-patterns": 0,
-  "debugging-distributed-backup-systems": 1,
-  "understanding-how-this-frontend-portfolio-app-works": 2,
-  "from-php-monolith-to-microservices": 3,
+  "ai-writes-code-role-of-backend-developer": 0,
+  "zero-downtime-data-migration-patterns": 1,
+  "debugging-distributed-backup-systems": 2,
+  "understanding-how-this-frontend-portfolio-app-works": 3,
+  "from-php-monolith-to-microservices": 4,
 };
 
 function parseFrontmatter(source: string) {

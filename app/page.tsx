@@ -7,9 +7,9 @@ import { getAllBlogPosts, getAllCheatSheets, getAllProjects } from "@/lib/conten
 import { highlights, impactAreas, pipelineProjects, profile, skills, techHighlights } from "@/lib/profile";
 
 const featuredPostSlugs = [
+  "ai-writes-code-role-of-backend-developer",
   "zero-downtime-data-migration-patterns",
   "debugging-distributed-backup-systems",
-  "understanding-how-this-frontend-portfolio-app-works",
 ];
 
 export default function Home() {
