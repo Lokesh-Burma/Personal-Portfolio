@@ -21,8 +21,8 @@ export function TechGrid({ items }: TechGridProps) {
               className="h-6 w-6"
               style={{
                 backgroundColor: `#${item.color}`,
-                WebkitMaskImage: `url(https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${item.slug}.svg)`,
-                maskImage: `url(https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${item.slug}.svg)`,
+                WebkitMaskImage: `url(/icons/simple-icons/${item.slug}.svg)`,
+                maskImage: `url(/icons/simple-icons/${item.slug}.svg)`,
                 WebkitMaskPosition: "center",
                 maskPosition: "center",
                 WebkitMaskRepeat: "no-repeat",
