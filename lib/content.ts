@@ -23,6 +23,13 @@ type ContentKind = "blog" | "projects";
 
 const contentRoot = path.join(process.cwd(), "content");
 
+const blogPriority: Record<string, number> = {
+  "zero-downtime-data-migration-patterns": 0,
+  "debugging-distributed-backup-systems": 1,
+  "understanding-how-this-frontend-portfolio-app-works": 2,
+  "from-php-monolith-to-microservices": 3,
+};
+
 function parseFrontmatter(source: string) {
   const match = source.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
 
@@ -69,10 +76,22 @@ function getSlugs(kind: ContentKind) {
     .map((file) => file.replace(/\.mdx$/, ""));
 }
 
+function getBlogRank(slug: string) {
+  return blogPriority[slug] ?? 100;
+}
+
 export function getAllBlogPosts(): BlogPost[] {
   return getSlugs("blog")
     .map((slug) => getBlogPost(slug))
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => {
+      const priorityDiff = getBlogRank(a.slug) - getBlogRank(b.slug);
+
+      if (priorityDiff !== 0) {
+        return priorityDiff;
+      }
+
+      return b.date.localeCompare(a.date);
+    });
 }
 
 export function getBlogPost(slug: string): BlogPost {

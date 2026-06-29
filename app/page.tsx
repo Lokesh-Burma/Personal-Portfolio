@@ -2,11 +2,20 @@ import Link from "next/link";
 import { PostCard, ProjectCard } from "@/components/cards";
 import { Section } from "@/components/section";
 import { getAllBlogPosts, getAllProjects } from "@/lib/content";
-import { highlights, profile, skills } from "@/lib/profile";
+import { highlights, impactAreas, profile, skills } from "@/lib/profile";
+
+const featuredPostSlugs = [
+  "zero-downtime-data-migration-patterns",
+  "debugging-distributed-backup-systems",
+  "understanding-how-this-frontend-portfolio-app-works",
+];
 
 export default function Home() {
   const projects = getAllProjects().slice(0, 3);
-  const posts = getAllBlogPosts().slice(0, 3);
+  const allPosts = getAllBlogPosts();
+  const posts = allPosts
+    .filter((post) => featuredPostSlugs.includes(post.slug))
+    .sort((a, b) => featuredPostSlugs.indexOf(a.slug) - featuredPostSlugs.indexOf(b.slug));
 
   return (
     <main>
@@ -14,7 +23,7 @@ export default function Home() {
         <div className="mx-auto grid min-h-[calc(100vh-73px)] max-w-6xl content-center gap-12 px-5 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">
-              Backend Software Engineer
+              Senior Software Engineer | AI-enabled backend systems
             </p>
             <h1 className="mt-5 max-w-4xl text-5xl font-semibold tracking-tight text-slate-950 md:text-7xl">
               Lokesh Burma
@@ -25,7 +34,7 @@ export default function Home() {
                 className="rounded-md bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
                 href="/projects"
               >
-                View projects
+                View case studies
               </Link>
               <Link
                 className="rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
@@ -36,9 +45,9 @@ export default function Home() {
             </div>
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Current focus</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Engineering impact</h2>
             <div className="mt-5 space-y-4">
-              {highlights.slice(0, 4).map((item) => (
+              {highlights.map((item) => (
                 <p className="border-l-2 border-teal-600 pl-4 text-sm leading-6 text-slate-700" key={item}>
                   {item}
                 </p>
@@ -49,9 +58,24 @@ export default function Home() {
       </section>
 
       <Section
-        eyebrow="Strengths"
-        title="Cloud-native backend systems, delivered with production context."
-        intro="The site is designed as a living resume: experience, architecture decisions, implementation notes, and writing in one place."
+        eyebrow="Positioning"
+        title="Backend systems with scale, reliability, and AI-assisted operations."
+        intro="The portfolio is organized around the work that best represents my engineering direction: distributed backend architecture, production reliability, and practical AI tooling for engineering teams."
+      >
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {impactAreas.map((area) => (
+            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" key={area.title}>
+              <h3 className="font-semibold text-slate-950">{area.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-600">{area.text}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section
+        eyebrow="Technologies"
+        title="Tools and systems I have worked with"
+        intro="Grouped by how I use them in backend engineering work, instead of as one long keyword list."
       >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {skills.map((skill) => (
@@ -64,9 +88,9 @@ export default function Home() {
       </Section>
 
       <Section
-        eyebrow="Projects"
+        eyebrow="Case studies"
         title="Selected engineering work"
-        intro="Case studies are framed around the problem, architecture, tradeoffs, and measurable impact."
+        intro="These projects show the work I want to be evaluated on: backend architecture, reliability, observability, AI-assisted debugging, and production ownership."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {projects.map((project) => (
@@ -77,8 +101,8 @@ export default function Home() {
 
       <Section
         eyebrow="Writing"
-        title="Technical learnings as blog posts"
-        intro="The first posts are seeded as topics from your resume. They can be expanded manually as you collect implementation notes."
+        title="Engineering notes"
+        intro="Featured posts focus on backend systems and how I reason about architecture, debugging, and this frontend portfolio as a backend engineer."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {posts.map((post) => (

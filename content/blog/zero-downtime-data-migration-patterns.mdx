@@ -13,7 +13,7 @@ In a SaaS backend, the safest migration is usually not one big switch. It is a c
 
 ## The Migration Context
 
-The system had high-volume mail metadata tables in PostgreSQL. Some tables had billions of rows and were major RDS storage cost drivers.
+The system had high-volume email metadata tables in PostgreSQL. Some tables had billions of rows and were major RDS storage cost drivers.
 
 The target architecture moved older historical data to S3 Tables using Apache Iceberg and Athena, while keeping recent operational data in PostgreSQL.
 

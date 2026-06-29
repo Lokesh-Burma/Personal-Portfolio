@@ -1,13 +1,13 @@
 ---
 title: "Claude Debugger Agent"
 stack: ["Claude Code", "MCP", "Azure DevOps", "Kibana", "Databases", "Prompt Engineering"]
-summary: "An AI-assisted diagnostic agent that connects work items, logs, database signals, and historical analysis to recommend root causes and fix plans."
+summary: "An AI-assisted diagnostic agent that connects issue context, logs, database signals, and historical analysis to recommend root causes and fix plans."
 outcome: "Reached 85%+ fix-plan accuracy and reduced manual incident-analysis effort across engineering teams."
 ---
 
 # Claude Debugger Agent
 
-Production debugging in distributed SaaS systems is often slow because the relevant clues are spread across work items, logs, databases, historical analysis, and team knowledge.
+Production debugging in distributed SaaS systems is often slow because the relevant clues are spread across issue context, logs, databases, historical analysis, and team knowledge.
 
 This project explored how an AI debugging agent could reduce manual triage effort and make root-cause analysis more repeatable.
 
@@ -17,7 +17,7 @@ Incident analysis was heavily manual.
 
 Engineers had to:
 
-- Read work items.
+- Read incident context.
 - Search logs.
 - Correlate errors across systems.
 - Inspect database state.
@@ -57,7 +57,7 @@ My ownership included:
 The debugging flow followed a structured process.
 
 - Start with an issue or incident.
-- Fetch work-item details.
+- Fetch issue details.
 - Retrieve related log signals.
 - Pull previous analysis where available.
 - Inspect database context when required.

@@ -3,53 +3,63 @@ export const profile = {
   title: "Senior Software Engineer",
   location: "Hyderabad, India",
   email: "lokesh.burma@outlook.com",
-  phone: "9133283812",
   linkedin: "https://www.linkedin.com/in/lokeshburma",
   resumeHref: "/Lokesh_Burma_Resume_Latest.pdf",
   summary:
-    "Backend-focused software engineer with 5 years of experience building and scaling cloud-native SaaS systems. Strong in high-throughput, low-latency backend architecture with a practical focus on reliability, performance, cost efficiency, and operational excellence.",
+    "Senior Software Engineer focused on cloud-native backend systems, reliability, large-scale data movement, and AI-assisted engineering workflows. I build production backend systems that are easier to scale, observe, debug, and operate.",
 };
 
 export const skills = [
   {
-    group: "Languages",
-    items: ["PHP", "TypeScript", "JavaScript", "Python"],
+    group: "Core Backend",
+    items: ["PHP", "TypeScript", "JavaScript", "Node.js", "NestJS", "REST APIs"],
   },
   {
-    group: "Backend",
-    items: ["Node.js", "NestJS", "REST APIs", "Microservices"],
+    group: "Architecture",
+    items: ["Microservices", "Distributed Systems", "State Machines", "Retry Workflows"],
   },
   {
-    group: "Cloud",
-    items: ["AWS EC2", "AWS SQS", "AWS FSx", "S3", "Lambda", "API Gateway", "Route53"],
+    group: "Cloud And Data",
+    items: ["AWS", "S3", "SQS", "Lambda", "ECS/Fargate", "PostgreSQL", "DynamoDB", "Athena", "Apache Iceberg"],
   },
   {
-    group: "Data",
-    items: ["PostgreSQL", "DynamoDB", "Redis", "Athena", "Apache Iceberg"],
-  },
-  {
-    group: "Delivery",
-    items: ["Docker", "AWS ECS/Fargate", "Git", "CodeCommit", "CodePipeline"],
-  },
-  {
-    group: "Observability",
-    items: ["Grafana", "ELK", "CloudWatch", "Kibana"],
+    group: "Reliability",
+    items: ["Grafana", "ELK", "Kibana", "CloudWatch", "Error Taxonomy", "Operational Dashboards"],
   },
   {
     group: "AI Engineering",
     items: ["Claude Code", "MCP", "Langflow", "RCA Workflows", "Prompt Engineering"],
   },
+  {
+    group: "Delivery",
+    items: ["Docker", "Git", "AWS CodeCommit", "CodePipeline", "Production Rollouts"],
+  },
 ];
 
 export const highlights = [
-  "Owned backend graph-service changes for a billion-row PostgreSQL to S3 Tables migration using Apache Iceberg, Athena, and DynamoDB lookup caching.",
-  "Implemented a phased migration state machine covering DynamoDB dual writes, direct S3 writes, and DynamoDB-first reads with RDS fallback.",
-  "Delivered production canary rollout for large-scale mail metadata migration with zero impact on unrelated customers.",
-  "Expanded backup failure classification from 350 to 2,957 error codes across backup, restore, export, and post-processing workflows.",
-  "Built a Claude-powered debugging agent with Azure DevOps, Kibana, and database integrations, reaching 85%+ fix-plan accuracy.",
-  "Resolved 196 production work items across Gmail, Outlook, Drive, Slack, Salesforce, Cloud Mover, and related platform areas.",
-  "Built Grafana monitoring for onboarding pending users across trial and paid accounts to improve operational visibility.",
-  "Delivered 15 user stories and owned 17 production deployments while supporting incident and customer-ticket responsibilities.",
+  "Designed phased backend migration patterns for moving high-volume relational data into S3-backed analytical storage.",
+  "Built reliability workflows that classify retryable and permanent failures, preserve retry history, and improve support diagnostics.",
+  "Created AI-assisted debugging workflows that combine issue context, logs, database signals, and structured RCA techniques.",
+  "Improved operational visibility with dashboards, standardized status models, and clearer production diagnostics.",
+];
+
+export const impactAreas = [
+  {
+    title: "Large-Scale Backend Architecture",
+    text: "Worked on billion-row data migration patterns using PostgreSQL, S3 Tables, Apache Iceberg, Athena, DynamoDB, and phased state-machine rollouts.",
+  },
+  {
+    title: "Reliability And Observability",
+    text: "Improved failure classification, retry-history tracking, error-code coverage, and customer/support visibility across backup workflows.",
+  },
+  {
+    title: "AI-Enabled Backend Engineering",
+    text: "Built Claude-powered debugging workflows with MCP integrations, log analysis, database context, and fix-plan generation.",
+  },
+  {
+    title: "Production Ownership",
+    text: "Owned backend features from design through canary rollout, documentation, team enablement, and operational follow-through.",
+  },
 ];
 
 export const experience = [
@@ -59,14 +69,13 @@ export const experience = [
     location: "Hyderabad, India",
     period: "May 2023 - Present",
     bullets: [
-      "Owned backend implementation for Gmail and Outlook metadata migration from PostgreSQL to S3 Tables, covering billions of rows and reducing RDS storage pressure.",
-      "Designed and implemented a phased migration state machine with DynamoDB dual writes, direct S3 writes, and DynamoDB-first reads with RDS fallback.",
-      "Delivered eligible and ineligible item classification across backup, restore, and export failures, improving customer visibility into storage discrepancies.",
-      "Expanded error-code coverage from 350 to 2,957 codes and standardized retry-history models with attempt-level status, error code, and data-size details.",
-      "Built a Claude-powered debugging agent for automated root-cause analysis using Azure DevOps, Kibana, database signals, and issue-based fix-plan generation.",
-      "Created setup guides and KT sessions that helped engineering teams adopt AI-assisted debugging workflows independently.",
-      "Resolved 196 production work items across multiple cloud workloads and owned Salesforce cloud maintenance during the review period.",
-      "Built Grafana monitoring for onboarding pending users and contributed to infrastructure efficiency work such as ARM migration support.",
+      "Architecture: Owned backend implementation for migrating high-volume email metadata from PostgreSQL to S3 Tables while preserving safe read/write behavior.",
+      "Migration safety: Designed phased state-machine flows with cache-assisted reads, fallback paths, and tenant-level rollout control.",
+      "Reliability: Delivered failure classification across backup, restore, and export workflows, improving visibility into retryable and permanently failed items.",
+      "Observability: Expanded structured error-code coverage and standardized retry-history models with attempt-level status, error code, and data-size context.",
+      "AI engineering: Built a Claude-powered debugging agent that uses issue context, log signals, database context, and RCA patterns to produce fix plans.",
+      "Enablement: Created setup guides and knowledge-transfer sessions so engineers could adopt AI-assisted debugging workflows independently.",
+      "Operations: Built monitoring for onboarding and production health signals, and supported reliability work across multiple cloud workloads.",
     ],
   },
   {
@@ -87,7 +96,7 @@ export const projects = [
     slug: "rds-to-s3-table-migration",
     title: "RDS to S3 Table Migration",
     summary:
-      "A large-scale data architecture initiative moving high-volume mail metadata from PostgreSQL into S3-backed Apache Iceberg tables with Athena access.",
+      "A large-scale data architecture initiative moving high-volume email metadata from PostgreSQL into S3-backed Apache Iceberg tables with Athena access.",
     stack: ["PostgreSQL", "S3", "Apache Iceberg", "Athena", "DynamoDB", "AWS"],
     outcome: "Reduced RDS storage pressure and enabled a safer phased migration model for billion-row metadata tables.",
   },
@@ -95,7 +104,7 @@ export const projects = [
     slug: "claude-debugger-agent",
     title: "Claude Debugger Agent",
     summary:
-      "An AI-assisted diagnostic agent that connects work items, logs, database signals, and historical analysis to recommend root causes and fix plans.",
+      "An AI-assisted diagnostic agent that connects issue context, logs, database signals, and historical analysis to recommend root causes and fix plans.",
     stack: ["Claude Code", "MCP", "Azure DevOps", "Kibana", "Databases", "Prompt Engineering"],
     outcome: "Reached 85%+ fix-plan accuracy and reduced manual incident-analysis effort across engineering teams.",
   },
@@ -106,32 +115,5 @@ export const projects = [
       "A reliability initiative that standardized failure models, retry history, error-code coverage, and customer-facing diagnostics across backup workflows.",
     stack: ["Node.js", "PHP", "ELK", "Grafana", "CloudWatch"],
     outcome: "Expanded classification coverage from 350 to 2,957 error codes and improved support visibility.",
-  },
-];
-
-export const posts = [
-  {
-    slug: "zero-downtime-data-migration-patterns",
-    title: "Zero-Downtime Data Migration Patterns for SaaS Backends",
-    date: "2026-06-28",
-    summary:
-      "Notes on phased write routing, state machines, cache strategy, and operational safety during large backend migrations.",
-    tags: ["AWS", "PostgreSQL", "S3", "Distributed Systems"],
-  },
-  {
-    slug: "debugging-distributed-backup-systems",
-    title: "Debugging Distributed Backup Systems",
-    date: "2026-06-28",
-    summary:
-      "How structured error taxonomies, retry history, and logs turn noisy backup failures into actionable diagnostics.",
-    tags: ["Observability", "Distributed Services", "Reliability"],
-  },
-  {
-    slug: "from-php-monolith-to-microservices",
-    title: "From PHP Monolith to Microservices",
-    date: "2026-06-28",
-    summary:
-      "A practical reflection on boundaries, deployment cadence, and maintainability when modernizing a SaaS backend.",
-    tags: ["PHP", "Microservices", "Architecture"],
   },
 ];

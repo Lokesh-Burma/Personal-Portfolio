@@ -1,19 +1,19 @@
 ---
 title: "RDS to S3 Table Migration"
 stack: ["PostgreSQL", "S3", "Apache Iceberg", "Athena", "DynamoDB", "AWS"]
-summary: "A large-scale data architecture initiative moving high-volume mail metadata from PostgreSQL into S3-backed Apache Iceberg tables with Athena access."
+summary: "A large-scale data architecture initiative moving high-volume email metadata from PostgreSQL into S3-backed Apache Iceberg tables with Athena access."
 outcome: "Reduced RDS storage pressure and enabled a safer phased migration model for billion-row metadata tables."
 ---
 
 # RDS to S3 Table Migration
 
-This project focused on moving high-volume Gmail and Outlook metadata from PostgreSQL into S3 Tables using Apache Iceberg and Athena, while keeping recent operational data in PostgreSQL.
+This project focused on moving high-volume email metadata from PostgreSQL into S3 Tables using Apache Iceberg and Athena, while keeping recent operational data in PostgreSQL.
 
 The core challenge was not only moving data. The harder part was changing read and write paths safely while the production system continued serving customers.
 
 ## Problem
 
-Two mail metadata tables had grown to billions of rows and had become major RDS storage cost drivers.
+Two email metadata tables had grown to billions of rows and had become major RDS storage cost drivers.
 
 The migration goal was to:
 
@@ -25,7 +25,7 @@ The migration goal was to:
 
 ## My Role
 
-I owned the backend graph-service implementation for both Gmail and Outlook migration flows.
+I owned the backend graph-service implementation for both email migration flows.
 
 My ownership included:
 
@@ -40,7 +40,7 @@ My ownership included:
 
 The migration used a phased state-machine approach.
 
-- State 0: Add DynamoDB dual writes for new Gmail and Outlook entries before migration starts.
+- State 0: Add DynamoDB dual writes for new email entries before migration starts.
 - State 1: Enable direct writes to S3, RDS, and DynamoDB.
 - State 2: Prefer DynamoDB-first reads with RDS fallback.
 
