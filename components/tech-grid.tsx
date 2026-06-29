@@ -16,10 +16,20 @@ export function TechGrid({ items }: TechGridProps) {
       {items.map((item) => (
         <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm" key={item.name}>
           <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-md border ${item.tone}`}>
-            <img
-              alt={`${item.name} logo`}
-              className="h-6 w-6 object-contain"
-              src={`https://cdn.simpleicons.org/${item.slug}/${item.color}`}
+            <div
+              aria-hidden="true"
+              className="h-6 w-6"
+              style={{
+                backgroundColor: `#${item.color}`,
+                WebkitMaskImage: `url(https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${item.slug}.svg)`,
+                maskImage: `url(https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${item.slug}.svg)`,
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+              }}
             />
           </div>
           <div>
