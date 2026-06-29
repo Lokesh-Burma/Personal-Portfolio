@@ -195,6 +195,9 @@ export const experience = [
     company: "SysCloud",
     location: "Hyderabad, India",
     period: "May 2023 - Present",
+    summary:
+      "Leading backend reliability, data migration, observability, and AI-assisted engineering work for cloud-native SaaS systems.",
+    focus: ["Backend Architecture", "Reliability", "Data Migration", "AI Debugging", "Observability"],
     bullets: [
       "Architecture: Owned backend implementation for migrating high-volume email metadata from PostgreSQL to S3 Tables while preserving safe read/write behavior.",
       "Migration safety: Designed phased state-machine flows with cache-assisted reads, fallback paths, and tenant-level rollout control.",
@@ -210,6 +213,9 @@ export const experience = [
     company: "SysCloud",
     location: "Hyderabad, India",
     period: "May 2021 - Apr 2023",
+    summary:
+      "Built and maintained backend services across SaaS backup workflows while contributing to service decomposition and operational diagnostics.",
+    focus: ["PHP", "Node.js", "Microservices", "Backend APIs", "Diagnostics"],
     bullets: [
       "Contributed to the transition from a legacy PHP monolith to scalable backend microservices.",
       "Improved maintainability and supported faster deployment cycles through service decomposition.",
@@ -221,6 +227,9 @@ export const experience = [
     company: "SysCloud",
     location: "Remote",
     period: "Nov 2020 - Apr 2021",
+    summary:
+      "Supported monitoring, log analysis, and release coordination while learning production backend operations.",
+    focus: ["CloudWatch", "Grafana", "Kibana", "Log Analysis", "Production Support"],
     bullets: [
       "Supported backend workload monitoring using CloudWatch, Grafana, and Kibana.",
       "Analyzed logs, helped identify recurring production issues, and partnered with engineers on fixes and release coordination.",
