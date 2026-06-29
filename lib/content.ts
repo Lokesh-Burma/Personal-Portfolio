@@ -34,10 +34,11 @@ const contentRoot = path.join(process.cwd(), "content");
 
 const blogPriority: Record<string, number> = {
   "ai-writes-code-role-of-backend-developer": 0,
-  "zero-downtime-data-migration-patterns": 1,
-  "debugging-distributed-backup-systems": 2,
-  "understanding-how-this-frontend-portfolio-app-works": 3,
-  "from-php-monolith-to-microservices": 4,
+  "security-best-practices-production-workloads": 1,
+  "zero-downtime-data-migration-patterns": 2,
+  "debugging-distributed-backup-systems": 3,
+  "understanding-how-this-frontend-portfolio-app-works": 4,
+  "from-php-monolith-to-microservices": 5,
 };
 
 function parseFrontmatter(source: string) {

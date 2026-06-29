@@ -8,8 +8,8 @@ import { highlights, impactAreas, pipelineProjects, profile, skills, techHighlig
 
 const featuredPostSlugs = [
   "ai-writes-code-role-of-backend-developer",
+  "security-best-practices-production-workloads",
   "zero-downtime-data-migration-patterns",
-  "debugging-distributed-backup-systems",
 ];
 
 export default function Home() {
