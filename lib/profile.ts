@@ -72,24 +72,10 @@ export const pipelineProjects = [
   },
   {
     status: "Next",
-    title: "Hunter agents for infrastructure and error monitoring",
-    summary:
-      "Exploring AI-assisted monitoring loops that detect recurring infrastructure and application failure patterns earlier.",
-    stack: ["Claude", "MCP", "CloudWatch", "Kibana", "Grafana"],
-  },
-  {
-    status: "Next",
-    title: "EML to PST converter rewrite",
-    summary:
-      "Planned rewrite of a Windows-dependent conversion workflow into a more maintainable TypeScript service.",
-    stack: ["TypeScript", "Node.js", "Queues", "Observability"],
-  },
-  {
-    status: "Later",
     title: "Backend architecture diagrams library",
     summary:
-      "A visual reference library for state machines, migration flows, retry systems, and debugging workflows.",
-    stack: ["Mermaid", "System Design", "Documentation"],
+      "Building visual notes that simplify backend concepts and architectures such as state machines, migrations, retry flows, observability, and distributed service patterns.",
+    stack: ["Mermaid", "System Design", "Documentation", "Backend Architecture"],
   },
 ];
 
