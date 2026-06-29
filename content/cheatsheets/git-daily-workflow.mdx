@@ -1,0 +1,69 @@
+---
+title: "Git Daily Workflow Cheatsheet"
+category: "Version Control"
+summary: "Commands for checking status, branching, committing, syncing, and recovering common Git workflows."
+tools: ["Git", "GitHub"]
+---
+
+# Git Daily Workflow Cheatsheet
+
+## Check Current State
+
+```bash
+git status
+git branch --show-current
+git log --oneline -5
+```
+
+## Stage And Commit
+
+```bash
+git add .
+git commit -m "Describe the change"
+```
+
+## Push Current Branch
+
+```bash
+git push
+```
+
+First push for a new branch:
+
+```bash
+git push -u origin branch-name
+```
+
+## Create A Branch
+
+```bash
+git switch -c feature/my-change
+```
+
+## Sync Main
+
+```bash
+git switch main
+git pull
+```
+
+## See What Changed
+
+```bash
+git diff
+git diff --stat
+git diff --cached
+```
+
+## Undo A Staged File
+
+```bash
+git restore --staged path/to/file
+```
+
+## Keep In Mind
+
+- Commit small, meaningful changes.
+- Pull before starting new work.
+- Read diffs before committing.
+- Avoid force pushing unless you know exactly why.

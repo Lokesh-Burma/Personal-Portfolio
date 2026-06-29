@@ -4,7 +4,9 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/experience", label: "Experience" },
   { href: "/projects", label: "Projects" },
+  { href: "/pipeline", label: "Pipeline" },
   { href: "/blog", label: "Blog" },
+  { href: "/cheatsheets", label: "Cheatsheets" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -16,7 +18,7 @@ export function Nav() {
         <Link className="font-semibold tracking-tight text-slate-950" href="/">
           Lokesh Burma
         </Link>
-        <div className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center gap-1 lg:flex">
           {links.map((link) => (
             <Link
               className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
@@ -34,7 +36,7 @@ export function Nav() {
           Resume
         </Link>
       </nav>
-      <div className="border-t border-slate-100 md:hidden">
+      <div className="border-t border-slate-100 lg:hidden">
         <div className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-5 py-2">
           {links.slice(1).map((link) => (
             <Link

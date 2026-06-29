@@ -49,6 +49,50 @@ export const skills = [
   },
 ];
 
+export const techHighlights = [
+  { name: "PHP", icon: "PHP", tone: "bg-indigo-50 text-indigo-800 border-indigo-200" },
+  { name: "TypeScript", icon: "TS", tone: "bg-blue-50 text-blue-800 border-blue-200" },
+  { name: "Node.js", icon: "N", tone: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+  { name: "NestJS", icon: "NS", tone: "bg-rose-50 text-rose-800 border-rose-200" },
+  { name: "AWS", icon: "AWS", tone: "bg-amber-50 text-amber-800 border-amber-200" },
+  { name: "Docker", icon: "D", tone: "bg-sky-50 text-sky-800 border-sky-200" },
+  { name: "PostgreSQL", icon: "PG", tone: "bg-cyan-50 text-cyan-800 border-cyan-200" },
+  { name: "DynamoDB", icon: "DB", tone: "bg-violet-50 text-violet-800 border-violet-200" },
+  { name: "Grafana", icon: "G", tone: "bg-orange-50 text-orange-800 border-orange-200" },
+  { name: "Claude", icon: "AI", tone: "bg-teal-50 text-teal-800 border-teal-200" },
+];
+
+export const pipelineProjects = [
+  {
+    status: "Now",
+    title: "Portfolio as an engineering knowledge base",
+    summary:
+      "Turning the portfolio into a living set of case studies, backend notes, and operational cheat sheets.",
+    stack: ["Next.js", "MDX", "TypeScript", "Vercel"],
+  },
+  {
+    status: "Next",
+    title: "Hunter agents for infrastructure and error monitoring",
+    summary:
+      "Exploring AI-assisted monitoring loops that detect recurring infrastructure and application failure patterns earlier.",
+    stack: ["Claude", "MCP", "CloudWatch", "Kibana", "Grafana"],
+  },
+  {
+    status: "Next",
+    title: "EML to PST converter rewrite",
+    summary:
+      "Planned rewrite of a Windows-dependent conversion workflow into a more maintainable TypeScript service.",
+    stack: ["TypeScript", "Node.js", "Queues", "Observability"],
+  },
+  {
+    status: "Later",
+    title: "Backend architecture diagrams library",
+    summary:
+      "A visual reference library for state machines, migration flows, retry systems, and debugging workflows.",
+    stack: ["Mermaid", "System Design", "Documentation"],
+  },
+];
+
 export const credentials = [
   {
     title: "AWS Certified Solutions Architect - Associate",

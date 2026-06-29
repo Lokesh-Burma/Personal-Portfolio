@@ -1,0 +1,52 @@
+---
+title: "Vercel And Next.js Deployment Cheatsheet"
+category: "Deployment"
+summary: "Quick commands and checks for deploying a Next.js portfolio through GitHub and Vercel."
+tools: ["Vercel", "Next.js", "GitHub"]
+---
+
+# Vercel And Next.js Deployment Cheatsheet
+
+## Local Development
+
+```bash
+pnpm dev
+```
+
+## Production Build
+
+```bash
+pnpm build
+```
+
+## Commit And Push
+
+```bash
+git add .
+git commit -m "Update portfolio"
+git push
+```
+
+## Vercel Defaults
+
+```txt
+Framework: Next.js
+Install command: pnpm install
+Build command: pnpm build
+Output directory: leave empty
+```
+
+## Verify Live Routes
+
+```bash
+curl -I https://your-site.vercel.app/
+curl -I https://your-site.vercel.app/blog
+curl -I https://your-site.vercel.app/projects
+```
+
+## Common Checks
+
+- Production branch should be main.
+- Deployment protection should be disabled for public portfolios.
+- Resume PDF should return HTTP 200.
+- Important pages should not return noindex if search indexing is desired.

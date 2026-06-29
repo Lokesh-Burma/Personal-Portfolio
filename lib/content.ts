@@ -19,7 +19,16 @@ export type Project = {
   body: string;
 };
 
-type ContentKind = "blog" | "projects";
+export type CheatSheet = {
+  slug: string;
+  title: string;
+  category: string;
+  summary: string;
+  tools: string[];
+  body: string;
+};
+
+type ContentKind = "blog" | "projects" | "cheatsheets";
 
 const contentRoot = path.join(process.cwd(), "content");
 
@@ -118,6 +127,24 @@ export function getProject(slug: string): Project {
     summary: String(data.summary),
     stack: Array.isArray(data.stack) ? data.stack : [],
     outcome: String(data.outcome ?? ""),
+    body,
+  };
+}
+
+export function getAllCheatSheets(): CheatSheet[] {
+  return getSlugs("cheatsheets")
+    .map((slug) => getCheatSheet(slug))
+    .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+export function getCheatSheet(slug: string): CheatSheet {
+  const { data, body } = readContentFile("cheatsheets", slug);
+  return {
+    slug,
+    title: String(data.title),
+    category: String(data.category),
+    summary: String(data.summary),
+    tools: Array.isArray(data.tools) ? data.tools : [],
     body,
   };
 }

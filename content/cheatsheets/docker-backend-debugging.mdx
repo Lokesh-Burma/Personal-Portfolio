@@ -1,0 +1,64 @@
+---
+title: "Docker Backend Debugging Cheatsheet"
+category: "Containers"
+summary: "Common Docker commands for inspecting containers, logs, images, and local backend services."
+tools: ["Docker"]
+---
+
+# Docker Backend Debugging Cheatsheet
+
+## List Containers
+
+```bash
+docker ps
+docker ps -a
+```
+
+## View Logs
+
+```bash
+docker logs container-name
+docker logs -f container-name
+```
+
+## Enter A Container
+
+```bash
+docker exec -it container-name sh
+docker exec -it container-name bash
+```
+
+## Images
+
+```bash
+docker images
+docker rmi image-id
+```
+
+## Build And Run
+
+```bash
+docker build -t app-name .
+docker run -p 3000:3000 app-name
+```
+
+## Stop And Remove
+
+```bash
+docker stop container-name
+docker rm container-name
+```
+
+## Clean Unused Resources
+
+```bash
+docker system prune
+```
+
+## Debug Checklist
+
+- Confirm the container is running.
+- Check port mapping.
+- Read application logs.
+- Check environment variables.
+- Verify network connectivity.
