@@ -1,3 +1,5 @@
+import { CopyCode } from "@/components/copy-code";
+
 type MarkdownProps = {
   content: string;
 };
@@ -35,11 +37,7 @@ export function Markdown({ content }: MarkdownProps) {
     <div className="space-y-6">
       {blocks.map((block, index) => {
         if (block.type === "code") {
-          return (
-            <pre className="overflow-x-auto rounded-lg bg-slate-950 p-4 text-sm leading-6 text-slate-100" key={`${block.value}-${index}`}>
-              <code>{block.value}</code>
-            </pre>
-          );
+          return <CopyCode code={block.value} key={`${block.value}-${index}`} />;
         }
 
         return block.value.split(/\n{2,}/).filter(Boolean).map((textBlock) => {
@@ -56,6 +54,14 @@ export function Markdown({ content }: MarkdownProps) {
               <h2 className="pt-4 text-2xl font-semibold tracking-tight text-slate-950" key={textBlock}>
                 {textBlock.replace("## ", "")}
               </h2>
+            );
+          }
+
+          if (textBlock.startsWith("### ")) {
+            return (
+              <h3 className="pt-2 text-lg font-semibold text-slate-950" key={textBlock}>
+                {textBlock.replace("### ", "")}
+              </h3>
             );
           }
 

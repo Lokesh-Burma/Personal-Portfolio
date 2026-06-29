@@ -9,11 +9,19 @@ tools: ["Vercel", "Next.js", "GitHub"]
 
 ## Local Development
 
+### Start the local dev server
+
+Use this to preview the Next.js app locally.
+
 ```bash
 pnpm dev
 ```
 
-## Production Build
+## Build Verification
+
+### Run a production build
+
+Use this before pushing changes to catch TypeScript, routing, or static generation issues.
 
 ```bash
 pnpm build
@@ -21,26 +29,87 @@ pnpm build
 
 ## Commit And Push
 
+### Stage all changed files
+
+Use this to prepare your current changes for commit.
+
 ```bash
 git add .
+```
+
+### Commit the update
+
+Use this to create a local Git commit.
+
+```bash
 git commit -m "Update portfolio"
+```
+
+### Push to GitHub
+
+Use this to trigger Vercel auto-deployment when pushing to the production branch.
+
+```bash
 git push
 ```
 
 ## Vercel Defaults
 
+### Framework preset
+
+Use this setting when importing the repository into Vercel.
+
 ```txt
 Framework: Next.js
+```
+
+### Install command
+
+Use this when Vercel does not auto-detect the package manager.
+
+```txt
 Install command: pnpm install
+```
+
+### Build command
+
+Use this as the production build command.
+
+```txt
 Build command: pnpm build
+```
+
+### Output directory
+
+Leave this empty for a standard Next.js app. Vercel handles the output.
+
+```txt
 Output directory: leave empty
 ```
 
 ## Verify Live Routes
 
+### Check the homepage
+
+Use this to confirm the live site returns a successful response.
+
 ```bash
 curl -I https://your-site.vercel.app/
+```
+
+### Check the blog listing
+
+Use this to confirm the blog route is live.
+
+```bash
 curl -I https://your-site.vercel.app/blog
+```
+
+### Check the projects listing
+
+Use this to confirm the projects route is live.
+
+```bash
 curl -I https://your-site.vercel.app/projects
 ```
 
