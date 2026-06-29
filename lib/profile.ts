@@ -12,15 +12,28 @@ export const profile = {
 export const skills = [
   {
     group: "Core Backend",
-    items: ["PHP", "TypeScript", "JavaScript", "Node.js", "NestJS", "REST APIs"],
+    items: ["PHP", "TypeScript", "JavaScript", "Python", "Node.js", "NestJS", "REST APIs"],
   },
   {
     group: "Architecture",
-    items: ["Microservices", "Distributed Systems", "State Machines", "Retry Workflows"],
+    items: ["Microservices", "Distributed Systems", "State Machines", "Retry Workflows", "System Design"],
   },
   {
     group: "Cloud And Data",
-    items: ["AWS", "S3", "SQS", "Lambda", "ECS/Fargate", "PostgreSQL", "DynamoDB", "Athena", "Apache Iceberg"],
+    items: [
+      "AWS",
+      "EC2",
+      "S3",
+      "SQS",
+      "Lambda",
+      "ECS/Fargate",
+      "RDS",
+      "PostgreSQL",
+      "DynamoDB",
+      "Redis",
+      "Athena",
+      "Apache Iceberg",
+    ],
   },
   {
     group: "Reliability",
@@ -28,11 +41,31 @@ export const skills = [
   },
   {
     group: "AI Engineering",
-    items: ["Claude Code", "MCP", "Langflow", "RCA Workflows", "Prompt Engineering"],
+    items: ["Claude Code", "MCP", "Langflow", "RCA Workflows", "Prompt Engineering", "Embedding Search"],
   },
   {
-    group: "Delivery",
-    items: ["Docker", "Git", "AWS CodeCommit", "CodePipeline", "Production Rollouts"],
+    group: "Delivery And Tools",
+    items: ["Docker", "Git", "AWS CodeCommit", "CodePipeline", "Azure DevOps", "Postman", "DBeaver", "RedisInsight"],
+  },
+];
+
+export const credentials = [
+  {
+    title: "AWS Certified Solutions Architect - Associate",
+    detail: "Amazon Web Services, Dec 2021",
+  },
+];
+
+export const education = [
+  {
+    degree: "Master of Technology, Cloud Computing",
+    school: "BITS Pilani, Work Integrated Learning Program",
+    period: "2025",
+  },
+  {
+    degree: "Bachelor of Technology, Computer Science and Technology",
+    school: "Lovely Professional University",
+    period: "2021",
   },
 ];
 
@@ -87,6 +120,16 @@ export const experience = [
       "Contributed to the transition from a legacy PHP monolith to scalable backend microservices.",
       "Improved maintainability and supported faster deployment cycles through service decomposition.",
       "Worked across SaaS backup workflows, backend APIs, data persistence, and operational diagnostics.",
+    ],
+  },
+  {
+    role: "Software Engineer Intern",
+    company: "SysCloud",
+    location: "Remote",
+    period: "Nov 2020 - Apr 2021",
+    bullets: [
+      "Supported backend workload monitoring using CloudWatch, Grafana, and Kibana.",
+      "Analyzed logs, helped identify recurring production issues, and partnered with engineers on fixes and release coordination.",
     ],
   },
 ];
