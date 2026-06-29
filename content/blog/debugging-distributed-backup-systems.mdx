@@ -7,11 +7,121 @@ summary: "How structured error taxonomies, retry history, and logs turn noisy ba
 
 # Debugging Distributed Backup Systems
 
-Draft notes to expand:
+Distributed backup systems are difficult to debug because one customer-visible failure may pass through many services, storage systems, queues, retry loops, and post-processing steps.
 
-- What makes backup failures hard to classify
-- Error-code taxonomy design
-- Retry history and status model
-- Log correlation
-- User-facing diagnostics
-- Support escalation reduction
+The key is to convert noisy operational behavior into structured signals.
+
+## Why Backup Failures Are Hard
+
+Backup systems often deal with:
+
+- Large data volumes.
+- External SaaS APIs.
+- Rate limits.
+- Partial failures.
+- Retry loops.
+- File-level and record-level restore behavior.
+- Post-processing pipelines.
+- Customer-specific edge cases.
+
+This means a single failed item may not tell the full story.
+
+## Start With Failure Classification
+
+A useful debugging system needs a clear taxonomy.
+
+At minimum, classify failures into:
+
+- Retrying failures.
+- Permanently failed items.
+- User-actionable errors.
+- Platform errors.
+- Backup errors.
+- Restore errors.
+- Export errors.
+
+Without classification, every failure becomes a custom investigation.
+
+## Preserve Retry History
+
+Retry systems can accidentally hide useful evidence.
+
+For example, if an item fails twice and later succeeds, the final state may look healthy while earlier failures still explain storage discrepancies or customer confusion.
+
+Retry history should preserve:
+
+- Attempt status.
+- Error message.
+- Error code.
+- Data size.
+- Timestamp or ordering.
+
+This gives support and engineering a timeline instead of a single final state.
+
+## Standardize Status Values
+
+Status values should mean the same thing across services.
+
+If one service says failed, another says ineligible, and another says backup-error without shared definitions, debugging becomes harder than it needs to be.
+
+Standard status models make dashboards, support tools, and customer-facing explanations much more reliable.
+
+## Expand Error-Code Coverage
+
+Error-code coverage directly affects observability quality.
+
+In one reliability initiative, classification coverage expanded from 350 to 2,957 error codes.
+
+That scale matters because more known errors can be mapped to useful categories instead of falling into generic failure buckets.
+
+## Use Logs, But Do Not Depend Only On Logs
+
+Logs are necessary, but logs alone are not enough.
+
+A better debugging flow combines:
+
+- Error codes.
+- Retry history.
+- Customer-facing status.
+- Service logs.
+- Database state.
+- Dashboard metrics.
+- Previous incident patterns.
+
+The best RCA comes from correlated signals, not one source.
+
+## Where AI Agents Help
+
+AI debugging agents can help when they are grounded in real operational data.
+
+Useful inputs include:
+
+- Work-item details.
+- Logs from systems like Kibana.
+- Database context.
+- Historical defect patterns.
+- Known resolution paths.
+
+The agent should generate hypotheses and fix plans, but engineers still need to validate the evidence.
+
+## Operational Dashboards
+
+Dashboards should answer focused operational questions.
+
+Examples:
+
+- Which users are stuck during onboarding?
+- Which items are retrying?
+- Which failures are permanently ineligible?
+- Which clouds have increasing incident volume?
+- Which post-processing steps are failing?
+
+Dashboards are most useful when they drive action.
+
+## Lessons Learned
+
+- Debuggability is a product feature for internal teams and support.
+- Retry success should not erase previous failure context.
+- Error taxonomy quality improves customer explanations.
+- AI agents need logs, database signals, and historical patterns to be useful.
+- Reliability work should reduce both failures and confusion.

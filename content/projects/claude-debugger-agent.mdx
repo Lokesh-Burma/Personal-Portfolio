@@ -1,17 +1,102 @@
 ---
 title: "Claude Debugger Agent"
-stack: ["Claude", "Azure DevOps", "Kibana", "Databases", "Prompt Engineering"]
-summary: "An AI-assisted diagnostic agent that connects operational signals from work items, logs, and databases to recommend fixes."
-outcome: "Reached 85%+ accuracy in fix recommendations and reduced manual triage effort."
+stack: ["Claude Code", "MCP", "Azure DevOps", "Kibana", "Databases", "Prompt Engineering"]
+summary: "An AI-assisted diagnostic agent that connects work items, logs, database signals, and historical analysis to recommend root causes and fix plans."
+outcome: "Reached 85%+ fix-plan accuracy and reduced manual incident-analysis effort across engineering teams."
 ---
 
 # Claude Debugger Agent
 
-Case-study outline:
+Production debugging in distributed SaaS systems is often slow because the relevant clues are spread across work items, logs, databases, historical analysis, and team knowledge.
 
-- Problem
-- Input sources
-- Agent workflow
-- Prompting strategy
-- Accuracy measurement
-- Results
+This project explored how an AI debugging agent could reduce manual triage effort and make root-cause analysis more repeatable.
+
+## Problem
+
+Incident analysis was heavily manual.
+
+Engineers had to:
+
+- Read work items.
+- Search logs.
+- Correlate errors across systems.
+- Inspect database state.
+- Review previous fixes.
+- Produce a fix plan.
+
+This process worked, but it was inconsistent and depended on individual experience.
+
+## Goal
+
+The goal was to build an AI-assisted debugging workflow that could:
+
+- Fetch relevant issue context.
+- Pull operational signals from logs.
+- Use database context where needed.
+- Generate a probable root cause.
+- Recommend a fix plan.
+- Improve over time through better prompts and use cases.
+
+## My Role
+
+I designed and built the agent end to end.
+
+My ownership included:
+
+- Claude Code sub-agent design.
+- MCP server setup.
+- Azure DevOps integration.
+- Kibana integration.
+- Database-tool integration.
+- Prompt design and reasoning flow.
+- Setup guides and team onboarding.
+- Knowledge-transfer sessions for engineers.
+
+## Agent Workflow
+
+The debugging flow followed a structured process.
+
+- Start with an issue or incident.
+- Fetch work-item details.
+- Retrieve related log signals.
+- Pull previous analysis where available.
+- Inspect database context when required.
+- Generate root-cause hypotheses.
+- Produce a fix plan.
+- Capture learnings for future improvement.
+
+## Prompting Approach
+
+The agent needed more than a generic prompt.
+
+The useful pattern was to guide it through:
+
+- What system area to inspect.
+- What signals matter.
+- What failure classes are common.
+- How to avoid jumping to conclusions.
+- How to produce an actionable fix plan.
+
+I also incorporated structured RCA approaches such as 5 Whys, fault-tree thinking, and hypothesis validation.
+
+## Adoption
+
+The agent was not treated as a private experiment. I created setup guides and conducted KT sessions so other engineers could use it independently.
+
+That mattered because an internal tool creates more value when the team can use it without depending on the original author.
+
+## Impact
+
+- Targeted a 50% reduction in debugging time.
+- Achieved 85%+ fix-plan accuracy.
+- Reduced part of the manual daily incident-analysis effort.
+- Helped multiple backend teams adopt AI-assisted debugging.
+- Created a base for future agent workflows and knowledge-base use cases.
+
+## Lessons Learned
+
+- AI debugging works better when it is grounded in real operational data.
+- Tool integration is as important as the model prompt.
+- A useful fix plan needs evidence, not just a confident explanation.
+- Adoption requires documentation, setup guides, and team enablement.
+- Agent workflows should evolve from recurring production patterns.

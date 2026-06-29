@@ -7,12 +7,118 @@ summary: "Notes on phased write routing, state machines, cache strategy, and ope
 
 # Zero-Downtime Data Migration Patterns for SaaS Backends
 
-Draft notes to expand:
+Large data migrations are risky because they change where data is written, where data is read from, and how the application decides which storage path to trust.
 
-- Why the migration was needed
-- Source and target data model
-- Write routing strategy
-- State-machine phases
-- Cache strategy
-- Rollback and validation plan
-- Operational learnings
+In a SaaS backend, the safest migration is usually not one big switch. It is a controlled set of states that let you move tenants gradually, validate behavior, and roll back when needed.
+
+## The Migration Context
+
+The system had high-volume mail metadata tables in PostgreSQL. Some tables had billions of rows and were major RDS storage cost drivers.
+
+The target architecture moved older historical data to S3 Tables using Apache Iceberg and Athena, while keeping recent operational data in PostgreSQL.
+
+DynamoDB was introduced as a lookup cache to help the application decide where to read data from.
+
+## Pattern 1: Treat Migration As Runtime State
+
+Avoid thinking of migration as only a script.
+
+For large production systems, migration should often become runtime state that the application understands.
+
+Useful migration state can answer:
+
+- Is this tenant still writing only to the old store?
+- Is dual-write active?
+- Should reads prefer the cache?
+- Is fallback allowed?
+- Has this tenant completed migration?
+
+## Pattern 2: Use Phased Write Routing
+
+A phased write model reduces blast radius.
+
+Example states:
+
+- State 0: Add cache dual writes before migration begins.
+- State 1: Write to S3, RDS, and cache.
+- State 2: Read through cache first, then fall back to RDS.
+
+This approach lets the system gain confidence before moving more traffic.
+
+## Pattern 3: Design Fallback Before Rollout
+
+Fallback cannot be an afterthought.
+
+Before enabling a new storage path, decide:
+
+- What happens if S3 write fails?
+- What happens if cache lookup misses?
+- When should RDS remain the source of truth?
+- How do we isolate one tenant from another?
+- How do we detect bad migration state?
+
+Good fallback behavior is what makes a migration operationally safe.
+
+## Pattern 4: Validate With Canary Rollouts
+
+Canary rollout is essential for storage migrations.
+
+A good canary should validate:
+
+- Write correctness.
+- Read correctness.
+- Cache consistency.
+- Tenant-level isolation.
+- Production metrics.
+- Customer-impact signals.
+
+The goal is not just to prove the happy path. The goal is to discover edge cases before a broad rollout.
+
+## Pattern 5: Keep Migration State Per Tenant
+
+Per-tenant migration state is powerful in SaaS systems.
+
+It lets you:
+
+- Move one business at a time.
+- Pause a risky tenant.
+- Continue safe tenants.
+- Roll back specific cases.
+- Avoid global blast radius.
+
+This is much safer than a single global feature flag for all customers.
+
+## Pattern 6: Cache With Intent
+
+DynamoDB was useful as a lookup cache because it helped route reads without repeatedly pressuring the relational database.
+
+But the cache needs clear semantics:
+
+- What is cached?
+- When is it written?
+- What happens on a miss?
+- Can stale cache entries cause incorrect reads?
+- Which store remains authoritative during each state?
+
+Cache design should be part of the migration design.
+
+## Pattern 7: Keep Observability Close To The Migration
+
+A migration should have metrics and logs that answer:
+
+- Which state is active?
+- How many tenants are in each state?
+- Are fallback reads increasing?
+- Are cache misses expected?
+- Are S3 writes succeeding?
+- Are customers seeing errors?
+
+Without observability, a zero-downtime migration is mostly hope.
+
+## Lessons Learned
+
+- State machines make migrations easier to reason about.
+- Dual writes need careful validation.
+- Read-path changes are often more complex than write-path changes.
+- Tenant-level control reduces production risk.
+- Canary rollout should be treated as part of the architecture, not just release process.

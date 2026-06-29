@@ -1,18 +1,94 @@
 ---
 title: "RDS to S3 Table Migration"
 stack: ["PostgreSQL", "S3", "Apache Iceberg", "Athena", "DynamoDB", "AWS"]
-summary: "A petabyte-scale data architecture initiative moving PostgreSQL data into S3-backed Apache Iceberg tables with Athena access."
-outcome: "Reduced database load and enabled a lower-cost analytical storage path."
+summary: "A large-scale data architecture initiative moving high-volume mail metadata from PostgreSQL into S3-backed Apache Iceberg tables with Athena access."
+outcome: "Reduced RDS storage pressure and enabled a safer phased migration model for billion-row metadata tables."
 ---
 
 # RDS to S3 Table Migration
 
-Case-study outline:
+This project focused on moving high-volume Gmail and Outlook metadata from PostgreSQL into S3 Tables using Apache Iceberg and Athena, while keeping recent operational data in PostgreSQL.
 
-- Problem
-- Constraints
-- Architecture
-- Migration phases
-- Caching strategy
-- Validation
-- Results
+The core challenge was not only moving data. The harder part was changing read and write paths safely while the production system continued serving customers.
+
+## Problem
+
+Two mail metadata tables had grown to billions of rows and had become major RDS storage cost drivers.
+
+The migration goal was to:
+
+- Keep recent operational data in PostgreSQL.
+- Move historical data older than 2 years to S3 Tables.
+- Use Apache Iceberg and Athena for query access.
+- Use DynamoDB as a lookup cache.
+- Avoid customer impact during rollout.
+
+## My Role
+
+I owned the backend graph-service implementation for both Gmail and Outlook migration flows.
+
+My ownership included:
+
+- Implementing migration-state handling.
+- Updating write paths.
+- Updating read paths.
+- Adding DynamoDB lookup behavior.
+- Supporting multiple design iterations.
+- Validating the change in production canary rollout.
+
+## Architecture
+
+The migration used a phased state-machine approach.
+
+- State 0: Add DynamoDB dual writes for new Gmail and Outlook entries before migration starts.
+- State 1: Enable direct writes to S3, RDS, and DynamoDB.
+- State 2: Prefer DynamoDB-first reads with RDS fallback.
+
+This let the system move incrementally instead of switching all traffic at once.
+
+## Why A State Machine Helped
+
+A state machine made the rollout safer because each business or tenant could move through the migration independently.
+
+It also helped with:
+
+- Canary validation.
+- Fallback behavior.
+- Partial migration control.
+- Safer production debugging.
+- Avoiding broad impact on unrelated customers.
+
+## DynamoDB Lookup Cache
+
+DynamoDB was used as a lookup layer so the read path could avoid unnecessary RDS pressure.
+
+The read strategy was:
+
+- Check DynamoDB first.
+- Use cached routing metadata to decide where data lives.
+- Fall back to RDS when needed.
+- Keep behavior compatible during migration.
+
+## Production Rollout
+
+The migration reached production canary rollout in March 2026.
+
+Before wider rollout, sanity testing was completed with test domains and the migration state was controlled per business.
+
+The rollout goal was simple: enable the new storage path without affecting customers outside the migration scope.
+
+## Impact
+
+- Supported billion-row metadata migration from PostgreSQL to S3 Tables.
+- Reduced pressure on RDS storage growth.
+- Introduced safer phased migration controls.
+- Enabled DynamoDB-first lookup behavior.
+- Completed production canary rollout with zero impact on unrelated customers.
+
+## Lessons Learned
+
+- Large migrations need runtime control, not just migration scripts.
+- Read-path migration is often harder than write-path migration.
+- Fallback behavior must be designed before production rollout.
+- Canary deployments are essential when changing storage architecture.
+- Cache design should be tied to migration-state design, not added as an afterthought.

@@ -7,7 +7,7 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/lokeshburma",
   resumeHref: "/Lokesh_Burma_Resume_Latest.pdf",
   summary:
-    "Backend-focused software engineer with 5 years of experience building and scaling cloud-native SaaS systems. Strong in high-throughput, low-latency backend architecture with a practical focus on reliability, performance, and cost efficiency.",
+    "Backend-focused software engineer with 5 years of experience building and scaling cloud-native SaaS systems. Strong in high-throughput, low-latency backend architecture with a practical focus on reliability, performance, cost efficiency, and operational excellence.",
 };
 
 export const skills = [
@@ -35,15 +35,21 @@ export const skills = [
     group: "Observability",
     items: ["Grafana", "ELK", "CloudWatch", "Kibana"],
   },
+  {
+    group: "AI Engineering",
+    items: ["Claude Code", "MCP", "Langflow", "RCA Workflows", "Prompt Engineering"],
+  },
 ];
 
 export const highlights = [
-  "Co-architected a petabyte-scale PostgreSQL to S3 migration using Apache Iceberg and Athena.",
-  "Designed a 3-phase state-machine backend architecture for zero-downtime write routing between RDS and S3.",
-  "Implemented DynamoDB caching that reduced database load by 40%.",
-  "Built an AI-powered debugging agent with Claude, Azure DevOps, Kibana, and database integrations.",
-  "Expanded backup failure classification from 350 to 2,957 error codes to improve self-service diagnostics.",
-  "Contributed to decomposing a PHP monolith into scalable microservices.",
+  "Owned backend graph-service changes for a billion-row PostgreSQL to S3 Tables migration using Apache Iceberg, Athena, and DynamoDB lookup caching.",
+  "Implemented a phased migration state machine covering DynamoDB dual writes, direct S3 writes, and DynamoDB-first reads with RDS fallback.",
+  "Delivered production canary rollout for large-scale mail metadata migration with zero impact on unrelated customers.",
+  "Expanded backup failure classification from 350 to 2,957 error codes across backup, restore, export, and post-processing workflows.",
+  "Built a Claude-powered debugging agent with Azure DevOps, Kibana, and database integrations, reaching 85%+ fix-plan accuracy.",
+  "Resolved 196 production work items across Gmail, Outlook, Drive, Slack, Salesforce, Cloud Mover, and related platform areas.",
+  "Built Grafana monitoring for onboarding pending users across trial and paid accounts to improve operational visibility.",
+  "Delivered 15 user stories and owned 17 production deployments while supporting incident and customer-ticket responsibilities.",
 ];
 
 export const experience = [
@@ -53,11 +59,14 @@ export const experience = [
     location: "Hyderabad, India",
     period: "May 2023 - Present",
     bullets: [
-      "Co-architected migration of billions of rows from PostgreSQL on RDS to S3 using Apache Iceberg and Athena.",
-      "Designed backend state-machine flows to route writes between RDS and S3 without downtime.",
-      "Implemented DynamoDB caching patterns that reduced database load by 40%.",
-      "Built a Claude-powered debugging agent for automated root-cause analysis across Azure DevOps, Kibana, and database signals.",
-      "Led failure classification and observability improvements across backup systems.",
+      "Owned backend implementation for Gmail and Outlook metadata migration from PostgreSQL to S3 Tables, covering billions of rows and reducing RDS storage pressure.",
+      "Designed and implemented a phased migration state machine with DynamoDB dual writes, direct S3 writes, and DynamoDB-first reads with RDS fallback.",
+      "Delivered eligible and ineligible item classification across backup, restore, and export failures, improving customer visibility into storage discrepancies.",
+      "Expanded error-code coverage from 350 to 2,957 codes and standardized retry-history models with attempt-level status, error code, and data-size details.",
+      "Built a Claude-powered debugging agent for automated root-cause analysis using Azure DevOps, Kibana, database signals, and issue-based fix-plan generation.",
+      "Created setup guides and KT sessions that helped engineering teams adopt AI-assisted debugging workflows independently.",
+      "Resolved 196 production work items across multiple cloud workloads and owned Salesforce cloud maintenance during the review period.",
+      "Built Grafana monitoring for onboarding pending users and contributed to infrastructure efficiency work such as ARM migration support.",
     ],
   },
   {
@@ -78,25 +87,25 @@ export const projects = [
     slug: "rds-to-s3-table-migration",
     title: "RDS to S3 Table Migration",
     summary:
-      "A petabyte-scale data architecture initiative moving PostgreSQL data into S3-backed Apache Iceberg tables with Athena access.",
+      "A large-scale data architecture initiative moving high-volume mail metadata from PostgreSQL into S3-backed Apache Iceberg tables with Athena access.",
     stack: ["PostgreSQL", "S3", "Apache Iceberg", "Athena", "DynamoDB", "AWS"],
-    outcome: "Reduced database load and enabled a lower-cost analytical storage path.",
+    outcome: "Reduced RDS storage pressure and enabled a safer phased migration model for billion-row metadata tables.",
   },
   {
     slug: "claude-debugger-agent",
     title: "Claude Debugger Agent",
     summary:
-      "An AI-assisted diagnostic agent that connects operational signals from work items, logs, and databases to recommend fixes.",
-    stack: ["Claude", "Azure DevOps", "Kibana", "Databases", "Prompt Engineering"],
-    outcome: "Reached 85%+ accuracy in fix recommendations and reduced manual triage effort.",
+      "An AI-assisted diagnostic agent that connects work items, logs, database signals, and historical analysis to recommend root causes and fix plans.",
+    stack: ["Claude Code", "MCP", "Azure DevOps", "Kibana", "Databases", "Prompt Engineering"],
+    outcome: "Reached 85%+ fix-plan accuracy and reduced manual incident-analysis effort across engineering teams.",
   },
   {
     slug: "backup-failure-observability",
     title: "Backup Failure Classification & Observability",
     summary:
-      "A reliability initiative that standardized failure models, retry history, and user-facing diagnostics across backup workflows.",
+      "A reliability initiative that standardized failure models, retry history, error-code coverage, and customer-facing diagnostics across backup workflows.",
     stack: ["Node.js", "PHP", "ELK", "Grafana", "CloudWatch"],
-    outcome: "Expanded classification coverage from 350 to 2,957 error codes.",
+    outcome: "Expanded classification coverage from 350 to 2,957 error codes and improved support visibility.",
   },
 ];
 
