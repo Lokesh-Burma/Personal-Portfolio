@@ -1,6 +1,5 @@
 type TechItem = {
   name: string;
-  icon: string;
   slug: string;
   color: string;
   tone: string;
@@ -32,10 +31,7 @@ export function TechGrid({ items }: TechGridProps) {
               }}
             />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-950">{item.name}</p>
-            <p className="mt-0.5 text-xs font-medium text-slate-500">{item.icon}</p>
-          </div>
+          <p className="text-sm font-semibold text-slate-950">{item.name}</p>
         </div>
       ))}
     </div>
