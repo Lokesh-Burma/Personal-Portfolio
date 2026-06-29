@@ -1,4 +1,5 @@
 import { Section } from "@/components/section";
+import { SkillMap } from "@/components/skill-map";
 import { credentials, education, profile, skills } from "@/lib/profile";
 
 export default function AboutPage() {
@@ -46,14 +47,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {skills.map((skill) => (
-              <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" key={skill.group}>
-                <h3 className="font-semibold text-slate-950">{skill.group}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{skill.items.join(", ")}</p>
-              </div>
-            ))}
-          </div>
+          <SkillMap items={skills} className="grid gap-4 md:grid-cols-2" />
         </div>
       </Section>
     </main>

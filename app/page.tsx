@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PostCard, ProjectCard } from "@/components/cards";
 import { Section } from "@/components/section";
+import { SkillMap } from "@/components/skill-map";
 import { TechGrid } from "@/components/tech-grid";
 import { getAllBlogPosts, getAllCheatSheets, getAllProjects } from "@/lib/content";
 import { highlights, impactAreas, pipelineProjects, profile, skills, techHighlights } from "@/lib/profile";
@@ -93,14 +94,7 @@ export default function Home() {
         title="Tools and systems I have worked with"
         intro="Grouped by how I use them in backend engineering work, instead of as one long keyword list."
       >
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {skills.map((skill) => (
-            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" key={skill.group}>
-              <h3 className="font-semibold text-slate-950">{skill.group}</h3>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{skill.items.join(", ")}</p>
-            </div>
-          ))}
-        </div>
+        <SkillMap items={skills} />
       </Section>
 
       <Section

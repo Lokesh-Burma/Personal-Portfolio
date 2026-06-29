@@ -12,6 +12,7 @@ export const profile = {
 export const skills = [
   {
     group: "Backend Engineering",
+    description: "Languages, APIs, and service patterns I use to build maintainable backend features.",
     items: [
       "PHP",
       "TypeScript",
@@ -28,6 +29,7 @@ export const skills = [
   },
   {
     group: "Architecture And Reliability",
+    description: "System design practices for dependable distributed services and failure-aware workflows.",
     items: [
       "Microservices",
       "Distributed Systems",
@@ -43,6 +45,7 @@ export const skills = [
   },
   {
     group: "Cloud And Data",
+    description: "AWS services, storage systems, and data patterns used in SaaS backend platforms.",
     items: [
       "AWS",
       "IAM",
@@ -63,6 +66,7 @@ export const skills = [
   },
   {
     group: "Observability",
+    description: "Tools and practices for making production behavior easier to inspect and debug.",
     items: [
       "Grafana",
       "ELK",
@@ -76,6 +80,7 @@ export const skills = [
   },
   {
     group: "AI-Enabled Engineering",
+    description: "AI-assisted workflows for debugging, RCA, documentation, and engineering acceleration.",
     items: [
       "Claude Code",
       "MCP",
@@ -89,6 +94,7 @@ export const skills = [
   },
   {
     group: "Delivery And Tools",
+    description: "Version control, delivery pipelines, deployment tooling, and local engineering utilities.",
     items: [
       "Docker",
       "Git",
