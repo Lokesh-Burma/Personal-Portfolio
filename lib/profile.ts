@@ -50,16 +50,16 @@ export const skills = [
 ];
 
 export const techHighlights = [
-  { name: "PHP", icon: "PHP", tone: "bg-indigo-50 text-indigo-800 border-indigo-200" },
-  { name: "TypeScript", icon: "TS", tone: "bg-blue-50 text-blue-800 border-blue-200" },
-  { name: "Node.js", icon: "N", tone: "bg-emerald-50 text-emerald-800 border-emerald-200" },
-  { name: "NestJS", icon: "NS", tone: "bg-rose-50 text-rose-800 border-rose-200" },
-  { name: "AWS", icon: "AWS", tone: "bg-amber-50 text-amber-800 border-amber-200" },
-  { name: "Docker", icon: "D", tone: "bg-sky-50 text-sky-800 border-sky-200" },
-  { name: "PostgreSQL", icon: "PG", tone: "bg-cyan-50 text-cyan-800 border-cyan-200" },
-  { name: "DynamoDB", icon: "DB", tone: "bg-violet-50 text-violet-800 border-violet-200" },
-  { name: "Grafana", icon: "G", tone: "bg-orange-50 text-orange-800 border-orange-200" },
-  { name: "Claude", icon: "AI", tone: "bg-teal-50 text-teal-800 border-teal-200" },
+  { name: "PHP", icon: "PHP", slug: "php", color: "777BB4", tone: "bg-indigo-50 border-indigo-200" },
+  { name: "TypeScript", icon: "TS", slug: "typescript", color: "3178C6", tone: "bg-blue-50 border-blue-200" },
+  { name: "Node.js", icon: "N", slug: "nodedotjs", color: "5FA04E", tone: "bg-emerald-50 border-emerald-200" },
+  { name: "NestJS", icon: "NS", slug: "nestjs", color: "E0234E", tone: "bg-rose-50 border-rose-200" },
+  { name: "AWS", icon: "AWS", slug: "amazonwebservices", color: "FF9900", tone: "bg-amber-50 border-amber-200" },
+  { name: "Docker", icon: "D", slug: "docker", color: "2496ED", tone: "bg-sky-50 border-sky-200" },
+  { name: "PostgreSQL", icon: "PG", slug: "postgresql", color: "4169E1", tone: "bg-cyan-50 border-cyan-200" },
+  { name: "DynamoDB", icon: "DB", slug: "amazondynamodb", color: "4053D6", tone: "bg-violet-50 border-violet-200" },
+  { name: "Grafana", icon: "G", slug: "grafana", color: "F46800", tone: "bg-orange-50 border-orange-200" },
+  { name: "Claude", icon: "AI", slug: "anthropic", color: "191919", tone: "bg-teal-50 border-teal-200" },
 ];
 
 export const pipelineProjects = [
