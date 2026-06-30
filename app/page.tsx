@@ -68,8 +68,8 @@ export default function Home() {
 
       <Section
         eyebrow="Positioning"
-        title="Backend systems with scale, reliability, and AI-assisted operations."
-        intro="The portfolio is organized around the work that best represents my engineering direction: distributed backend architecture, production reliability, and practical AI tooling for engineering teams."
+        title="Backend systems for reliable SaaS backup workloads."
+        intro="The portfolio is organized around the work that best represents my engineering direction: multi-tenant backup data flows, production reliability, operational diagnostics, and practical AI tooling for engineering teams."
       >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {impactAreas.map((area) => (

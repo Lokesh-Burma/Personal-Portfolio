@@ -243,20 +243,20 @@ export const highlights = [
 
 export const impactAreas = [
   {
-    title: "Large-Scale Backend Architecture",
-    text: "Worked on billion-row data migration patterns using PostgreSQL, S3 Tables, Apache Iceberg, Athena, DynamoDB, and phased state-machine rollouts.",
+    title: "Multi-Tenant Backup Architecture",
+    text: "Built backend write-routing for migrated SaaS backup data, using phased state-machine statuses to safely decide RDS vs S3 writes without corrupting tenant data.",
   },
   {
-    title: "Reliability And Observability",
-    text: "Improved failure classification, retry-history tracking, error-code coverage, and customer/support visibility across backup workflows.",
+    title: "Reliability And Diagnostics",
+    text: "Improved backup failure handling by classifying temporary, permanent, and customer-action-needed errors while preserving retry history for support and debugging.",
   },
   {
     title: "AI-Enabled Backend Engineering",
-    text: "Built Claude-powered debugging workflows with MCP integrations, log analysis, database context, and fix-plan generation.",
+    text: "Created Claude-assisted debugging workflows that combine issue context, logs, database checks, and structured RCA prompts to support root-cause analysis.",
   },
   {
     title: "Production Ownership",
-    text: "Owned backend features from design through canary rollout, documentation, team enablement, and operational follow-through.",
+    text: "Implemented backend changes inside a large production codebase with attention to rollout safety, data correctness, operational visibility, and team handoff.",
   },
 ];
 
