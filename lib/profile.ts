@@ -4,7 +4,7 @@ export const profile = {
   location: "Hyderabad, India",
   email: "lokesh.burma@outlook.com",
   linkedin: "https://www.linkedin.com/in/lokeshburma",
-  resumeHref: "/Lokesh_Burma_Resume_Latest.pdf",
+  resumeHref: "/Lokesh_Burma_Resume.pdf",
   summary:
     "Senior Software Engineer focused on cloud-native backend systems, reliability, scalability, and AI-assisted engineering workflows. I build production backend systems that are easier to scale, observe, debug, and operate.",
 };
