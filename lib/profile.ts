@@ -323,18 +323,18 @@ export const experience = [
 export const projects = [
   {
     slug: "rds-to-s3-table-migration",
-    title: "RDS to S3 Table Migration",
+    title: "RDS to S3 Table Write Routing",
     summary:
-      "A large-scale data architecture initiative moving high-volume email metadata from PostgreSQL into S3-backed Apache Iceberg tables with Athena access.",
-    stack: ["PostgreSQL", "S3", "Apache Iceberg", "Athena", "DynamoDB", "AWS"],
+      "A backend write-routing initiative for multi-tenant SaaS backup data, safely deciding whether new Gmail and Outlook metadata should be written to RDS or S3-backed analytical storage.",
+    stack: ["PostgreSQL", "S3 Tables", "Apache Iceberg", "Athena", "Node.js", "AWS"],
     outcome:
-      "Reduced RDS storage pressure and enabled a safer phased migration model for billion-row metadata tables.",
+      "Reduced RDS growth pressure while preserving data correctness through phased state-machine routing, Athena lookups, and buffered bulk updates.",
   },
   {
     slug: "claude-debugger-agent",
     title: "Claude Debugger Agent",
     summary:
-      "An AI-assisted diagnostic agent that connects issue context, logs, database signals, and historical analysis to recommend root causes and fix plans.",
+      "An AI-assisted debugging workflow that connects issue context, logs, database checks, and structured RCA prompts to support root-cause analysis and fix planning.",
     stack: [
       "Claude Code",
       "MCP",
@@ -350,7 +350,7 @@ export const projects = [
     slug: "backup-failure-observability",
     title: "Backup Failure Classification & Observability",
     summary:
-      "A reliability initiative that standardized failure models, retry history, error-code coverage, and customer-facing diagnostics across backup workflows.",
+      "A reliability initiative that classified temporary, permanent, and customer-action-needed backup failures while preserving retry history for clearer diagnostics.",
     stack: ["Node.js", "PHP", "ELK", "Grafana", "CloudWatch"],
     outcome:
       "Expanded classification coverage from 350 to 2,957 error codes and improved support visibility.",

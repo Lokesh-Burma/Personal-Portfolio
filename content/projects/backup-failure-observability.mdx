@@ -1,15 +1,15 @@
 ---
 title: "Backup Failure Classification & Observability"
 stack: ["Node.js", "PHP", "ELK", "Grafana", "CloudWatch"]
-summary: "A reliability initiative that standardized failure models, retry history, error-code coverage, and customer-facing diagnostics across backup workflows."
-outcome: "Expanded classification coverage from 350 to 2,957 error codes and improved support visibility."
+summary: "A reliability initiative that classified temporary, permanent, and customer-action-needed backup failures while preserving retry history for clearer diagnostics."
+outcome: "Improved support visibility by standardizing backup failure categories, preserving retry history, and expanding structured error-code coverage."
 ---
 
 # Backup Failure Classification & Observability
 
 Backup systems fail in different ways. Some failures are temporary and should be retried. Some are permanent and need clear customer visibility. Some are platform issues that support and engineering need to diagnose quickly.
 
-This project improved how backup, restore, and export failures are classified, stored, and explained.
+This project improved how backup failures are classified, stored, and explained, especially across temporary, permanent, and customer-action-needed states.
 
 ## Problem
 
@@ -19,7 +19,7 @@ Internally, transient failures could keep retrying and increase storage-related 
 
 - Which items were still retrying.
 - Which items had permanently failed.
-- Which failures were user-actionable.
+- Which failures needed customer action.
 - Which errors mapped to known categories.
 - What happened across retry attempts.
 
@@ -29,8 +29,9 @@ The goal was to classify items into clearer states and make the system easier to
 
 The classification needed to cover:
 
-- Retrying items.
+- Temporary failures that should retry.
 - Permanently failed items.
+- Customer-action-needed failures.
 - Backup errors.
 - Restore errors.
 - Export errors.
@@ -67,8 +68,9 @@ This made it easier to understand what happened before a retry eventually succee
 
 The classification model introduced clearer categories:
 
-- Eligible items that are still retryable.
-- Ineligible items that have permanently failed.
+- Temporary failures that are still retryable.
+- Permanent failures that should not keep retrying.
+- Customer-action-needed failures that require clearer visibility.
 - Backup-error items that need distinct handling.
 
 The implementation also preserved previous error information when a retry later succeeded, so earlier failure context was not lost.

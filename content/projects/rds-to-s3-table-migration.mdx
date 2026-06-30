@@ -1,94 +1,154 @@
 ---
-title: "RDS to S3 Table Migration"
-stack: ["PostgreSQL", "S3", "Apache Iceberg", "Athena", "DynamoDB", "AWS"]
-summary: "A large-scale data architecture initiative moving high-volume email metadata from PostgreSQL into S3-backed Apache Iceberg tables with Athena access."
-outcome: "Reduced RDS storage pressure and enabled a safer phased migration model for billion-row metadata tables."
+title: "RDS to S3 Table Write Routing"
+stack: ["PostgreSQL", "S3 Tables", "Apache Iceberg", "Athena", "Node.js", "AWS"]
+summary: "A backend write-routing initiative for a multi-tenant SaaS backup platform, safely deciding whether new Gmail and Outlook backup metadata should be written to RDS or S3-backed analytical storage."
+outcome: "Reduced pressure on RDS growth while preserving data correctness through phased state-machine routing, Athena lookups, and buffered bulk updates."
 ---
 
-# RDS to S3 Table Migration
+# RDS to S3 Table Write Routing
 
-This project focused on moving high-volume email metadata from PostgreSQL into S3 Tables using Apache Iceberg and Athena, while keeping recent operational data in PostgreSQL.
+This project focused on changing the backend write path for high-volume email backup metadata in a multi-tenant SaaS backup platform.
 
-The core challenge was not only moving data. The harder part was changing read and write paths safely while the production system continued serving customers.
+The broader migration moved older Gmail and Outlook metadata from PostgreSQL/RDS into S3 Tables backed by Apache Iceberg and queried through Athena. The database team handled the migration of existing historical records. My work was on the backend application path for new inserts and updates after that migration.
+
+The core challenge was correctness.
+
+When the backup service received a metadata item from an upstream SaaS API, the backend had to decide whether that item was:
+
+- Already migrated to S3.
+- A new version of an existing backed-up item.
+- A completely new item that should remain in RDS.
+- An item that required an update to historical S3-backed data.
+
+Making the wrong decision could corrupt backup metadata, write to the wrong storage layer, or update the wrong tenant's data.
 
 ## Problem
 
-Two email metadata tables had grown to billions of rows and had become major RDS storage cost drivers.
+Some email metadata tables had grown significantly because SaaS backup workloads process large volumes of Gmail and Outlook data every day.
 
-The migration goal was to:
+This created two problems:
 
-- Keep recent operational data in PostgreSQL.
-- Move historical data older than 2 years to S3 Tables.
-- Use Apache Iceberg and Athena for query access.
-- Use DynamoDB as a lookup cache.
-- Avoid customer impact during rollout.
+- RDS storage cost kept increasing.
+- Large relational tables made some backend operations slower and harder to operate.
+
+The product direction was to keep recent operational data in RDS and move older historical data into S3-backed analytical storage.
+
+The backend application still needed to handle new data coming from SaaS APIs every day. That meant the write path needed to become storage-aware.
+
+## Goal
+
+The goal was to safely route backend writes and updates after historical migration.
+
+The backend needed to:
+
+- Decide whether to check RDS or S3 for an existing item.
+- Insert new items into the correct storage path.
+- Update existing records without corrupting migrated data.
+- Handle tenant-specific rollout state.
+- Avoid broad impact across unrelated customers.
+- Keep the system safe during phased migration.
 
 ## My Role
 
-I owned the backend graph-service implementation for both email migration flows.
+I implemented the backend application changes inside an existing large codebase.
 
 My ownership included:
 
-- Implementing migration-state handling.
-- Updating write paths.
-- Updating read paths.
-- Adding DynamoDB lookup behavior.
-- Supporting multiple design iterations.
-- Validating the change in production canary rollout.
+- Building phased state-machine handling for migration status values.
+- Updating backend insert/update routing logic.
+- Using Athena lookups to determine whether data already existed in S3 Tables.
+- Handling tenant-level state transitions.
+- Supporting design changes when DynamoDB lookup was removed due to cost concerns.
+- Adding an RDS update buffer queue after Athena update concurrency limits caused throttling.
+- Preserving ordering expectations for tenant-specific bulk updates.
+- Validating behavior to avoid incorrect writes or data corruption.
 
 ## Architecture
 
-The migration used a phased state-machine approach.
+The backend used phased migration statuses to decide how to route reads, inserts, and updates.
 
-- State 0: Add DynamoDB dual writes for new email entries before migration starts.
-- State 1: Enable direct writes to S3, RDS, and DynamoDB.
-- State 2: Prefer DynamoDB-first reads with RDS fallback.
+At a high level:
 
-This let the system move incrementally instead of switching all traffic at once.
+- One status represented the pre-migration or RDS-first behavior.
+- One status represented a mixed phase where the backend needed to check migrated storage.
+- One status represented the phase where older migrated data should be handled through S3-backed storage paths.
 
-## Why A State Machine Helped
+The exact status values were implementation details, but the important design was that behavior changed gradually by tenant or business context instead of switching all customers at once.
 
-A state machine made the rollout safer because each business or tenant could move through the migration independently.
+This let the system support controlled rollout, safer debugging, and fallback behavior.
 
-It also helped with:
+## Why State Machines Helped
 
-- Canary validation.
-- Fallback behavior.
-- Partial migration control.
-- Safer production debugging.
-- Avoiding broad impact on unrelated customers.
+A state-machine approach helped because the migration could not be treated as a single one-time cutover.
 
-## DynamoDB Lookup Cache
+Different tenants could be in different phases.
 
-DynamoDB was used as a lookup layer so the read path could avoid unnecessary RDS pressure.
+The backend needed to know:
 
-The read strategy was:
+- Whether older data had already been migrated.
+- Whether a lookup should happen in RDS or S3.
+- Whether an incoming item was new or already backed up.
+- Whether an update should go directly to RDS or be buffered for S3-backed storage.
 
-- Check DynamoDB first.
-- Use cached routing metadata to decide where data lives.
-- Fall back to RDS when needed.
-- Keep behavior compatible during migration.
+This made the migration safer because the routing decision was explicit instead of hidden inside scattered conditional logic.
 
-## Production Rollout
+## DynamoDB Design Iteration
 
-The migration reached production canary rollout in March 2026.
+One early design considered DynamoDB as a lookup layer for older migrated entries.
 
-Before wider rollout, sanity testing was completed with test domains and the migration state was controlled per business.
+The idea was to use DynamoDB to quickly determine whether an incoming backup item already existed in migrated storage.
 
-The rollout goal was simple: enable the new storage path without affecting customers outside the migration scope.
+After cost evaluation, that approach was removed.
+
+The backend instead queried S3-backed data through Athena to determine item existence and routing behavior.
+
+This was an important design lesson: a technically clean lookup path can still be the wrong production choice if the cost model does not work.
+
+## Athena Update Constraint
+
+Athena was useful for querying S3-backed tables, but direct update behavior introduced a production constraint.
+
+When concurrent update queries increased, Athena throttling became a problem.
+
+To avoid turning every backend update into an immediate Athena update, we introduced an update buffer queue in RDS.
+
+The flow became:
+
+- Backend identifies that an S3-backed record needs an update.
+- Backend writes an update request into an RDS buffer queue.
+- A separate service processes buffered updates in bulk.
+- Ordering is maintained per tenant to avoid conflicting updates.
+
+This reduced pressure on Athena and made update processing more controlled.
+
+## Production Safety
+
+The most important part of the work was preventing incorrect data updates.
+
+The backend needed to avoid:
+
+- Writing historical records back into the wrong storage layer.
+- Treating an existing migrated item as a completely new item.
+- Losing updates for already backed-up items.
+- Applying updates out of order for the same tenant.
+- Affecting tenants that were not yet part of the migration flow.
+
+This is why the feature needed phased state, careful lookup behavior, and buffering instead of a simple direct write change.
 
 ## Impact
 
-- Supported billion-row metadata migration from PostgreSQL to S3 Tables.
-- Reduced pressure on RDS storage growth.
-- Introduced safer phased migration controls.
-- Enabled DynamoDB-first lookup behavior.
-- Completed production canary rollout with zero impact on unrelated customers.
+- Implemented backend write-routing for a multi-tenant RDS to S3 Tables migration.
+- Helped reduce long-term RDS growth pressure for high-volume email metadata.
+- Supported safer tenant-level rollout through phased state-machine statuses.
+- Replaced a costlier DynamoDB lookup design with Athena-backed lookup behavior.
+- Added an RDS update buffer queue to handle Athena update throttling and bulk update ordering.
+- Improved production safety by making RDS vs S3 write decisions explicit.
 
 ## Lessons Learned
 
-- Large migrations need runtime control, not just migration scripts.
-- Read-path migration is often harder than write-path migration.
-- Fallback behavior must be designed before production rollout.
-- Canary deployments are essential when changing storage architecture.
-- Cache design should be tied to migration-state design, not added as an afterthought.
+- Large storage migrations are not only database problems; they also change application write paths.
+- Migration state should be explicit and controllable at runtime.
+- Cost can invalidate an otherwise reasonable architecture.
+- Analytical query engines may not be suitable for high-concurrency update paths.
+- Buffer queues are useful when direct writes need ordering, batching, or throttling protection.
+- In multi-tenant systems, data correctness matters more than moving quickly.
