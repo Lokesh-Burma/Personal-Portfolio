@@ -31,7 +31,7 @@ export function Nav() {
         </div>
         <Link
           className="rounded-md bg-slate-950 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-          href="/Lokesh_Burma_Resume_Latest.pdf"
+          href="/Lokesh_Burma_Resume.pdf"
         >
           Resume
         </Link>
