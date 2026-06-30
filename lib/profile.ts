@@ -6,13 +6,14 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/lokeshburma",
   resumeHref: "/Lokesh_Burma_Resume_Latest.pdf",
   summary:
-    "Senior Software Engineer focused on cloud-native backend systems, reliability, large-scale data movement, and AI-assisted engineering workflows. I build production backend systems that are easier to scale, observe, debug, and operate.",
+    "Senior Software Engineer focused on cloud-native backend systems, reliability, scalability, and AI-assisted engineering workflows. I build production backend systems that are easier to scale, observe, debug, and operate.",
 };
 
 export const skills = [
   {
     group: "Backend Engineering",
-    description: "Languages, APIs, and service patterns I use to build maintainable backend features.",
+    description:
+      "Languages, APIs, and service patterns I use to build maintainable backend features.",
     items: [
       "PHP",
       "TypeScript",
@@ -29,7 +30,8 @@ export const skills = [
   },
   {
     group: "Architecture And Reliability",
-    description: "System design practices for dependable distributed services and failure-aware workflows.",
+    description:
+      "System design practices for dependable distributed services and failure-aware workflows.",
     items: [
       "Microservices",
       "Distributed Systems",
@@ -45,7 +47,8 @@ export const skills = [
   },
   {
     group: "Cloud And Data",
-    description: "AWS services, storage systems, and data patterns used in SaaS backend platforms.",
+    description:
+      "AWS services, storage systems, and data patterns used in SaaS backend platforms.",
     items: [
       "AWS",
       "IAM",
@@ -66,7 +69,8 @@ export const skills = [
   },
   {
     group: "Observability",
-    description: "Tools and practices for making production behavior easier to inspect and debug.",
+    description:
+      "Tools and practices for making production behavior easier to inspect and debug.",
     items: [
       "Grafana",
       "ELK",
@@ -80,7 +84,8 @@ export const skills = [
   },
   {
     group: "AI-Enabled Engineering",
-    description: "AI-assisted workflows for debugging, RCA, documentation, and engineering acceleration.",
+    description:
+      "AI-assisted workflows for debugging, RCA, documentation, and engineering acceleration.",
     items: [
       "Claude Code",
       "MCP",
@@ -94,7 +99,8 @@ export const skills = [
   },
   {
     group: "Delivery And Tools",
-    description: "Version control, delivery pipelines, deployment tooling, and local engineering utilities.",
+    description:
+      "Version control, delivery pipelines, deployment tooling, and local engineering utilities.",
     items: [
       "Docker",
       "Git",
@@ -114,16 +120,76 @@ export const skills = [
 ];
 
 export const techHighlights = [
-  { name: "PHP", icon: "PHP", slug: "php", color: "777BB4", tone: "bg-indigo-50 border-indigo-200" },
-  { name: "TypeScript", icon: "TS", slug: "typescript", color: "3178C6", tone: "bg-blue-50 border-blue-200" },
-  { name: "Node.js", icon: "N", slug: "nodedotjs", color: "5FA04E", tone: "bg-emerald-50 border-emerald-200" },
-  { name: "NestJS", icon: "NS", slug: "nestjs", color: "E0234E", tone: "bg-rose-50 border-rose-200" },
-  { name: "AWS", icon: "AWS", slug: "amazonwebservices", color: "FF9900", tone: "bg-amber-50 border-amber-200" },
-  { name: "Docker", icon: "D", slug: "docker", color: "2496ED", tone: "bg-sky-50 border-sky-200" },
-  { name: "PostgreSQL", icon: "PG", slug: "postgresql", color: "4169E1", tone: "bg-cyan-50 border-cyan-200" },
-  { name: "DynamoDB", icon: "DB", slug: "amazondynamodb", color: "4053D6", tone: "bg-violet-50 border-violet-200" },
-  { name: "Grafana", icon: "G", slug: "grafana", color: "F46800", tone: "bg-orange-50 border-orange-200" },
-  { name: "Claude", icon: "AI", slug: "anthropic", color: "191919", tone: "bg-teal-50 border-teal-200" },
+  {
+    name: "PHP",
+    icon: "PHP",
+    slug: "php",
+    color: "777BB4",
+    tone: "bg-indigo-50 border-indigo-200",
+  },
+  {
+    name: "TypeScript",
+    icon: "TS",
+    slug: "typescript",
+    color: "3178C6",
+    tone: "bg-blue-50 border-blue-200",
+  },
+  {
+    name: "Node.js",
+    icon: "N",
+    slug: "nodedotjs",
+    color: "5FA04E",
+    tone: "bg-emerald-50 border-emerald-200",
+  },
+  {
+    name: "NestJS",
+    icon: "NS",
+    slug: "nestjs",
+    color: "E0234E",
+    tone: "bg-rose-50 border-rose-200",
+  },
+  {
+    name: "AWS",
+    icon: "AWS",
+    slug: "amazonwebservices",
+    color: "FF9900",
+    tone: "bg-amber-50 border-amber-200",
+  },
+  {
+    name: "Docker",
+    icon: "D",
+    slug: "docker",
+    color: "2496ED",
+    tone: "bg-sky-50 border-sky-200",
+  },
+  {
+    name: "PostgreSQL",
+    icon: "PG",
+    slug: "postgresql",
+    color: "4169E1",
+    tone: "bg-cyan-50 border-cyan-200",
+  },
+  {
+    name: "DynamoDB",
+    icon: "DB",
+    slug: "amazondynamodb",
+    color: "4053D6",
+    tone: "bg-violet-50 border-violet-200",
+  },
+  {
+    name: "Grafana",
+    icon: "G",
+    slug: "grafana",
+    color: "F46800",
+    tone: "bg-orange-50 border-orange-200",
+  },
+  {
+    name: "Claude",
+    icon: "AI",
+    slug: "anthropic",
+    color: "191919",
+    tone: "bg-teal-50 border-teal-200",
+  },
 ];
 
 export const pipelineProjects = [
@@ -139,7 +205,12 @@ export const pipelineProjects = [
     title: "Backend architecture diagrams library",
     summary:
       "Building visual notes that simplify backend concepts and architectures such as state machines, migrations, retry flows, observability, and distributed service patterns.",
-    stack: ["Mermaid", "System Design", "Documentation", "Backend Architecture"],
+    stack: [
+      "Mermaid",
+      "System Design",
+      "Documentation",
+      "Backend Architecture",
+    ],
   },
 ];
 
@@ -164,10 +235,10 @@ export const education = [
 ];
 
 export const highlights = [
-  "Designed phased backend migration patterns for moving high-volume relational data into S3-backed analytical storage.",
-  "Built reliability workflows that classify retryable and permanent failures, preserve retry history, and improve support diagnostics.",
-  "Created AI-assisted debugging workflows that combine issue context, logs, database signals, and structured RCA techniques.",
-  "Improved operational visibility with dashboards, standardized status models, and clearer production diagnostics.",
+  "Built phased backend write-routing for migrated backup data, using state-machine statuses to safely decide RDS vs S3 writes in a multi-tenant system.",
+  "Built reliability workflows that classify temporary, permanent, and customer-action-needed backup failures while preserving retry history for better diagnostics.",
+  "Created AI-assisted debugging workflows that combine issue context, logs, database checks, and structured RCA prompts to support root-cause analysis.",
+  "Improved production diagnostics by standardizing backup status models, preserving failure history, and making retry/customer-action-needed states easier to inspect.",
 ];
 
 export const impactAreas = [
@@ -197,7 +268,13 @@ export const experience = [
     period: "May 2023 - Present",
     summary:
       "Leading backend reliability, data migration, observability, and AI-assisted engineering work for cloud-native SaaS systems.",
-    focus: ["Backend Architecture", "Reliability", "Data Migration", "AI Debugging", "Observability"],
+    focus: [
+      "Backend Architecture",
+      "Reliability",
+      "Data Migration",
+      "AI Debugging",
+      "Observability",
+    ],
     bullets: [
       "Architecture: Owned backend implementation for migrating high-volume email metadata from PostgreSQL to S3 Tables while preserving safe read/write behavior.",
       "Migration safety: Designed phased state-machine flows with cache-assisted reads, fallback paths, and tenant-level rollout control.",
@@ -229,7 +306,13 @@ export const experience = [
     period: "Nov 2020 - Apr 2021",
     summary:
       "Supported monitoring, log analysis, and release coordination while learning production backend operations.",
-    focus: ["CloudWatch", "Grafana", "Kibana", "Log Analysis", "Production Support"],
+    focus: [
+      "CloudWatch",
+      "Grafana",
+      "Kibana",
+      "Log Analysis",
+      "Production Support",
+    ],
     bullets: [
       "Supported backend workload monitoring using CloudWatch, Grafana, and Kibana.",
       "Analyzed logs, helped identify recurring production issues, and partnered with engineers on fixes and release coordination.",
@@ -244,15 +327,24 @@ export const projects = [
     summary:
       "A large-scale data architecture initiative moving high-volume email metadata from PostgreSQL into S3-backed Apache Iceberg tables with Athena access.",
     stack: ["PostgreSQL", "S3", "Apache Iceberg", "Athena", "DynamoDB", "AWS"],
-    outcome: "Reduced RDS storage pressure and enabled a safer phased migration model for billion-row metadata tables.",
+    outcome:
+      "Reduced RDS storage pressure and enabled a safer phased migration model for billion-row metadata tables.",
   },
   {
     slug: "claude-debugger-agent",
     title: "Claude Debugger Agent",
     summary:
       "An AI-assisted diagnostic agent that connects issue context, logs, database signals, and historical analysis to recommend root causes and fix plans.",
-    stack: ["Claude Code", "MCP", "Azure DevOps", "Kibana", "Databases", "Prompt Engineering"],
-    outcome: "Reached 85%+ fix-plan accuracy and reduced manual incident-analysis effort across engineering teams.",
+    stack: [
+      "Claude Code",
+      "MCP",
+      "Azure DevOps",
+      "Kibana",
+      "Databases",
+      "Prompt Engineering",
+    ],
+    outcome:
+      "Reached 85%+ fix-plan accuracy and reduced manual incident-analysis effort across engineering teams.",
   },
   {
     slug: "backup-failure-observability",
@@ -260,6 +352,7 @@ export const projects = [
     summary:
       "A reliability initiative that standardized failure models, retry history, error-code coverage, and customer-facing diagnostics across backup workflows.",
     stack: ["Node.js", "PHP", "ELK", "Grafana", "CloudWatch"],
-    outcome: "Expanded classification coverage from 350 to 2,957 error codes and improved support visibility.",
+    outcome:
+      "Expanded classification coverage from 350 to 2,957 error codes and improved support visibility.",
   },
 ];
