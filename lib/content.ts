@@ -38,9 +38,8 @@ const blogPriority: Record<string, number> = {
   "production-grade-backend-components": 2,
   "security-best-practices-production-workloads": 3,
   "zero-downtime-data-migration-patterns": 4,
-  "debugging-distributed-backup-systems": 5,
-  "understanding-how-this-frontend-portfolio-app-works": 6,
-  "from-php-monolith-to-microservices": 7,
+  "understanding-how-this-frontend-portfolio-app-works": 5,
+  "from-php-monolith-to-microservices": 6,
 };
 
 function parseFrontmatter(source: string) {

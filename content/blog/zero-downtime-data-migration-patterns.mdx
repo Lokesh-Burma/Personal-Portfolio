@@ -1,124 +1,165 @@
 ---
 title: "Zero-Downtime Data Migration Patterns for SaaS Backends"
-date: "2026-06-28"
-tags: ["AWS", "PostgreSQL", "S3", "Distributed Systems"]
-summary: "Notes on phased write routing, state machines, cache strategy, and operational safety during large backend migrations."
+date: "2026-06-29"
+tags: ["SaaS", "Data Migration", "Distributed Systems", "Backend Architecture"]
+summary: "Notes on phased rollout, state machines, fallback paths, and operational safety during large backend data migrations."
 ---
 
 # Zero-Downtime Data Migration Patterns for SaaS Backends
 
-Large data migrations are risky because they change where data is written, where data is read from, and how the application decides which storage path to trust.
+Large SaaS data migrations are rarely just database work.
 
-In a SaaS backend, the safest migration is usually not one big switch. It is a controlled set of states that let you move tenants gradually, validate behavior, and roll back when needed.
+The hardest part is usually changing application behavior while the system continues serving customers.
 
-## The Migration Context
+In a production SaaS backend, a safer migration is usually not one big switch. It is a controlled set of states that lets teams move customers gradually, validate behavior, and roll back when needed.
 
-The system had high-volume email metadata tables in PostgreSQL. Some tables had billions of rows and were major RDS storage cost drivers.
+This post captures general backend migration patterns without exposing product-specific implementation details.
 
-The target architecture moved older historical data to S3 Tables using Apache Iceberg and Athena, while keeping recent operational data in PostgreSQL.
+## The Problem
 
-DynamoDB was introduced as a lookup cache to help the application decide where to read data from.
+A common SaaS migration problem looks like this:
 
-## Pattern 1: Treat Migration As Runtime State
+- A large operational table keeps growing.
+- Older records need to move to a more cost-effective storage layer.
+- Recent records must stay fast for active product workflows.
+- The backend must continue handling new inserts and updates.
+- Customers should not see disruption during migration.
 
-Avoid thinking of migration as only a script.
+The migration is not only about moving old rows.
 
-For large production systems, migration should often become runtime state that the application understands.
+The application now needs to understand where data lives and how to safely route future reads, writes, and updates.
 
-Useful migration state can answer:
+## Use Phased State Machines
 
-- Is this tenant still writing only to the old store?
-- Is dual-write active?
-- Should reads prefer the cache?
-- Is fallback allowed?
-- Has this tenant completed migration?
+State machines make migration behavior explicit.
 
-## Pattern 2: Use Phased Write Routing
-
-A phased write model reduces blast radius.
+Instead of spreading migration checks across many conditional branches, define a small set of migration states.
 
 Example states:
 
-- State 0: Add cache dual writes before migration begins.
-- State 1: Write to S3, RDS, and cache.
-- State 2: Read through cache first, then fall back to RDS.
+- State 0: Legacy behavior.
+- State 1: Mixed behavior with validation and fallback.
+- State 2: New storage-aware behavior.
 
-This approach lets the system gain confidence before moving more traffic.
+The exact states depend on the system, but the principle is the same:
 
-## Pattern 3: Design Fallback Before Rollout
+Make the migration phase visible, controllable, and testable.
 
-Fallback cannot be an afterthought.
+## Why Phases Matter
 
-Before enabling a new storage path, decide:
+Phased rollout helps with:
 
-- What happens if S3 write fails?
-- What happens if cache lookup misses?
-- When should RDS remain the source of truth?
-- How do we isolate one tenant from another?
-- How do we detect bad migration state?
+- Customer-level control.
+- Canary validation.
+- Fallback behavior.
+- Safer debugging.
+- Reduced blast radius.
+- Operational visibility.
 
-Good fallback behavior is what makes a migration operationally safe.
+In multi-tenant systems, not every customer should move at the same time.
 
-## Pattern 4: Validate With Canary Rollouts
+Some customers may have larger datasets, different usage patterns, or edge cases that need extra validation.
 
-Canary rollout is essential for storage migrations.
+## Keep Routing Decisions Explicit
 
-A good canary should validate:
+During data migration, the backend often needs to answer:
 
-- Write correctness.
-- Read correctness.
-- Cache consistency.
-- Tenant-level isolation.
-- Production metrics.
-- Customer-impact signals.
+- Is this item already migrated?
+- Is this a new item?
+- Is this an update to an existing item?
+- Which storage path should handle this operation?
+- What happens if the lookup fails?
+- What should happen for customers still in the old phase?
 
-The goal is not just to prove the happy path. The goal is to discover edge cases before a broad rollout.
+These decisions should be explicit in the backend application.
 
-## Pattern 5: Keep Migration State Per Tenant
+Hidden routing behavior becomes difficult to debug in production.
 
-Per-tenant migration state is powerful in SaaS systems.
+## Design Fallbacks Early
 
-It lets you:
+Fallback behavior should not be added after production issues appear.
 
-- Move one business at a time.
-- Pause a risky tenant.
-- Continue safe tenants.
-- Roll back specific cases.
-- Avoid global blast radius.
+Before rollout, define:
 
-This is much safer than a single global feature flag for all customers.
+- What happens if the new lookup path fails?
+- What happens if the new write path is throttled?
+- What happens if a customer needs to pause migration?
+- What happens if data validation detects a mismatch?
 
-## Pattern 6: Cache With Intent
+Fallbacks are part of the architecture, not an afterthought.
 
-DynamoDB was useful as a lookup cache because it helped route reads without repeatedly pressuring the relational database.
+## Use Buffers When Direct Updates Are Risky
 
-But the cache needs clear semantics:
+Sometimes direct updates to the target storage path are not ideal.
 
-- What is cached?
-- When is it written?
-- What happens on a miss?
-- Can stale cache entries cause incorrect reads?
-- Which store remains authoritative during each state?
+Reasons include:
 
-Cache design should be part of the migration design.
+- Concurrency limits.
+- Ordering requirements.
+- Expensive write operations.
+- Batch efficiency.
+- Operational throttling.
 
-## Pattern 7: Keep Observability Close To The Migration
+In those cases, an update buffer can help.
 
-A migration should have metrics and logs that answer:
+The backend can record the update intent, and a separate worker can process updates safely with batching, ordering, and retry control.
 
-- Which state is active?
-- How many tenants are in each state?
-- Are fallback reads increasing?
-- Are cache misses expected?
-- Are S3 writes succeeding?
-- Are customers seeing errors?
+This is especially useful when write ordering matters for a customer, tenant, or business entity.
 
-Without observability, a zero-downtime migration is mostly hope.
+## Preserve Data Correctness Over Speed
+
+The most important migration goal is not moving quickly.
+
+It is avoiding incorrect data behavior.
+
+A safe migration should prevent:
+
+- Duplicate records.
+- Lost updates.
+- Writes to the wrong storage path.
+- Inconsistent customer behavior.
+- Partial rollout impact across unrelated customers.
+
+In production systems, correctness wins over speed.
+
+## Observability Is Required
+
+Migration needs dashboards, logs, and operational checks.
+
+Useful questions include:
+
+- How many customers are in each migration state?
+- How many operations are using the old path vs the new path?
+- How many fallback events occurred?
+- Are update buffers growing?
+- Are retries increasing?
+- Are there validation mismatches?
+
+Without visibility, teams are guessing.
 
 ## Lessons Learned
 
-- State machines make migrations easier to reason about.
-- Dual writes need careful validation.
-- Read-path changes are often more complex than write-path changes.
-- Tenant-level control reduces production risk.
-- Canary rollout should be treated as part of the architecture, not just release process.
+- Large data migrations require application-level design, not only database scripts.
+- State machines make migration behavior easier to reason about.
+- Customer-level rollout control reduces blast radius.
+- Fallback paths should be designed before rollout.
+- Buffers are useful when direct writes need batching, ordering, or throttling protection.
+- Data correctness should be the main success metric.
+
+## Final Thoughts
+
+Zero-downtime migration is not a single technique.
+
+It is a set of engineering practices:
+
+- Phased rollout.
+- Explicit state.
+- Safe routing.
+- Fallback design.
+- Buffered processing.
+- Observability.
+- Production discipline.
+
+The best migrations are boring from the customer's point of view.
+
+That usually means the engineering underneath was careful.

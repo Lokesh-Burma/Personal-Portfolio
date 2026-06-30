@@ -235,20 +235,20 @@ export const education = [
 ];
 
 export const highlights = [
-  "Built phased backend write-routing for migrated backup data, using state-machine statuses to safely decide RDS vs S3 writes in a multi-tenant system.",
-  "Built reliability workflows that classify temporary, permanent, and customer-action-needed backup failures while preserving retry history for better diagnostics.",
+  "Built phased backend write-routing for large-scale SaaS product data, using state-machine statuses to safely decide storage behavior in a multi-tenant system.",
+  "Built reliability workflows that classify temporary, permanent, and customer-action-needed failures while preserving retry history for better diagnostics.",
   "Created AI-assisted debugging workflows that combine issue context, logs, database checks, and structured RCA prompts to support root-cause analysis.",
-  "Improved production diagnostics by standardizing backup status models, preserving failure history, and making retry/customer-action-needed states easier to inspect.",
+  "Improved production diagnostics by standardizing workflow status models, preserving failure history, and making retry/customer-action-needed states easier to inspect.",
 ];
 
 export const impactAreas = [
   {
-    title: "Multi-Tenant Backup Architecture",
-    text: "Built backend write-routing for migrated SaaS backup data, using phased state-machine statuses to safely decide RDS vs S3 writes without corrupting tenant data.",
+    title: "Multi-Tenant SaaS Architecture",
+    text: "Built backend routing for large-scale SaaS product data, using phased state-machine statuses to safely control storage behavior without corrupting tenant data.",
   },
   {
     title: "Reliability And Diagnostics",
-    text: "Improved backup failure handling by classifying temporary, permanent, and customer-action-needed errors while preserving retry history for support and debugging.",
+    text: "Improved failure handling by classifying temporary, permanent, and customer-action-needed errors while preserving retry history for support and debugging.",
   },
   {
     title: "AI-Enabled Backend Engineering",
@@ -267,7 +267,7 @@ export const experience = [
     location: "Hyderabad, India",
     period: "May 2023 - Present",
     summary:
-      "Leading backend reliability, data migration, observability, and AI-assisted engineering work for cloud-native SaaS systems.",
+      "Leading backend reliability, data movement, observability, and AI-assisted engineering work for cloud-native SaaS product systems.",
     focus: [
       "Backend Architecture",
       "Reliability",
@@ -276,9 +276,9 @@ export const experience = [
       "Observability",
     ],
     bullets: [
-      "Architecture: Owned backend implementation for migrating high-volume email metadata from PostgreSQL to S3 Tables while preserving safe read/write behavior.",
-      "Migration safety: Designed phased state-machine flows with cache-assisted reads, fallback paths, and tenant-level rollout control.",
-      "Reliability: Delivered failure classification across backup, restore, and export workflows, improving visibility into retryable and permanently failed items.",
+      "Architecture: Implemented backend changes for large-scale SaaS data movement while preserving safe read/write behavior.",
+      "Migration safety: Designed phased state-machine flows with fallback paths and tenant-level rollout control.",
+      "Reliability: Delivered failure classification across production workflows, improving visibility into retryable and permanently failed items.",
       "Observability: Expanded structured error-code coverage and standardized retry-history models with attempt-level status, error code, and data-size context.",
       "AI engineering: Built a Claude-powered debugging agent that uses issue context, log signals, database context, and RCA patterns to produce fix plans.",
       "Enablement: Created setup guides and knowledge-transfer sessions so engineers could adopt AI-assisted debugging workflows independently.",
@@ -291,12 +291,12 @@ export const experience = [
     location: "Hyderabad, India",
     period: "May 2021 - Apr 2023",
     summary:
-      "Built and maintained backend services across SaaS backup workflows while contributing to service decomposition and operational diagnostics.",
+      "Built and maintained backend services across SaaS product workflows while contributing to service decomposition and operational diagnostics.",
     focus: ["PHP", "Node.js", "Microservices", "Backend APIs", "Diagnostics"],
     bullets: [
       "Contributed to the transition from a legacy PHP monolith to scalable backend microservices.",
       "Improved maintainability and supported faster deployment cycles through service decomposition.",
-      "Worked across SaaS backup workflows, backend APIs, data persistence, and operational diagnostics.",
+      "Worked across SaaS product workflows, backend APIs, data persistence, and operational diagnostics.",
     ],
   },
   {
@@ -322,13 +322,13 @@ export const experience = [
 
 export const projects = [
   {
-    slug: "rds-to-s3-table-migration",
-    title: "RDS to S3 Table Write Routing",
+    slug: "saas-data-routing-safety",
+    title: "SaaS Data Routing And Migration Safety",
     summary:
-      "A backend write-routing initiative for multi-tenant SaaS backup data, safely deciding whether new Gmail and Outlook metadata should be written to RDS or S3-backed analytical storage.",
-    stack: ["PostgreSQL", "S3 Tables", "Apache Iceberg", "Athena", "Node.js", "AWS"],
+      "A backend data-routing initiative for a multi-tenant SaaS product, focused on safe storage decisions during a phased data movement workflow.",
+    stack: ["PostgreSQL", "Node.js", "AWS", "Distributed Systems", "State Machines"],
     outcome:
-      "Reduced RDS growth pressure while preserving data correctness through phased state-machine routing, Athena lookups, and buffered bulk updates.",
+      "Improved data movement safety by making storage decisions explicit through phased state-machine routing and buffered update handling.",
   },
   {
     slug: "claude-debugger-agent",
@@ -347,12 +347,12 @@ export const projects = [
       "Reached 85%+ fix-plan accuracy and reduced manual incident-analysis effort across engineering teams.",
   },
   {
-    slug: "backup-failure-observability",
-    title: "Backup Failure Classification & Observability",
+    slug: "failure-classification-observability",
+    title: "Failure Classification And Observability",
     summary:
-      "A reliability initiative that classified temporary, permanent, and customer-action-needed backup failures while preserving retry history for clearer diagnostics.",
+      "A reliability initiative that classified temporary, permanent, and customer-action-needed workflow failures while preserving retry history for clearer diagnostics.",
     stack: ["Node.js", "PHP", "ELK", "Grafana", "CloudWatch"],
     outcome:
-      "Expanded classification coverage from 350 to 2,957 error codes and improved support visibility.",
+      "Improved support visibility by standardizing failure categories, preserving retry history, and expanding structured diagnostic coverage.",
   },
 ];

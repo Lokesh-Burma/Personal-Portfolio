@@ -9,8 +9,8 @@ export default function ProjectsPage() {
     <main>
       <Section
         eyebrow="Projects"
-        title="Project case studies"
-        intro="Each project is positioned as a case study you can expand with architecture diagrams, tradeoffs, and links when public details are available."
+        title="Engineering work themes"
+        intro="High-level summaries of the engineering areas I have worked on. Detailed case studies are intentionally under review before publishing public architecture details."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {projects.map((project) => (

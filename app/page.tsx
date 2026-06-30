@@ -37,7 +37,7 @@ export default function Home() {
                 className="rounded-md bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
                 href="/projects"
               >
-                View case studies
+                View engineering themes
               </Link>
               <Link
                 className="rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
@@ -68,8 +68,8 @@ export default function Home() {
 
       <Section
         eyebrow="Positioning"
-        title="Backend systems for reliable SaaS backup workloads."
-        intro="The portfolio is organized around the work that best represents my engineering direction: multi-tenant backup data flows, production reliability, operational diagnostics, and practical AI tooling for engineering teams."
+        title="Backend systems for reliable SaaS product workloads."
+        intro="The portfolio is organized around the work that best represents my engineering direction: multi-tenant SaaS data flows, production reliability, operational diagnostics, and practical AI tooling for engineering teams."
       >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {impactAreas.map((area) => (
@@ -98,9 +98,9 @@ export default function Home() {
       </Section>
 
       <Section
-        eyebrow="Case studies"
+        eyebrow="Engineering themes"
         title="Selected engineering work"
-        intro="These projects show the work I want to be evaluated on: backend architecture, reliability, observability, AI-assisted debugging, and production ownership."
+        intro="High-level summaries of the backend work I want to be evaluated on: architecture, reliability, diagnostics, AI-assisted debugging, and production ownership. Detailed case studies are under review before publishing."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {projects.map((project) => (
