@@ -9,8 +9,8 @@ export default function BlogPage() {
     <main>
       <Section
         eyebrow="Blog"
-        title="Engineering notes and learnings"
-        intro="Manual blog writing starts in content/blog. Add a new MDX file with frontmatter and the site will pick it up automatically."
+        title="Engineering notes from backend, cloud, and AI-enabled work"
+        intro="Practical notes on backend systems, production reliability, cloud-native engineering, AI-assisted workflows, and the lessons I learn while building and operating software."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {posts.map((post) => (
