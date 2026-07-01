@@ -18,7 +18,6 @@ export const skills = [
       "PHP",
       "TypeScript",
       "JavaScript",
-      "Python",
       "Node.js",
       "NestJS",
       "REST APIs",
