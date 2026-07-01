@@ -6,14 +6,14 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/lokeshburma",
   resumeHref: "/Lokesh_Burma_Resume.pdf",
   summary:
-    "Senior Software Engineer focused on cloud-native backend systems, reliability, scalability, and AI-assisted engineering workflows. I build production backend systems that are easier to scale, observe, debug, and operate.",
+    "Backend Software Engineer with 5 years of experience building SaaS backend systems, improving reliability, working with databases, and debugging production issues. I focus on clean APIs, scalable services, observability, and practical AI-assisted engineering.",
 };
 
 export const skills = [
   {
-    group: "Backend Engineering",
+    group: "Backend Development",
     description:
-      "Languages, APIs, and service patterns I use to build maintainable backend features.",
+      "Languages, APIs, and service patterns I use to build production backend features.",
     items: [
       "PHP",
       "TypeScript",
@@ -23,32 +23,48 @@ export const skills = [
       "NestJS",
       "REST APIs",
       "OpenAPI/Swagger",
-      "Authentication/Authorization",
-      "JWT/OAuth",
       "Webhooks",
+      "Clean Code",
     ],
   },
   {
-    group: "Architecture And Reliability",
+    group: "Databases And Data",
     description:
-      "System design practices for dependable distributed services and failure-aware workflows.",
+      "Relational, NoSQL, cache, and query skills used in backend systems.",
+    items: [
+      "PostgreSQL",
+      "DynamoDB",
+      "Redis",
+      "Athena",
+      "SQL",
+      "Indexing",
+      "Query Optimization",
+      "Transactions",
+      "Data Modeling",
+      "Caching",
+    ],
+  },
+  {
+    group: "System Design",
+    description:
+      "Core backend design concepts expected in SDE-II and senior backend roles.",
     items: [
       "Microservices",
       "Distributed Systems",
       "Event-Driven Architecture",
-      "State Machines",
-      "Retry Workflows",
-      "Idempotency",
+      "Queues",
       "Rate Limiting",
-      "Background Jobs/Queues",
-      "Failure Classification",
-      "System Design",
+      "Idempotency",
+      "Retry Handling",
+      "Load Balancing",
+      "High Availability",
+      "Failure Handling",
     ],
   },
   {
-    group: "Cloud And Data",
+    group: "Cloud And Delivery",
     description:
-      "AWS services, storage systems, and data patterns used in SaaS backend platforms.",
+      "Cloud, containers, CI/CD, and deployment practices for production services.",
     items: [
       "AWS",
       "IAM",
@@ -57,65 +73,69 @@ export const skills = [
       "SQS",
       "Lambda",
       "ECS/Fargate",
-      "RDS",
-      "PostgreSQL",
-      "DynamoDB",
-      "Redis",
-      "Athena",
-      "Apache Iceberg",
-      "S3 Tables",
-      "Query Optimization",
+      "Docker",
+      "Git",
+      "CI/CD",
+      "Canary Rollouts",
     ],
   },
   {
-    group: "Observability",
+    group: "Observability And Debugging",
     description:
-      "Tools and practices for making production behavior easier to inspect and debug.",
+      "Tools and practices for understanding production behavior and resolving issues.",
     items: [
       "Grafana",
       "ELK",
       "Kibana",
       "CloudWatch",
       "Structured Logging",
-      "Error Taxonomy",
-      "Operational Dashboards",
-      "RCA Workflows",
+      "Metrics",
+      "Dashboards",
+      "Root Cause Analysis",
+      "Incident Debugging",
     ],
   },
   {
-    group: "AI-Enabled Engineering",
+    group: "AI-Assisted Engineering",
     description:
-      "AI-assisted workflows for debugging, RCA, documentation, and engineering acceleration.",
+      "Practical AI workflows used as support for debugging, documentation, and analysis.",
     items: [
       "Claude Code",
       "MCP",
       "Langflow",
       "Prompt Engineering",
       "AI-Assisted Debugging",
-      "RCA Automation",
       "Log Analysis With AI",
+      "RCA Workflows",
       "Embedding Search",
     ],
   },
+];
+
+export const fundamentals = [
   {
-    group: "Delivery And Tools",
-    description:
-      "Version control, delivery pipelines, deployment tooling, and local engineering utilities.",
-    items: [
-      "Docker",
-      "Git",
-      "GitHub",
-      "AWS CodeCommit",
-      "CodePipeline",
-      "Azure DevOps",
-      "CI/CD",
-      "Canary Rollouts",
-      "Environment Variables",
-      "Vercel",
-      "Postman",
-      "DBeaver",
-      "RedisInsight",
-    ],
+    title: "Programming Fundamentals",
+    text: "Data structures, algorithms, clean code, modular design, and problem solving.",
+  },
+  {
+    title: "Backend Fundamentals",
+    text: "REST APIs, validation, authentication, authorization, pagination, and API contracts.",
+  },
+  {
+    title: "Database Fundamentals",
+    text: "SQL, joins, indexes, transactions, query optimization, caching, and SQL vs NoSQL tradeoffs.",
+  },
+  {
+    title: "System Design Fundamentals",
+    text: "Scalability, queues, retries, idempotency, rate limiting, load balancing, and fault tolerance.",
+  },
+  {
+    title: "Production Fundamentals",
+    text: "Logging, metrics, dashboards, debugging, incident response, rollbacks, and reliability checks.",
+  },
+  {
+    title: "Security Fundamentals",
+    text: "Secure coding, secrets management, JWT/OAuth, RBAC, encryption basics, and OWASP awareness.",
   },
 ];
 
@@ -235,28 +255,28 @@ export const education = [
 ];
 
 export const highlights = [
-  "Built phased backend write-routing for large-scale SaaS product data, using state-machine statuses to safely decide storage behavior in a multi-tenant system.",
-  "Built reliability workflows that classify temporary, permanent, and customer-action-needed failures while preserving retry history for better diagnostics.",
-  "Created AI-assisted debugging workflows that combine issue context, logs, database checks, and structured RCA prompts to support root-cause analysis.",
-  "Improved production diagnostics by standardizing workflow status models, preserving failure history, and making retry/customer-action-needed states easier to inspect.",
+  "Built backend routing logic for large-scale SaaS data workflows with phased rollout controls.",
+  "Improved reliability by classifying temporary, permanent, and customer-action-needed failures.",
+  "Preserved retry history and error context to make production debugging easier.",
+  "Built AI-assisted debugging workflows using logs, issue context, database checks, and RCA prompts.",
 ];
 
 export const impactAreas = [
   {
-    title: "Multi-Tenant SaaS Architecture",
-    text: "Built backend routing for large-scale SaaS product data, using phased state-machine statuses to safely control storage behavior without corrupting tenant data.",
+    title: "SaaS Backend Architecture",
+    text: "Built backend features for multi-tenant SaaS systems with attention to data correctness, safe rollout, and maintainable service behavior.",
   },
   {
-    title: "Reliability And Diagnostics",
-    text: "Improved failure handling by classifying temporary, permanent, and customer-action-needed errors while preserving retry history for support and debugging.",
+    title: "Reliability And Debugging",
+    text: "Improved failure handling by making errors easier to classify, retry, inspect, and explain during production support.",
   },
   {
-    title: "AI-Enabled Backend Engineering",
-    text: "Created Claude-assisted debugging workflows that combine issue context, logs, database checks, and structured RCA prompts to support root-cause analysis.",
+    title: "AI-Assisted Engineering",
+    text: "Used AI tools to support debugging and RCA by combining logs, issue context, database checks, and structured engineering prompts.",
   },
   {
     title: "Production Ownership",
-    text: "Implemented backend changes inside a large production codebase with attention to rollout safety, data correctness, operational visibility, and team handoff.",
+    text: "Worked inside a large production codebase with focus on safe changes, clear handoff, monitoring, and operational readiness.",
   },
 ];
 
@@ -267,22 +287,22 @@ export const experience = [
     location: "Hyderabad, India",
     period: "May 2023 - Present",
     summary:
-      "Leading backend reliability, data movement, observability, and AI-assisted engineering work for cloud-native SaaS product systems.",
+      "Building and maintaining backend systems for SaaS product workloads, with focus on reliability, databases, observability, and AI-assisted debugging.",
     focus: [
-      "Backend Architecture",
+      "Backend APIs",
       "Reliability",
-      "Data Migration",
-      "AI Debugging",
+      "Databases",
+      "Production Debugging",
       "Observability",
     ],
     bullets: [
-      "Architecture: Implemented backend changes for large-scale SaaS data movement while preserving safe read/write behavior.",
-      "Migration safety: Designed phased state-machine flows with fallback paths and tenant-level rollout control.",
-      "Reliability: Delivered failure classification across production workflows, improving visibility into retryable and permanently failed items.",
-      "Observability: Expanded structured error-code coverage and standardized retry-history models with attempt-level status, error code, and data-size context.",
-      "AI engineering: Built a Claude-powered debugging agent that uses issue context, log signals, database context, and RCA patterns to produce fix plans.",
-      "Enablement: Created setup guides and knowledge-transfer sessions so engineers could adopt AI-assisted debugging workflows independently.",
-      "Operations: Built monitoring for onboarding and production health signals, and supported reliability work across multiple cloud workloads.",
+      "Backend systems: Implemented backend changes for large-scale SaaS data workflows while keeping read/write behavior safe.",
+      "Rollout safety: Used phased rollout logic, fallback paths, and tenant-level controls to reduce migration risk.",
+      "Reliability: Classified temporary, permanent, and customer-action-needed failures so issues were easier to retry, inspect, and resolve.",
+      "Debugging: Preserved retry history, error codes, and workflow status details to make production issues easier to investigate.",
+      "AI engineering: Built an AI-assisted debugging workflow that uses issue context, logs, database checks, and RCA prompts to suggest fix plans.",
+      "Team enablement: Created setup guides and knowledge-transfer sessions so engineers could use AI-assisted debugging workflows independently.",
+      "Operations: Built monitoring for production health signals and supported reliability work across cloud workloads.",
     ],
   },
   {
@@ -291,12 +311,12 @@ export const experience = [
     location: "Hyderabad, India",
     period: "May 2021 - Apr 2023",
     summary:
-      "Built and maintained backend services across SaaS product workflows while contributing to service decomposition and operational diagnostics.",
-    focus: ["PHP", "Node.js", "Microservices", "Backend APIs", "Diagnostics"],
+      "Built and maintained backend services across SaaS product workflows while contributing to microservices and production support.",
+    focus: ["PHP", "Node.js", "Microservices", "Backend APIs", "Debugging"],
     bullets: [
-      "Contributed to the transition from a legacy PHP monolith to scalable backend microservices.",
-      "Improved maintainability and supported faster deployment cycles through service decomposition.",
-      "Worked across SaaS product workflows, backend APIs, data persistence, and operational diagnostics.",
+      "Contributed to the transition from a PHP monolith to backend microservices.",
+      "Improved maintainability by helping split backend responsibilities into smaller services.",
+      "Worked on backend APIs, data persistence, debugging, and production support for SaaS workflows.",
     ],
   },
   {
@@ -332,9 +352,9 @@ export const projects = [
   },
   {
     slug: "claude-debugger-agent",
-    title: "Claude Debugger Agent",
+    title: "AI-Assisted Debugging Workflow",
     summary:
-      "An AI-assisted debugging workflow that connects issue context, logs, database checks, and structured RCA prompts to support root-cause analysis and fix planning.",
+      "A debugging workflow that connects issue context, logs, database checks, and structured RCA prompts to support root-cause analysis and fix planning.",
     stack: [
       "Claude Code",
       "MCP",

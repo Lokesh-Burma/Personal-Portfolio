@@ -4,7 +4,7 @@ import { Section } from "@/components/section";
 import { SkillMap } from "@/components/skill-map";
 import { TechGrid } from "@/components/tech-grid";
 import { getAllBlogPosts, getAllCheatSheets, getAllProjects } from "@/lib/content";
-import { highlights, impactAreas, pipelineProjects, profile, skills, techHighlights } from "@/lib/profile";
+import { fundamentals, highlights, impactAreas, pipelineProjects, profile, skills, techHighlights } from "@/lib/profile";
 
 const featuredPostSlugs = [
   "ai-writes-code-role-of-backend-developer",
@@ -26,7 +26,7 @@ export default function Home() {
         <div className="mx-auto grid min-h-[calc(100vh-73px)] max-w-6xl content-center gap-12 px-5 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">
-              Senior Software Engineer | AI-enabled backend systems
+              Senior Software Engineer | Backend systems and production reliability
             </p>
             <h1 className="mt-5 max-w-4xl text-5xl font-semibold tracking-tight text-slate-950 md:text-7xl">
               Lokesh Burma
@@ -68,8 +68,8 @@ export default function Home() {
 
       <Section
         eyebrow="Positioning"
-        title="Backend systems for reliable SaaS product workloads."
-        intro="The portfolio is organized around the work that best represents my engineering direction: multi-tenant SaaS data flows, production reliability, operational diagnostics, and practical AI tooling for engineering teams."
+        title="Backend engineer focused on reliable SaaS systems."
+        intro="This portfolio highlights the work I want to be evaluated on: backend APIs, databases, system design, production debugging, observability, cloud delivery, and practical AI-assisted engineering."
       >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {impactAreas.map((area) => (
@@ -77,6 +77,21 @@ export default function Home() {
               <h3 className="font-semibold text-slate-950">{area.title}</h3>
               <p className="mt-3 text-sm leading-6 text-slate-600">{area.text}</p>
             </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section
+        eyebrow="Fundamentals"
+        title="Software engineering fundamentals I work with"
+        intro="SDE-II roles need more than tool knowledge. These are the core engineering areas I focus on while building, debugging, and improving backend systems."
+      >
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {fundamentals.map((item) => (
+            <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" key={item.title}>
+              <h3 className="text-base font-semibold text-slate-950">{item.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
+            </article>
           ))}
         </div>
       </Section>
@@ -91,8 +106,8 @@ export default function Home() {
 
       <Section
         eyebrow="Technology map"
-        title="Tools and systems I have worked with"
-        intro="Grouped by how I use them in backend engineering work, instead of as one long keyword list."
+        title="Tools grouped by engineering capability"
+        intro="Grouped by what each tool helps me do: build APIs, work with data, design systems, deploy safely, debug production, and use AI responsibly."
       >
         <SkillMap items={skills} />
       </Section>
@@ -100,7 +115,7 @@ export default function Home() {
       <Section
         eyebrow="Engineering themes"
         title="Selected engineering work"
-        intro="High-level summaries of the backend work I want to be evaluated on: architecture, reliability, diagnostics, AI-assisted debugging, and production ownership. Detailed case studies are under review before publishing."
+        intro="High-level summaries of backend work I want to be evaluated on. The language is intentionally generic so it explains the engineering value without exposing company-specific implementation details."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {projects.map((project) => (
@@ -157,7 +172,7 @@ export default function Home() {
       <Section
         eyebrow="Writing"
         title="Engineering notes"
-        intro="Featured posts focus on backend systems and how I reason about architecture, debugging, and this frontend portfolio as a backend engineer."
+        intro="Featured posts focus on backend fundamentals, production systems, security, AI-assisted engineering, and the way I reason through technical tradeoffs."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {posts.map((post) => (
