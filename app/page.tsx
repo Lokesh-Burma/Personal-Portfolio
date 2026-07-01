@@ -150,24 +150,26 @@ export default function Home() {
         </Link>
       </Section>
 
-      <Section
-        eyebrow="Reference"
-        title="Cheat sheets for daily engineering"
-        intro="Quick command references for tools I use often. These are useful for me and also show how I document practical workflows."
-      >
-        <div className="grid gap-5 lg:grid-cols-3">
-          {cheatSheets.map((sheet) => (
-            <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-teal-500" key={sheet.slug}>
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">{sheet.category}</p>
-              <h3 className="mt-3 text-xl font-semibold text-slate-950">{sheet.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{sheet.summary}</p>
-              <Link className="mt-5 inline-flex text-sm font-semibold text-teal-700 hover:text-teal-900" href={`/cheatsheets/${sheet.slug}`}>
-                Open cheatsheet
-              </Link>
-            </article>
-          ))}
-        </div>
-      </Section>
+      {cheatSheets.length > 0 ? (
+        <Section
+          eyebrow="Reference"
+          title="Cheat sheets for daily engineering"
+          intro="Quick command references for tools I use often. These are useful for me and also show how I document practical workflows."
+        >
+          <div className="grid gap-5 lg:grid-cols-3">
+            {cheatSheets.map((sheet) => (
+              <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-teal-500" key={sheet.slug}>
+                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">{sheet.category}</p>
+                <h3 className="mt-3 text-xl font-semibold text-slate-950">{sheet.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{sheet.summary}</p>
+                <Link className="mt-5 inline-flex text-sm font-semibold text-teal-700 hover:text-teal-900" href={`/cheatsheets/${sheet.slug}`}>
+                  Open cheatsheet
+                </Link>
+              </article>
+            ))}
+          </div>
+        </Section>
+      ) : null}
 
       {posts.length > 0 ? (
         <Section
