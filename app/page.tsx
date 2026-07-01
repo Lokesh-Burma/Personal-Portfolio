@@ -169,17 +169,19 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section
-        eyebrow="Writing"
-        title="Engineering notes"
-        intro="Featured posts focus on backend fundamentals, production systems, security, AI-assisted engineering, and the way I reason through technical tradeoffs."
-      >
-        <div className="grid gap-5 lg:grid-cols-3">
-          {posts.map((post) => (
-            <PostCard key={post.slug} {...post} />
-          ))}
-        </div>
-      </Section>
+      {posts.length > 0 ? (
+        <Section
+          eyebrow="Writing"
+          title="Engineering notes"
+          intro="Featured posts focus on backend fundamentals, production systems, security, AI-assisted engineering, and the way I reason through technical tradeoffs."
+        >
+          <div className="grid gap-5 lg:grid-cols-3">
+            {posts.map((post) => (
+              <PostCard key={post.slug} {...post} />
+            ))}
+          </div>
+        </Section>
+      ) : null}
     </main>
   );
 }
