@@ -93,9 +93,6 @@ export const skills = [
       "Claude Code",
       "MCP",
       "Prompt Engineering",
-      "AI-Assisted Debugging",
-      "Log Analysis With AI",
-      "RCA Workflows",
     ],
   },
 ];
