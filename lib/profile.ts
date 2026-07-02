@@ -17,6 +17,7 @@ export const skills = [
     items: [
       "PHP",
       "TypeScript",
+      "Go",
       "JavaScript",
       "Node.js",
       "NestJS",
@@ -152,6 +153,13 @@ export const techHighlights = [
     slug: "typescript",
     color: "3178C6",
     tone: "bg-blue-50 border-blue-200",
+  },
+  {
+    name: "Go",
+    icon: "Go",
+    slug: "go",
+    color: "00ADD8",
+    tone: "bg-cyan-50 border-cyan-200",
   },
   {
     name: "Node.js",
