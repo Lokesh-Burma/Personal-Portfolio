@@ -8,7 +8,7 @@ type ProjectCardProps = {
   outcome: string;
 };
 
-export function ProjectCard({ title, summary, stack, outcome }: ProjectCardProps) {
+export function ProjectCard({ slug, title, summary, stack, outcome }: ProjectCardProps) {
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-teal-500">
       <h3 className="text-xl font-semibold text-slate-950">{title}</h3>
@@ -21,7 +21,9 @@ export function ProjectCard({ title, summary, stack, outcome }: ProjectCardProps
           </span>
         ))}
       </div>
-      <p className="mt-5 text-sm font-semibold text-teal-700">Detailed case study under review</p>
+      <Link className="mt-5 inline-flex text-sm font-semibold text-teal-700 hover:text-teal-900" href={`/projects/${slug}`}>
+        Read case study
+      </Link>
     </article>
   );
 }

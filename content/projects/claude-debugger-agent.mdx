@@ -7,16 +7,42 @@ outcome: "Reduced manual incident-analysis effort by making root-cause analysis 
 
 # AI-Assisted Debugging Workflow
 
-This case study is safe to discuss at a higher level because it focuses on the engineering workflow rather than product-specific architecture.
+Production debugging often starts with scattered context: an issue description, logs, recent changes, database signals, and tribal knowledge from previous incidents. AI can help organize that context, but only when the workflow is structured and reviewed by engineers.
 
-The work explored how AI-assisted debugging can support engineers during production analysis by combining issue context, operational signals, database checks, and structured RCA prompts.
+This project focused on using AI as an investigation assistant, not as an unchecked decision maker.
 
-The public version focuses on the engineering themes:
+## Problem
 
-- AI-assisted investigation workflows.
-- Structured root-cause-analysis prompts.
-- Log and issue-context summarization.
+Debugging production issues can be slow when engineers have to manually collect issue details, inspect logs, check related data, and convert findings into a root-cause-analysis flow.
+
+The important engineering concerns were:
+
+- Gather useful context consistently.
+- Summarize signals without losing important details.
+- Keep the engineer in control of decisions.
+- Produce fix-plan suggestions that can be reviewed.
+- Help other engineers adopt the workflow.
+
+## Approach
+
+I built an AI-assisted debugging workflow that combined issue context, operational signals, database checks, and structured RCA prompts. The workflow helped produce investigation summaries and possible fix plans for engineer review.
+
+The design focused on:
+
+- Context collection from engineering tools.
+- Log and issue summarization.
+- Structured RCA prompts.
 - Database checks where appropriate.
-- Team setup guides and adoption support.
+- Setup guides and team adoption support.
 
-A deeper version with reviewed examples may be added later.
+## Engineering Value
+
+This work reduced manual investigation effort by making debugging more repeatable. It also helped engineers move from scattered signals to a clearer RCA path while keeping human review at the center of the workflow.
+
+## Skills Demonstrated
+
+- AI-assisted engineering workflows.
+- Production debugging.
+- Prompt design.
+- RCA preparation.
+- Engineering enablement.
