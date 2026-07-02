@@ -84,7 +84,7 @@ export default function Home() {
       <Section
         eyebrow="Fundamentals"
         title="Software engineering fundamentals I work with"
-        intro="SDE-II roles need more than tool knowledge. These are the core engineering areas I focus on while building, debugging, and improving backend systems."
+        intro="These are the core engineering areas I focus on while building, debugging, and improving backend systems."
       >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {fundamentals.map((item) => (
