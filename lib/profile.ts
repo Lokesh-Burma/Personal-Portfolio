@@ -32,8 +32,6 @@ export const skills = [
       "PostgreSQL",
       "DynamoDB",
       "Redis",
-      "Athena",
-      "SQL",
       "Indexing",
       "Query Optimization",
       "Transactions",
