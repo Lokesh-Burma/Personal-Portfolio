@@ -10,7 +10,7 @@ export default function ProjectsPage() {
       <Section
         eyebrow="Projects"
         title="Engineering work themes"
-        intro="High-level summaries of the engineering areas I have worked on. Detailed case studies are intentionally under review before publishing public architecture details."
+        intro="High-level summaries of engineering areas I have worked on, written to show the problem space without exposing company-specific architecture details."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {projects.map((project) => (

@@ -208,7 +208,7 @@ export const pipelineProjects = [
     status: "Now",
     title: "Portfolio as an engineering knowledge base",
     summary:
-      "Turning the portfolio into a living set of case studies, backend notes, and operational cheat sheets.",
+      "Keeping the portfolio focused, current, and easy to extend as engineering notes and case studies are refined.",
     stack: ["Next.js", "MDX", "TypeScript", "Vercel"],
   },
   {
@@ -362,7 +362,7 @@ export const projects = [
     title: "Failure Classification And Observability",
     summary:
       "A reliability initiative that classified temporary, permanent, and customer-action-needed workflow failures while preserving retry history for clearer diagnostics.",
-    stack: ["Node.js", "PHP", "ELK", "Grafana", "CloudWatch"],
+    stack: ["Node.js", "PHP", "Kibana", "Grafana", "CloudWatch"],
     outcome:
       "Improved support visibility by standardizing failure categories, preserving retry history, and expanding structured diagnostic coverage.",
   },

@@ -20,7 +20,7 @@ export default function ExperiencePage() {
       <Section
         eyebrow="Experience"
         title="Senior backend engineering with production ownership"
-        intro="A concise view of my work, grouped around architecture, reliability, AI-assisted engineering, and operating SaaS systems in production."
+        intro="A concise view of my work across backend architecture, reliability, debugging, and operating SaaS systems in production."
       >
         <div className="relative space-y-6 before:absolute before:bottom-8 before:left-4 before:top-8 before:w-px before:bg-slate-200 md:before:left-6">
           {experience.map((item) => (
@@ -69,8 +69,8 @@ export default function ExperiencePage() {
 
       <Section
         eyebrow="Impact themes"
-        title="What I want visitors to remember"
-        intro="Rather than treating every task equally, these are the themes that best describe the kind of engineering work I do."
+        title="Core engineering themes"
+        intro="The recurring themes behind my work: safe backend changes, reliability, production visibility, and maintainable systems."
       >
         <div className="grid gap-4 md:grid-cols-2">
           {impactAreas.map((area) => (

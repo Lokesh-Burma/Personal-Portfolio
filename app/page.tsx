@@ -1,24 +1,13 @@
 import Link from "next/link";
-import { PostCard, ProjectCard } from "@/components/cards";
+import { ProjectCard } from "@/components/cards";
 import { Section } from "@/components/section";
 import { SkillMap } from "@/components/skill-map";
 import { TechGrid } from "@/components/tech-grid";
-import { getAllBlogPosts, getAllCheatSheets, getAllProjects } from "@/lib/content";
+import { getAllProjects } from "@/lib/content";
 import { fundamentals, highlights, impactAreas, pipelineProjects, profile, skills, techHighlights } from "@/lib/profile";
-
-const featuredPostSlugs = [
-  "ai-writes-code-role-of-backend-developer",
-  "production-grade-backend-components",
-  "security-best-practices-production-workloads",
-];
 
 export default function Home() {
   const projects = getAllProjects().slice(0, 3);
-  const allPosts = getAllBlogPosts();
-  const posts = allPosts
-    .filter((post) => featuredPostSlugs.includes(post.slug))
-    .sort((a, b) => featuredPostSlugs.indexOf(a.slug) - featuredPostSlugs.indexOf(b.slug));
-  const cheatSheets = getAllCheatSheets().slice(0, 3);
 
   return (
     <main>
@@ -99,7 +88,7 @@ export default function Home() {
       <Section
         eyebrow="Technologies"
         title="Core tools at a glance"
-        intro="A quick visual map of the technologies I use most in backend, cloud, observability, and AI-assisted engineering work."
+        intro="A quick visual map of the tools I use most often across implementation, cloud, data, observability, and AI-assisted work."
       >
         <TechGrid items={techHighlights} />
       </Section>
@@ -115,7 +104,7 @@ export default function Home() {
       <Section
         eyebrow="Engineering themes"
         title="Selected engineering work"
-        intro="High-level summaries of backend work I want to be evaluated on. The language is intentionally generic so it explains the engineering value without exposing company-specific implementation details."
+        intro="High-level summaries of backend work, written generically so the engineering value is clear without exposing company-specific implementation details."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {projects.map((project) => (
@@ -150,40 +139,6 @@ export default function Home() {
         </Link>
       </Section>
 
-      {cheatSheets.length > 0 ? (
-        <Section
-          eyebrow="Reference"
-          title="Cheat sheets for daily engineering"
-          intro="Quick command references for tools I use often. These are useful for me and also show how I document practical workflows."
-        >
-          <div className="grid gap-5 lg:grid-cols-3">
-            {cheatSheets.map((sheet) => (
-              <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-teal-500" key={sheet.slug}>
-                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">{sheet.category}</p>
-                <h3 className="mt-3 text-xl font-semibold text-slate-950">{sheet.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{sheet.summary}</p>
-                <Link className="mt-5 inline-flex text-sm font-semibold text-teal-700 hover:text-teal-900" href={`/cheatsheets/${sheet.slug}`}>
-                  Open cheatsheet
-                </Link>
-              </article>
-            ))}
-          </div>
-        </Section>
-      ) : null}
-
-      {posts.length > 0 ? (
-        <Section
-          eyebrow="Writing"
-          title="Engineering notes"
-          intro="Featured posts focus on backend fundamentals, production systems, security, AI-assisted engineering, and the way I reason through technical tradeoffs."
-        >
-          <div className="grid gap-5 lg:grid-cols-3">
-            {posts.map((post) => (
-              <PostCard key={post.slug} {...post} />
-            ))}
-          </div>
-        </Section>
-      ) : null}
     </main>
   );
 }
