@@ -21,6 +21,7 @@ export const skills = [
       "NestJS",
       "REST APIs",
       "OpenAPI/Swagger",
+      "Postman",
     ],
   },
   {
@@ -165,6 +166,13 @@ export const techHighlights = [
     slug: "docker",
     color: "2496ED",
     tone: "bg-sky-50 border-sky-200",
+  },
+  {
+    name: "Postman",
+    icon: "P",
+    slug: "postman",
+    color: "FF6C37",
+    tone: "bg-orange-50 border-orange-200",
   },
   {
     name: "PostgreSQL",
