@@ -47,7 +47,7 @@ export const skills = [
   {
     group: "System Design",
     description:
-      "Core backend design concepts expected in SDE-II and senior backend roles.",
+      "Backend design concepts I use to reason about scale, reliability, and service communication.",
     items: [
       "Microservices",
       "Distributed Systems",
