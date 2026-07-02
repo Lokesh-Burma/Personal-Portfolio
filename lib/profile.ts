@@ -204,6 +204,13 @@ export const techHighlights = [
     tone: "bg-violet-50 border-violet-200",
   },
   {
+    name: "Redis",
+    icon: "R",
+    slug: "redis",
+    color: "FF4438",
+    tone: "bg-red-50 border-red-200",
+  },
+  {
     name: "Grafana",
     icon: "G",
     slug: "grafana",
