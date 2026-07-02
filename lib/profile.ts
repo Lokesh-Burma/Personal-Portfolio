@@ -17,14 +17,11 @@ export const skills = [
     items: [
       "PHP",
       "TypeScript",
-      "Go",
-      "JavaScript",
       "Node.js",
       "NestJS",
       "REST APIs",
       "OpenAPI/Swagger",
       "Webhooks",
-      "Clean Code",
     ],
   },
   {
@@ -74,7 +71,6 @@ export const skills = [
       "Lambda",
       "ECS/Fargate",
       "Docker",
-      "Git",
       "CI/CD",
       "Canary Rollouts",
     ],
@@ -85,14 +81,10 @@ export const skills = [
       "Signals I rely on to investigate failures, track health, and explain production behavior.",
     items: [
       "Grafana",
-      "ELK",
       "Kibana",
       "CloudWatch",
-      "Structured Logging",
-      "Metrics",
-      "Dashboards",
       "Root Cause Analysis",
-      "Incident Debugging",
+      "Five Why's RCA",
     ],
   },
   {
@@ -102,12 +94,10 @@ export const skills = [
     items: [
       "Claude Code",
       "MCP",
-      "Langflow",
       "Prompt Engineering",
       "AI-Assisted Debugging",
       "Log Analysis With AI",
       "RCA Workflows",
-      "Embedding Search",
     ],
   },
 ];
@@ -153,13 +143,6 @@ export const techHighlights = [
     slug: "typescript",
     color: "3178C6",
     tone: "bg-blue-50 border-blue-200",
-  },
-  {
-    name: "Go",
-    icon: "Go",
-    slug: "go",
-    color: "00ADD8",
-    tone: "bg-cyan-50 border-cyan-200",
   },
   {
     name: "Node.js",
