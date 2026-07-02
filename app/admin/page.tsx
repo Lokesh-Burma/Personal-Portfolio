@@ -1,0 +1,351 @@
+"use client";
+
+import { FormEvent, useEffect, useMemo, useState } from "react";
+
+type BlogPost = {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  content_markdown: string;
+  cover_image: string | null;
+  tags: string[];
+  status: "draft" | "published";
+  published_at: string | null;
+  updated_at: string;
+};
+
+type BlogPostForm = {
+  title: string;
+  slug: string;
+  summary: string;
+  content_markdown: string;
+  cover_image: string;
+  tags: string;
+  status: "draft" | "published";
+};
+
+const emptyPost: BlogPostForm = {
+  title: "",
+  slug: "",
+  summary: "",
+  content_markdown: "",
+  cover_image: "",
+  tags: "",
+  status: "draft",
+};
+
+function slugify(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export default function AdminPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authenticated, setAuthenticated] = useState(false);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyPost);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const selectedPost = useMemo(
+    () => posts.find((post) => post.id === selectedId) || null,
+    [posts, selectedId],
+  );
+
+  async function loadPosts() {
+    const response = await fetch("/api/admin/blogs");
+    if (response.status === 401) {
+      setAuthenticated(false);
+      return;
+    }
+    const data = await response.json();
+    setPosts(data.posts || []);
+  }
+
+  useEffect(() => {
+    fetch("/api/admin/session")
+      .then((response) => response.json())
+      .then((session) => {
+        setAuthenticated(session.authenticated);
+        if (session.authenticated) {
+          setEmail(session.email || "");
+          loadPosts();
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPost) {
+      setForm(emptyPost);
+      return;
+    }
+
+    setForm({
+      title: selectedPost.title,
+      slug: selectedPost.slug,
+      summary: selectedPost.summary || "",
+      content_markdown: selectedPost.content_markdown,
+      cover_image: selectedPost.cover_image || "",
+      tags: selectedPost.tags?.join(", ") || "",
+      status: selectedPost.status,
+    });
+  }, [selectedPost]);
+
+  async function login(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    setBusy(false);
+    if (!response.ok) {
+      setMessage("Login failed.");
+      return;
+    }
+
+    setPassword("");
+    setAuthenticated(true);
+    await loadPosts();
+  }
+
+  async function savePost(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+
+    const payload = {
+      ...form,
+      slug: form.slug || slugify(form.title),
+      tags: form.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    };
+
+    const response = await fetch(selectedId ? `/api/admin/blogs/${selectedId}` : "/api/admin/blogs", {
+      method: selectedId ? "PATCH" : "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    setBusy(false);
+
+    if (!response.ok) {
+      setMessage(data.error || "Save failed.");
+      return;
+    }
+
+    setMessage("Saved.");
+    setSelectedId(data.post.id);
+    await loadPosts();
+  }
+
+  async function removePost() {
+    if (!selectedId || !confirm("Delete this post?")) return;
+    setBusy(true);
+
+    const response = await fetch(`/api/admin/blogs/${selectedId}`, { method: "DELETE" });
+    setBusy(false);
+
+    if (!response.ok) {
+      setMessage("Delete failed.");
+      return;
+    }
+
+    setSelectedId(null);
+    setMessage("Deleted.");
+    await loadPosts();
+  }
+
+  async function logout() {
+    await fetch("/api/admin/logout", { method: "POST" });
+    setAuthenticated(false);
+    setPosts([]);
+  }
+
+  if (!authenticated) {
+    return (
+      <main className="mx-auto flex min-h-[calc(100vh-72px)] w-full max-w-md flex-col justify-center px-5 py-16">
+        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">Admin</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Sign in</h1>
+        <form onSubmit={login} className="mt-8 space-y-4">
+          <input
+            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          <input
+            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <button className="w-full rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white" disabled={busy}>
+            {busy ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+        {message ? <p className="mt-4 text-sm text-red-600">{message}</p> : null}
+      </main>
+    );
+  }
+
+  return (
+    <main className="border-t border-slate-200 bg-slate-50">
+      <div className="mx-auto min-h-[calc(100vh-72px)] w-full max-w-7xl px-5 py-10">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">
+              Admin
+            </p>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Blog editor</h1>
+            <p className="mt-1 text-sm text-slate-500">{email}</p>
+          </div>
+          <button className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700" onClick={logout}>
+            Sign out
+          </button>
+        </div>
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[320px_1fr]">
+          <aside className="space-y-3">
+            <button
+              className="w-full rounded-md bg-slate-950 px-4 py-2 text-left text-sm font-semibold text-white"
+              onClick={() => setSelectedId(null)}
+            >
+              New post
+            </button>
+            {posts.map((post) => (
+              <button
+                key={post.id}
+                className={`w-full rounded-lg border bg-white px-4 py-3 text-left text-sm shadow-sm transition ${
+                  post.id === selectedId ? "border-teal-600" : "border-slate-200"
+                }`}
+                onClick={() => setSelectedId(post.id)}
+              >
+                <span className="block font-semibold text-slate-950">{post.title}</span>
+                <span className="mt-1 block text-xs text-slate-500">{post.status}</span>
+              </button>
+            ))}
+          </aside>
+
+          <form onSubmit={savePost} className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="space-y-1 text-sm font-medium text-slate-700">
+                <span>Title</span>
+                <input
+                  className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  value={form.title}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      title: event.target.value,
+                      slug: current.slug || slugify(event.target.value),
+                    }))
+                  }
+                />
+              </label>
+              <label className="space-y-1 text-sm font-medium text-slate-700">
+                <span>Slug</span>
+                <input
+                  className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  value={form.slug}
+                  onChange={(event) => setForm((current) => ({ ...current, slug: event.target.value }))}
+                />
+              </label>
+            </div>
+
+            <label className="block space-y-1 text-sm font-medium text-slate-700">
+              <span>Summary</span>
+              <textarea
+                className="min-h-20 w-full rounded-md border border-slate-300 px-3 py-2"
+                value={form.summary}
+                onChange={(event) => setForm((current) => ({ ...current, summary: event.target.value }))}
+              />
+            </label>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="space-y-1 text-sm font-medium text-slate-700">
+                <span>Cover image URL</span>
+                <input
+                  className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  value={form.cover_image}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, cover_image: event.target.value }))
+                  }
+                />
+              </label>
+              <label className="space-y-1 text-sm font-medium text-slate-700">
+                <span>Tags</span>
+                <input
+                  className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  placeholder="backend, postgres, systems"
+                  value={form.tags}
+                  onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
+                />
+              </label>
+            </div>
+
+            <label className="block space-y-1 text-sm font-medium text-slate-700">
+              <span>Status</span>
+              <select
+                className="rounded-md border border-slate-300 px-3 py-2"
+                value={form.status}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    status: event.target.value as "draft" | "published",
+                  }))
+                }
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </label>
+
+            <label className="block space-y-1 text-sm font-medium text-slate-700">
+              <span>Markdown</span>
+              <textarea
+                className="min-h-[420px] w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm"
+                value={form.content_markdown}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, content_markdown: event.target.value }))
+                }
+              />
+            </label>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <button className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white" disabled={busy}>
+                {busy ? "Saving..." : "Save"}
+              </button>
+              {selectedId ? (
+                <button
+                  className="rounded-md border border-red-300 px-4 py-2 text-sm font-semibold text-red-600"
+                  type="button"
+                  onClick={removePost}
+                  disabled={busy}
+                >
+                  Delete
+                </button>
+              ) : null}
+              {message ? <p className="text-sm text-slate-500">{message}</p> : null}
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  );
+}

@@ -3,18 +3,35 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Markdown } from "@/components/markdown";
 import { getAllBlogPosts, getBlogPost } from "@/lib/content";
+import { getPublishedPostBySlug, hasBlogDbConfig } from "@/lib/blog-db";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return getAllBlogPosts().map((post) => ({ slug: post.slug }));
+export const dynamic = "force-dynamic";
+
+async function getPost(slug: string) {
+  if (hasBlogDbConfig()) {
+    const dbPost = await getPublishedPostBySlug(slug);
+
+    if (dbPost) {
+      return {
+        title: dbPost.title,
+        date: dbPost.published_at || dbPost.created_at,
+        summary: dbPost.summary || "",
+        body: dbPost.content_markdown,
+      };
+    }
+  }
+
+  const localPost = getAllBlogPosts().find((item) => item.slug === slug);
+  return localPost ? getBlogPost(slug) : null;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getAllBlogPosts().find((item) => item.slug === slug);
+  const post = await getPost(slug);
 
   if (!post) {
     return {};
@@ -28,14 +45,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = getAllBlogPosts().find((item) => item.slug === slug);
+  const post = await getPost(slug);
 
   if (!post) {
     notFound();
   }
-
-  const fullPost = getBlogPost(slug);
-
   return (
     <main className="border-t border-slate-200 bg-white">
       <article className="mx-auto max-w-3xl px-5 py-16">
@@ -43,9 +57,9 @@ export default async function BlogPostPage({ params }: PageProps) {
           Back to blog
         </Link>
         <p className="mt-8 text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">
-          {fullPost.date}
+          {post.date}
         </p>
-        <Markdown content={fullPost.body} />
+        <Markdown content={post.body} />
       </article>
     </main>
   );

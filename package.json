@@ -2,11 +2,13 @@
   "name": "lokesh-burma-portfolio",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.17.1",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "hash-password": "node scripts/hash-password.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

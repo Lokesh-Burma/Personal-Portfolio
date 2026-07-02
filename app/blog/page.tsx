@@ -1,9 +1,32 @@
 import { PostCard } from "@/components/cards";
 import { Section } from "@/components/section";
 import { getAllBlogPosts } from "@/lib/content";
+import { hasBlogDbConfig, listPublishedPosts } from "@/lib/blog-db";
 
-export default function BlogPage() {
-  const posts = getAllBlogPosts();
+export const dynamic = "force-dynamic";
+
+async function getPosts() {
+  if (!hasBlogDbConfig()) {
+    return getAllBlogPosts();
+  }
+
+  try {
+    const posts = await listPublishedPosts();
+    return posts.map((post) => ({
+      slug: post.slug,
+      title: post.title,
+      date: post.published_at || post.created_at,
+      summary: post.summary || "",
+      tags: post.tags || [],
+      body: "",
+    }));
+  } catch {
+    return getAllBlogPosts();
+  }
+}
+
+export default async function BlogPage() {
+  const posts = await getPosts();
 
   return (
     <main>
@@ -21,7 +44,7 @@ export default function BlogPage() {
         ) : (
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <p className="text-sm leading-6 text-slate-600">
-              No posts are published right now. Drafts are stored in the repository and will be added back after review.
+              No posts are published right now. Drafts can be managed from the admin editor.
             </p>
           </div>
         )}
