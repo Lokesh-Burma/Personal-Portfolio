@@ -21,7 +21,6 @@ export const skills = [
       "NestJS",
       "REST APIs",
       "OpenAPI/Swagger",
-      "Webhooks",
     ],
   },
   {
