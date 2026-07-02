@@ -69,7 +69,7 @@ export default function Home() {
       <Section
         eyebrow="Positioning"
         title="Backend engineer focused on reliable SaaS systems."
-        intro="This portfolio highlights the work I want to be evaluated on: backend APIs, databases, system design, production debugging, observability, cloud delivery, and practical AI-assisted engineering."
+        intro="I focus on backend APIs, databases, system design, production debugging, observability, cloud delivery, and practical AI-assisted engineering."
       >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {impactAreas.map((area) => (
