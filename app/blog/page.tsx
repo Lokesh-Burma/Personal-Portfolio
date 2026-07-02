@@ -1,28 +1,51 @@
+import { headers } from "next/headers";
 import { PostCard } from "@/components/cards";
 import { Section } from "@/components/section";
 import { getAllBlogPosts } from "@/lib/content";
-import { hasBlogDbConfig, listPublishedPosts } from "@/lib/blog-db";
 
 export const dynamic = "force-dynamic";
 
+type ApiBlogPost = {
+  slug: string;
+  title: string;
+  summary: string | null;
+  tags: string[];
+  published_at: string | null;
+  created_at: string;
+};
+
+async function getRequestOrigin() {
+  const headerStore = await headers();
+  const host = headerStore.get("x-forwarded-host") || headerStore.get("host");
+  const protocol = headerStore.get("x-forwarded-proto") || "http";
+
+  return host ? protocol + "://" + host : null;
+}
+
 async function getPosts() {
-  if (!hasBlogDbConfig()) {
-    return getAllBlogPosts();
+  const origin = await getRequestOrigin();
+
+  if (origin) {
+    try {
+      const response = await fetch(origin + "/api/blogs", { cache: "no-store" });
+
+      if (response.ok) {
+        const data = (await response.json()) as { posts?: ApiBlogPost[] };
+        return (data.posts || []).map((post) => ({
+          slug: post.slug,
+          title: post.title,
+          date: post.published_at || post.created_at,
+          summary: post.summary || "",
+          tags: post.tags || [],
+          body: "",
+        }));
+      }
+    } catch {
+      // Fall through to local MDX posts when the API is unavailable locally.
+    }
   }
 
-  try {
-    const posts = await listPublishedPosts();
-    return posts.map((post) => ({
-      slug: post.slug,
-      title: post.title,
-      date: post.published_at || post.created_at,
-      summary: post.summary || "",
-      tags: post.tags || [],
-      body: "",
-    }));
-  } catch {
-    return getAllBlogPosts();
-  }
+  return getAllBlogPosts();
 }
 
 export default async function BlogPage() {
