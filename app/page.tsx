@@ -107,7 +107,7 @@ export default function Home() {
       <Section
         eyebrow="Technology map"
         title="Tools grouped by engineering capability"
-        intro="Grouped by what each tool helps me do: build APIs, work with data, design systems, deploy safely, debug production, and use AI responsibly."
+        intro="A practical map of how I use tools across implementation, data, architecture, delivery, production support, and AI-assisted workflows."
       >
         <SkillMap items={skills} />
       </Section>

@@ -13,7 +13,7 @@ export const skills = [
   {
     group: "Backend Development",
     description:
-      "Languages, APIs, and service patterns I use to build production backend features.",
+      "Core languages and API patterns I use for service implementation and integration work.",
     items: [
       "PHP",
       "TypeScript",
@@ -30,7 +30,7 @@ export const skills = [
   {
     group: "Databases And Data",
     description:
-      "Relational, NoSQL, cache, and query skills used in backend systems.",
+      "Storage and query choices I use when balancing correctness, speed, and cost.",
     items: [
       "PostgreSQL",
       "DynamoDB",
@@ -47,7 +47,7 @@ export const skills = [
   {
     group: "System Design",
     description:
-      "Backend design concepts I use to reason about scale, reliability, and service communication.",
+      "Patterns I use to reason about scale, reliability, async work, and service communication.",
     items: [
       "Microservices",
       "Distributed Systems",
@@ -64,7 +64,7 @@ export const skills = [
   {
     group: "Cloud And Delivery",
     description:
-      "Cloud, containers, CI/CD, and deployment practices for production services.",
+      "Infrastructure and release tools I use to ship changes safely and keep services operable.",
     items: [
       "AWS",
       "IAM",
@@ -82,7 +82,7 @@ export const skills = [
   {
     group: "Observability And Debugging",
     description:
-      "Tools and practices for understanding production behavior and resolving issues.",
+      "Signals I rely on to investigate failures, track health, and explain production behavior.",
     items: [
       "Grafana",
       "ELK",
@@ -98,7 +98,7 @@ export const skills = [
   {
     group: "AI-Assisted Engineering",
     description:
-      "Practical AI workflows used as support for debugging, documentation, and analysis.",
+      "AI tools and workflows I use to speed up investigation, documentation, and RCA preparation.",
     items: [
       "Claude Code",
       "MCP",
