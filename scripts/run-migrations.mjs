@@ -1,5 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import process from 'node:process';
 import pg from 'pg';
 
 const { Pool } = pg;
