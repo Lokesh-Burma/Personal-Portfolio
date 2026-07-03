@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import cookieParser = require('cookie-parser');
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
