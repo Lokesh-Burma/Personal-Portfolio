@@ -22,6 +22,9 @@ export const skills = [
       "REST APIs",
       "OpenAPI/Swagger",
       "Postman",
+      "OOP",
+      "Design Patterns",
+      "Payload Validation",
     ],
   },
   {
@@ -51,6 +54,8 @@ export const skills = [
       "Rate Limiting",
       "Idempotency",
       "Retry Handling",
+      "Backoff Strategies",
+      "Circuit Breakers",
       "Load Balancing",
       "High Availability",
       "Failure Handling",
@@ -100,11 +105,11 @@ export const skills = [
 export const fundamentals = [
   {
     title: "Programming Fundamentals",
-    text: "Data structures, algorithms, clean code, modular design, and problem solving.",
+    text: "Data structures, algorithms, OOP, interfaces, modular design, and problem solving.",
   },
   {
     title: "Backend Fundamentals",
-    text: "REST APIs, validation, authentication, authorization, pagination, and API contracts.",
+    text: "REST APIs, request validation, authentication, authorization, pagination, and API contracts.",
   },
   {
     title: "Database Fundamentals",
@@ -112,15 +117,15 @@ export const fundamentals = [
   },
   {
     title: "System Design Fundamentals",
-    text: "Scalability, queues, retries, idempotency, rate limiting, load balancing, and fault tolerance.",
+    text: "Scalability, queues, retries, backoff, circuit breakers, idempotency, rate limiting, and fault tolerance.",
   },
   {
     title: "Production Fundamentals",
-    text: "Logging, metrics, dashboards, debugging, incident response, rollbacks, and reliability checks.",
+    text: "Health checks, monitoring, debugging, incident response, rollbacks, and reliability checks.",
   },
   {
     title: "Security Fundamentals",
-    text: "Secure coding, secrets management, JWT/OAuth, RBAC, encryption basics, and OWASP awareness.",
+    text: "Secure coding, secrets management, IAM, JWT/OAuth, RBAC, encryption basics, and OWASP awareness.",
   },
 ];
 
@@ -254,7 +259,7 @@ export const education = [
 ];
 
 export const highlights = [
-  "Built backend routing logic for large-scale SaaS data workflows with phased rollout controls.",
+  "Built backend routing logic for large-scale SaaS data workflows using explicit states and phased rollout controls.",
   "Improved reliability by classifying temporary, permanent, and customer-action-needed failures.",
   "Preserved retry history and error context to make production debugging easier.",
   "Built AI-assisted debugging workflows using logs, issue context, database checks, and RCA prompts.",
@@ -296,8 +301,9 @@ export const experience = [
     ],
     bullets: [
       "Backend systems: Implemented backend changes for large-scale SaaS data workflows while keeping read/write behavior safe.",
-      "Rollout safety: Used phased rollout logic, fallback paths, and tenant-level controls to reduce migration risk.",
+      "Rollout safety: Used explicit states, fallback paths, and tenant-level controls to reduce migration risk.",
       "Reliability: Classified temporary, permanent, and customer-action-needed failures so issues were easier to retry, inspect, and resolve.",
+      "Resilience: Worked with retry, backoff, and failure-handling patterns for long-running production workflows.",
       "Debugging: Preserved retry history, error codes, and workflow status details to make production issues easier to investigate.",
       "AI engineering: Built an AI-assisted debugging workflow that uses issue context, logs, database checks, and RCA prompts to suggest fix plans.",
       "Team enablement: Created setup guides and knowledge-transfer sessions so engineers could use AI-assisted debugging workflows independently.",
