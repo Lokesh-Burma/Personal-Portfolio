@@ -134,6 +134,7 @@ export const fundamentals = [
 export const techHighlights = [
   {
     name: "PHP",
+    group: "Languages",
     icon: "PHP",
     slug: "php",
     color: "777BB4",
@@ -141,6 +142,7 @@ export const techHighlights = [
   },
   {
     name: "TypeScript",
+    group: "Languages",
     icon: "TS",
     slug: "typescript",
     color: "3178C6",
@@ -148,6 +150,7 @@ export const techHighlights = [
   },
   {
     name: "Node.js",
+    group: "Backend & APIs",
     icon: "N",
     slug: "nodedotjs",
     color: "5FA04E",
@@ -155,6 +158,7 @@ export const techHighlights = [
   },
   {
     name: "NestJS",
+    group: "Backend & APIs",
     icon: "NS",
     slug: "nestjs",
     color: "E0234E",
@@ -162,6 +166,7 @@ export const techHighlights = [
   },
   {
     name: "AWS",
+    group: "Cloud & delivery",
     icon: "AWS",
     slug: "amazonwebservices",
     color: "FF9900",
@@ -169,6 +174,7 @@ export const techHighlights = [
   },
   {
     name: "Docker",
+    group: "Cloud & delivery",
     icon: "D",
     slug: "docker",
     color: "2496ED",
@@ -176,6 +182,7 @@ export const techHighlights = [
   },
   {
     name: "Postman",
+    group: "Backend & APIs",
     icon: "P",
     slug: "postman",
     color: "FF6C37",
@@ -183,6 +190,7 @@ export const techHighlights = [
   },
   {
     name: "PostgreSQL",
+    group: "Data & caching",
     icon: "PG",
     slug: "postgresql",
     color: "4169E1",
@@ -190,6 +198,7 @@ export const techHighlights = [
   },
   {
     name: "DynamoDB",
+    group: "Data & caching",
     icon: "DB",
     slug: "amazondynamodb",
     color: "4053D6",
@@ -197,6 +206,7 @@ export const techHighlights = [
   },
   {
     name: "Redis",
+    group: "Data & caching",
     icon: "R",
     slug: "redis",
     color: "FF4438",
@@ -204,6 +214,7 @@ export const techHighlights = [
   },
   {
     name: "Grafana",
+    group: "Observability",
     icon: "G",
     slug: "grafana",
     color: "F46800",
@@ -211,12 +222,14 @@ export const techHighlights = [
   },
   {
     name: "Claude Code",
+    group: "AI engineering",
     icon: "AI",
     slug: "anthropic",
     color: "191919",
     tone: "bg-teal-50 border-teal-200",
   },{
   "name": "Go",
+    group: "Languages",
   "icon": "Go",
   "slug": "go",
   "color": "00ADD8",
@@ -224,6 +237,7 @@ export const techHighlights = [
 },
 {
   "name": "Python",
+    group: "Languages",
   "icon": "Py",
   "slug": "python",
   "color": "3776AB",
@@ -231,6 +245,7 @@ export const techHighlights = [
 },
 {
   "name": "JavaScript",
+    group: "Languages",
   "icon": "Ja",
   "slug": "javascript",
   "color": "A88A00",
@@ -238,6 +253,7 @@ export const techHighlights = [
 },
 {
   "name": "Express.js",
+    group: "Backend & APIs",
   "icon": "Ex",
   "slug": "express",
   "color": "333333",
@@ -245,6 +261,7 @@ export const techHighlights = [
 },
 {
   "name": "Git",
+    group: "Cloud & delivery",
   "icon": "Gi",
   "slug": "git",
   "color": "F05032",
@@ -252,6 +269,7 @@ export const techHighlights = [
 },
 {
   "name": "Linux",
+    group: "Cloud & delivery",
   "icon": "Li",
   "slug": "linux",
   "color": "333333",
@@ -259,6 +277,7 @@ export const techHighlights = [
 },
 {
   "name": "Kibana",
+    group: "Observability",
   "icon": "Ki",
   "slug": "kibana",
   "color": "005571",
@@ -266,6 +285,7 @@ export const techHighlights = [
 },
 {
   "name": "LangFlow",
+    group: "AI engineering",
   "icon": "LF",
   "slug": "langflow",
   "color": "7C3AED",
@@ -273,6 +293,7 @@ export const techHighlights = [
 },
 {
   "name": "SQL",
+    group: "Data & caching",
   "icon": "SQL",
   "slug": null,
   "color": "4169E1",
@@ -280,6 +301,7 @@ export const techHighlights = [
 },
 {
   "name": "RAG",
+    group: "AI engineering",
   "icon": "RAG",
   "slug": null,
   "color": "0F766E",
@@ -287,6 +309,7 @@ export const techHighlights = [
 },
 {
   "name": "AI Agents",
+    group: "AI engineering",
   "icon": "AI",
   "slug": null,
   "color": "7C3AED",

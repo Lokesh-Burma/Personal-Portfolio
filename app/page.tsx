@@ -87,8 +87,8 @@ export default function Home() {
 
       <Section
         eyebrow="Technologies"
-        title="Core tools at a glance"
-        intro="A quick visual map of the tools I use most often across implementation, cloud, data, observability, and AI-assisted work."
+        title="The stacks behind my work"
+        intro="From backend services to AI-assisted workflows, here’s how my tools fit together."
       >
         <TechGrid items={techHighlights} />
       </Section>
