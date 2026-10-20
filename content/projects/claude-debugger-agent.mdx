@@ -1,49 +1,10 @@
 ---
-title: "AI-Assisted Debugging Workflow"
-stack: ["Claude Code", "MCP", "Azure DevOps", "Kibana", "Databases", "Prompt Engineering"]
-summary: "An AI-assisted debugging workflow that connects issue context, logs, database checks, and structured RCA prompts to support root-cause analysis and fix planning."
-outcome: "Reduced manual incident-analysis effort by making root-cause analysis more structured, repeatable, and easier for engineers to adopt."
+title: "AI-Assisted Debugging"
+stack: ["AI Engineering", "Developer Tools", "Human Review"]
+summary: "Investigation assistance that helps engineers organize context and review recommendations."
+outcome: "Made investigation findings easier to organize and assess."
 ---
 
-# AI-Assisted Debugging Workflow
+# AI-Assisted Debugging
 
-Production debugging often starts with scattered context: an issue description, logs, recent changes, database signals, and tribal knowledge from previous incidents. AI can help organize that context, but only when the workflow is structured and reviewed by engineers.
-
-This project focused on using AI as an investigation assistant, not as an unchecked decision maker.
-
-## Problem
-
-Debugging production issues can be slow when engineers have to manually collect issue details, inspect logs, check related data, and convert findings into a root-cause-analysis flow.
-
-The important engineering concerns were:
-
-- Gather useful context consistently.
-- Summarize signals without losing important details.
-- Keep the engineer in control of decisions.
-- Produce fix-plan suggestions that can be reviewed.
-- Help other engineers adopt the workflow.
-
-## Approach
-
-I built an AI-assisted debugging workflow that combined issue context, operational signals, database checks, and structured RCA prompts. The workflow helped produce investigation summaries and possible fix plans for engineer review.
-
-The design focused on:
-
-- Context collection from engineering tools.
-- Log and issue summarization.
-- Structured RCA prompts, including Five Why's analysis.
-- Database checks where appropriate.
-- Human review before any fix plan was treated as actionable.
-- Setup guides and team adoption support.
-
-## Engineering Value
-
-This work reduced manual investigation effort by making debugging more repeatable. It also helped engineers move from scattered signals to a clearer RCA path while keeping human review at the center of the workflow.
-
-## Skills Demonstrated
-
-- AI-assisted engineering workflows.
-- Production debugging.
-- Prompt design.
-- RCA preparation.
-- Engineering enablement.
+I developed AI-assisted debugging workflows to help engineers organize relevant context and prepare investigation summaries. The work focused on useful instructions, clear evidence, and reviewable recommendations. Engineers retain responsibility for validating findings and deciding on changes.

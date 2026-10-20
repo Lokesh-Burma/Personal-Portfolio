@@ -1,105 +1,107 @@
 export const profile = {
   name: "Lokesh Burma",
-  title: "Senior Software Engineer",
+  title: "Senior Backend Software Engineer",
   location: "Hyderabad, India",
   email: "lokesh.burma@outlook.com",
   linkedin: "https://www.linkedin.com/in/lokeshburma",
-  resumeHref: "/Lokesh_Burma_Resume.pdf",
+  resumeHref: "mailto:lokesh.burma@outlook.com?subject=Resume%20request",
   summary:
-    "Backend Software Engineer with 5 years of experience building SaaS backend systems, improving reliability, working with databases, and debugging production issues. I focus on clean APIs, scalable services, observability, and practical AI-assisted engineering.",
+    "Senior Backend Software Engineer with 5+ years of experience building distributed job-processing platforms and cloud-native SaaS microservices on AWS. I work with Go, Python, PHP, SQL, Node.js, and TypeScript and build AI-powered debugging and operational workflows.",
 };
 
 export const skills = [
   {
-    group: "Backend Development",
-    description:
-      "Core languages and API patterns I use for service implementation and integration work.",
-    items: [
+    "group": "Languages And Backend",
+    "description": "Production languages and frameworks for services and cloud integrations.",
+    "items": [
+      "Go",
+      "Python",
       "PHP",
+      "SQL",
+      "JavaScript",
       "TypeScript",
       "Node.js",
       "NestJS",
-      "REST APIs",
-      "OpenAPI/Swagger",
-      "Postman",
-      "OOP",
-      "Design Patterns",
-      "Payload Validation",
-    ],
+      "Express.js",
+      "REST API Design"
+    ]
   },
   {
-    group: "Databases And Data",
-    description:
-      "Storage and query choices I use when balancing correctness, speed, and cost.",
-    items: [
+    "group": "Data And Messaging",
+    "description": "Storage, caching, and asynchronous processing for distributed workloads.",
+    "items": [
       "PostgreSQL",
-      "DynamoDB",
       "Redis",
-      "Indexing",
-      "Query Optimization",
-      "Transactions",
-      "Data Modeling",
-      "Caching",
-    ],
+      "DynamoDB",
+      "Amazon SQS",
+      "Amazon RDS",
+      "S3 Tables",
+      "Athena"
+    ]
   },
   {
-    group: "System Design",
-    description:
-      "Patterns I use to reason about scale, reliability, async work, and service communication.",
-    items: [
+    "group": "Architecture And Security",
+    "description": "Designing reliable services and secure cloud integration workflows.",
+    "items": [
       "Microservices",
       "Distributed Systems",
-      "Event-Driven Architecture",
-      "Queues",
-      "Rate Limiting",
-      "Idempotency",
-      "Retry Handling",
-      "Backoff Strategies",
-      "Circuit Breakers",
-      "Load Balancing",
-      "High Availability",
-      "Failure Handling",
-    ],
+      "Asynchronous Processing",
+      "HLD",
+      "LLD",
+      "OAuth 2.0",
+      "Authentication",
+      "Authorization",
+      "RBAC",
+      "Secrets Management"
+    ]
   },
   {
-    group: "Cloud And Delivery",
-    description:
-      "Infrastructure and release tools I use to ship changes safely and keep services operable.",
-    items: [
-      "AWS",
-      "IAM",
+    "group": "AWS And Delivery",
+    "description": "Cloud services and delivery tools used across production systems.",
+    "items": [
+      "ECS",
       "EC2",
-      "S3",
-      "SQS",
+      "ELB",
       "Lambda",
-      "ECS/Fargate",
+      "FSx for Lustre",
+      "Parameter Store",
+      "ECR",
+      "Route 53",
+      "CodeCommit",
       "Docker",
+      "Git",
       "CI/CD",
-      "Canary Rollouts",
-    ],
+      "Azure DevOps",
+      "Linux"
+    ]
   },
   {
-    group: "Observability And Debugging",
-    description:
-      "Signals I rely on to investigate failures, track health, and explain production behavior.",
-    items: [
+    "group": "Quality And Operations",
+    "description": "Engineering practices for production delivery and incident response.",
+    "items": [
+      "Unit Testing",
+      "Integration Testing",
       "Grafana",
       "Kibana",
       "CloudWatch",
-      "Root Cause Analysis",
-      "Five Why's RCA",
-    ],
+      "Design Reviews",
+      "PR Reviews",
+      "Incident Response"
+    ]
   },
   {
-    group: "AI-Assisted Engineering",
-    description:
-      "AI tools and workflows I use to speed up investigation, documentation, and RCA preparation.",
-    items: [
+    "group": "AI Engineering",
+    "description": "Grounded agents for operational reporting and reviewed debugging recommendations.",
+    "items": [
+      "LangFlow",
+      "RAG",
+      "AI Agents",
+      "Agentic Workflows",
+      "Embeddings",
       "Claude Code",
-      "MCP",
-      "Prompt Engineering",
-    ],
-  },
+      "MCP"
+    ]
+  }
 ];
 
 export const fundamentals = [
@@ -240,144 +242,174 @@ export const pipelineProjects = [
 
 export const credentials = [
   {
-    title: "AWS Certified Solutions Architect - Associate",
-    detail: "Amazon Web Services, Dec 2021",
-  },
+    "title": "AWS Certified Solutions Architect - Associate",
+    "detail": "Amazon Web Services, 2021 - 2024 (Expired)"
+  }
 ];
 
 export const education = [
   {
-    degree: "Master of Technology, Cloud Computing",
-    school: "BITS Pilani, Work Integrated Learning Program",
-    period: "2025",
+    "degree": "Master of Technology, Cloud Computing",
+    "school": "BITS Pilani, Work Integrated Learning Program",
+    "period": "2023 - 2025"
   },
   {
-    degree: "Bachelor of Technology, Computer Science and Technology",
-    school: "Lovely Professional University",
-    period: "2021",
-  },
+    "degree": "Bachelor of Technology, Computer Science and Engineering",
+    "school": "Lovely Professional University",
+    "period": "2017 - 2021"
+  }
 ];
 
 export const highlights = [
-  "Built backend routing logic for large-scale SaaS data workflows using explicit states and phased rollout controls.",
-  "Improved reliability by classifying temporary, permanent, and customer-action-needed failures.",
-  "Preserved retry history and error context to make production debugging easier.",
-  "Built AI-assisted debugging workflows using logs, issue context, database checks, and RCA prompts.",
+  "Built and modernized distributed background processing for SaaS workloads.",
+  "Designed application changes that support safe data migrations and preserve data correctness.",
+  "Improved failure classification and diagnostic context for clearer production support.",
+  "Developed AI-assisted investigation and operational reporting with engineer review."
 ];
 
 export const impactAreas = [
   {
-    title: "SaaS Backend Architecture",
-    text: "Built backend features for multi-tenant SaaS systems with attention to data correctness, safe rollout, and maintainable service behavior.",
+    "title": "Distributed Backup Systems",
+    "text": "Built asynchronous backend services with attention to concurrency, reliability, and maintainability."
   },
   {
-    title: "Reliability And Debugging",
-    text: "Improved failure handling by making errors easier to classify, retry, inspect, and explain during production support.",
+    "title": "Data Migration And Reliability",
+    "text": "Improved data handling during storage transitions while preserving application correctness."
   },
   {
-    title: "AI-Assisted Engineering",
-    text: "Used AI tools to support debugging and RCA by combining logs, issue context, database checks, and structured engineering prompts.",
+    "title": "AI Operations And Debugging",
+    "text": "Developed AI-assisted workflows to organize operational context and support engineer-reviewed investigations."
   },
   {
-    title: "Production Ownership",
-    text: "Worked inside a large production codebase with focus on safe changes, clear handoff, monitoring, and operational readiness.",
-  },
+    "title": "Engineering Leadership",
+    "text": "Mentor junior engineers and contribute to design reviews, PR reviews, releases, and incident response."
+  }
 ];
 
 export const experience = [
   {
-    role: "Senior Software Engineer",
-    company: "SysCloud",
-    location: "Hyderabad, India",
-    period: "May 2023 - Present",
-    summary:
-      "Building and maintaining backend systems for SaaS product workloads, with focus on reliability, databases, observability, and AI-assisted debugging.",
-    focus: [
-      "Backend APIs",
-      "Reliability",
-      "Databases",
-      "Production Debugging",
-      "Observability",
+    "role": "Senior Software Engineer",
+    "company": "SysCloud Technologies Pvt Ltd",
+    "location": "Hyderabad, India",
+    "period": "May 2023 - Present",
+    "summary": "Building backend services with a focus on data correctness, reliability, and practical AI-assisted engineering.",
+    "focus": [
+      "PHP",
+      "PostgreSQL",
+      "Node.js",
+      "TypeScript",
+      "Python",
+      "AI Engineering",
+      "Technical Leadership"
     ],
-    bullets: [
-      "Backend systems: Implemented backend changes for large-scale SaaS data workflows while keeping read/write behavior safe.",
-      "Rollout safety: Used explicit states, fallback paths, and tenant-level controls to reduce migration risk.",
-      "Reliability: Classified temporary, permanent, and customer-action-needed failures so issues were easier to retry, inspect, and resolve.",
-      "Resilience: Worked with retry, backoff, and failure-handling patterns for long-running production workflows.",
-      "Debugging: Preserved retry history, error codes, and workflow status details to make production issues easier to investigate.",
-      "AI engineering: Built an AI-assisted debugging workflow that uses issue context, logs, database checks, and RCA prompts to suggest fix plans.",
-      "Team enablement: Created setup guides and knowledge-transfer sessions so engineers could use AI-assisted debugging workflows independently.",
-      "Operations: Built monitoring for production health signals and supported reliability work across cloud workloads.",
-    ],
+    "bullets": [
+      "Data reliability: Designed backend changes that support safe data migration and consistent application behavior.",
+      "Operations: Developed reporting workflows that help engineers review service health and investigate issues.",
+      "AI-assisted engineering: Built investigation assistants that organize relevant context and propose recommendations for engineer review.",
+      "Failure handling: Partnered with product and database teams to improve error classification, diagnostic history, and actionable explanations.",
+      "Leadership: Mentor junior engineers and contribute to design and PR reviews, releases, and incident response."
+    ]
   },
   {
-    role: "Software Engineer",
-    company: "SysCloud",
-    location: "Hyderabad, India",
-    period: "May 2021 - Apr 2023",
-    summary:
-      "Built and maintained backend services across SaaS product workflows while contributing to microservices and production support.",
-    focus: ["PHP", "Node.js", "Microservices", "Backend APIs", "Debugging"],
-    bullets: [
-      "Contributed to the transition from a PHP monolith to backend microservices.",
-      "Improved maintainability by helping split backend responsibilities into smaller services.",
-      "Worked on backend APIs, data persistence, debugging, and production support for SaaS workflows.",
+    "role": "Software Engineer",
+    "company": "SysCloud Technologies Pvt Ltd",
+    "location": "Hyderabad, India",
+    "period": "May 2021 - Apr 2023",
+    "summary": "Built backend services and contributed to application modernization and production reliability.",
+    "focus": [
+      "Go",
+      "PHP",
+      "Asynchronous Processing",
+      "Containers",
+      "Caching"
     ],
+    "bullets": [
+      "Backend development: Implemented asynchronous processing and improved maintainability of background workloads.",
+      "Resource efficiency: Improved resource allocation and reduced repeated service and database access.",
+      "Modernization: Contributed to service decomposition, containerized delivery, and clearer application logging."
+    ]
   },
   {
-    role: "Software Engineer Intern",
-    company: "SysCloud",
-    location: "Remote",
-    period: "Nov 2020 - Apr 2021",
-    summary:
-      "Supported monitoring, log analysis, and release coordination while learning production backend operations.",
-    focus: [
-      "CloudWatch",
-      "Grafana",
-      "Kibana",
-      "Log Analysis",
-      "Production Support",
+    "role": "Software Engineer Intern",
+    "company": "SysCloud Technologies Pvt Ltd",
+    "location": "Hyderabad, India",
+    "period": "Nov 2020 - Apr 2021",
+    "summary": "Started my engineering career at SysCloud before progressing to Software Engineer in May 2021.",
+    "focus": [
+      "Backend Engineering",
+      "Production Operations"
     ],
-    bullets: [
-      "Supported backend workload monitoring using CloudWatch, Grafana, and Kibana.",
-      "Analyzed logs, helped identify recurring production issues, and partnered with engineers on fixes and release coordination.",
-    ],
-  },
+    "bullets": [
+      "Built the foundation for subsequent work on distributed backup services and production reliability."
+    ]
+  }
 ];
 
 export const projects = [
   {
-    slug: "saas-data-routing-safety",
-    title: "SaaS Data Routing And Migration Safety",
-    summary:
-      "A backend data-routing initiative for a multi-tenant SaaS product, focused on safe storage decisions during a phased data movement workflow.",
-    stack: ["PostgreSQL", "Node.js", "AWS", "Distributed Systems", "State Machines"],
-    outcome:
-      "Improved data movement safety by making storage decisions explicit through phased state-machine routing and buffered update handling.",
-  },
-  {
-    slug: "claude-debugger-agent",
-    title: "AI-Assisted Debugging Workflow",
-    summary:
-      "A debugging workflow that connects issue context, logs, database checks, and structured RCA prompts to support root-cause analysis and fix planning.",
-    stack: [
-      "Claude Code",
-      "MCP",
-      "Azure DevOps",
-      "Kibana",
-      "Databases",
-      "Prompt Engineering",
+    "slug": "saas-data-routing-safety",
+    "title": "Safe Data Migration",
+    "stack": [
+      "Backend Architecture",
+      "Data Modeling",
+      "Reliability"
     ],
-    outcome:
-      "Reached 85%+ fix-plan accuracy and reduced manual incident-analysis effort across engineering teams.",
+    "summary": "Application changes that support data migration while maintaining correctness.",
+    "outcome": "Made data transitions easier to reason about and validate."
   },
   {
-    slug: "failure-classification-observability",
-    title: "Failure Classification And Observability",
-    summary:
-      "A reliability initiative that classified temporary, permanent, and customer-action-needed workflow failures while preserving retry history for clearer diagnostics.",
-    stack: ["Node.js", "PHP", "Kibana", "Grafana", "CloudWatch"],
-    outcome:
-      "Improved support visibility by standardizing failure categories, preserving retry history, and expanding structured diagnostic coverage.",
+    "slug": "claude-debugger-agent",
+    "title": "AI-Assisted Debugging",
+    "stack": [
+      "AI Engineering",
+      "Developer Tools",
+      "Human Review"
+    ],
+    "summary": "Investigation assistance that helps engineers organize context and review recommendations.",
+    "outcome": "Made investigation findings easier to organize and assess."
   },
+  {
+    "slug": "failure-classification-observability",
+    "title": "Failure Classification And Diagnostics",
+    "stack": [
+      "Reliability",
+      "Error Handling",
+      "Collaboration"
+    ],
+    "summary": "Clearer failure descriptions and diagnostic context for backend workflows.",
+    "outcome": "Improved the clarity of failure handling for engineering and support."
+  },
+  {
+    "slug": "distributed-backup-platform",
+    "title": "Distributed Background Processing",
+    "stack": [
+      "Distributed Systems",
+      "Asynchronous Processing",
+      "Containers"
+    ],
+    "summary": "Backend processing designed for reliable asynchronous workloads.",
+    "outcome": "Improved service maintainability and production diagnostics."
+  },
+  {
+    "slug": "fsx-allocation-modernization",
+    "title": "Resource Allocation Improvements",
+    "stack": [
+      "Backend Development",
+      "Caching",
+      "Reliability"
+    ],
+    "summary": "More efficient resource selection and reduced repeated work.",
+    "outcome": "Simplified resource handling while maintaining reliability."
+  },
+  {
+    "slug": "ai-operations-reporting",
+    "title": "AI-Assisted Operations Reporting",
+    "stack": [
+      "AI Engineering",
+      "Automation",
+      "Observability"
+    ],
+    "summary": "Operational summaries that help engineers review service health.",
+    "outcome": "Reduced repetitive context gathering and improved report consistency."
+  }
 ];

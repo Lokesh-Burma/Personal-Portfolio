@@ -21,7 +21,7 @@ export default function ContactPage() {
           </Link>
           <Link className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-teal-500" href={profile.resumeHref}>
             <p className="text-sm font-semibold text-slate-500">Resume</p>
-            <p className="mt-2 font-semibold text-slate-950">Download PDF</p>
+            <p className="mt-2 font-semibold text-slate-950">Request by email</p>
           </Link>
         </div>
       </Section>

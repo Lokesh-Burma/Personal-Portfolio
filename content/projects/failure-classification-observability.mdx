@@ -1,49 +1,10 @@
 ---
-title: "Failure Classification And Observability"
-stack: ["Node.js", "PHP", "Kibana", "Grafana", "CloudWatch"]
-summary: "A reliability initiative that classified temporary, permanent, and customer-action-needed workflow failures while preserving retry history for clearer diagnostics."
-outcome: "Improved support visibility by standardizing failure categories, preserving retry history, and expanding structured diagnostic coverage."
+title: "Failure Classification And Diagnostics"
+stack: ["Reliability", "Error Handling", "Collaboration"]
+summary: "Clearer failure descriptions and diagnostic context for backend workflows."
+outcome: "Improved the clarity of failure handling for engineering and support."
 ---
 
-# Failure Classification And Observability
+# Failure Classification And Diagnostics
 
-Production workflows fail for different reasons. Some failures are temporary and can be retried. Some are permanent. Some require action outside the system before the workflow can succeed.
-
-This project focused on making failure states clearer so engineers and support teams could understand what happened and decide what to do next.
-
-## Problem
-
-When failure categories are unclear, production debugging becomes slower. Teams spend more time reading logs, checking retry attempts, and figuring out whether an issue can recover automatically or needs manual action.
-
-The important engineering concerns were:
-
-- Separate temporary failures from permanent failures.
-- Identify customer-action-needed cases clearly.
-- Preserve retry history for debugging.
-- Improve visibility into workflow status.
-- Make failures easier to explain and support.
-
-## Approach
-
-I worked on backend changes that standardized failure categories and preserved useful retry context. The goal was to make each failed workflow easier to inspect without requiring deep code or log investigation every time.
-
-The design focused on:
-
-- Clear failure taxonomy.
-- Retry-history preservation.
-- Status models that explain current workflow state.
-- Error context useful for engineering and support.
-- Retry and backoff behavior for recoverable failures.
-- Health checks and operational checks where needed.
-
-## Engineering Value
-
-This work improved production support by turning unclear failures into understandable states. It helped teams identify retryable issues faster, separate permanent failures from temporary ones, and explain customer-action-needed cases more clearly.
-
-## Skills Demonstrated
-
-- Reliability engineering.
-- Failure classification.
-- Production debugging.
-- Observability practices.
-- Operational support workflows.
+I partnered with product and database teams to improve how backend failures are classified and explained. My contributions focused on diagnostic history, retryability, and understandable next steps. This made failure behavior easier to reason about and support.

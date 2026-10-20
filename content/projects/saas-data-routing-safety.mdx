@@ -1,49 +1,10 @@
 ---
-title: "SaaS Data Routing And Migration Safety"
-stack: ["PostgreSQL", "Node.js", "AWS", "Distributed Systems", "State Machines"]
-summary: "A backend data-routing initiative for a multi-tenant SaaS product, focused on safe storage decisions during a phased data movement workflow."
-outcome: "Improved data movement safety by making storage decisions explicit through phased state-machine routing and buffered update handling."
+title: "Safe Data Migration"
+stack: ["Backend Architecture", "Data Modeling", "Reliability"]
+summary: "Application changes that support data migration while maintaining correctness."
+outcome: "Made data transitions easier to reason about and validate."
 ---
 
-# SaaS Data Routing And Migration Safety
+# Safe Data Migration
 
-Large SaaS systems often need to move data without interrupting normal product behavior. The difficult part is not only moving existing records. The backend also has to keep handling new reads, inserts, and updates while the transition is in progress.
-
-This project focused on making those storage decisions explicit and safe inside a multi-tenant backend workflow.
-
-## Problem
-
-The system needed a controlled way to decide where data should be read from and written to during a phased storage transition. A simple cutover would have increased the risk of incorrect updates, duplicate writes, or inconsistent behavior across tenants.
-
-The important engineering concerns were:
-
-- Keep read and write behavior safe during migration.
-- Support phased rollout instead of one large switch.
-- Avoid corrupting or incorrectly updating tenant data.
-- Preserve fallback paths while the system was transitioning.
-- Make production behavior easier to inspect.
-
-## Approach
-
-I implemented backend routing logic using explicit workflow states. Each state represented a safe phase of the transition and helped the application decide how to handle incoming data.
-
-The design focused on:
-
-- Clear state-based routing rules.
-- Tenant-level rollout control.
-- Fallback behavior for safer operation.
-- Buffered update handling for controlled processing.
-- Idempotent update behavior where repeated processing could happen.
-- Operational visibility around data decisions.
-
-## Engineering Value
-
-This work improved safety by making storage behavior deliberate instead of implicit. It also made the system easier to reason about during rollout because engineers could inspect the current phase, understand expected behavior, and validate changes gradually.
-
-## Skills Demonstrated
-
-- Backend data-flow design.
-- State-machine based rollout.
-- Multi-tenant safety.
-- Distributed systems thinking.
-- Production migration planning.
+Data migrations require applications to remain correct as storage changes. I contributed backend logic and collaborated on validation to support safe transitions. My work emphasized clear responsibilities, maintainable data handling, and preserving expected application behavior.

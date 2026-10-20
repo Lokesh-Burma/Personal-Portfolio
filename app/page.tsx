@@ -15,7 +15,7 @@ export default function Home() {
         <div className="mx-auto grid min-h-[calc(100vh-73px)] max-w-6xl content-center gap-12 px-5 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">
-              Senior Software Engineer | Backend systems and production reliability
+              {profile.title} | Distributed systems and AI engineering
             </p>
             <h1 className="mt-5 max-w-4xl text-5xl font-semibold tracking-tight text-slate-950 md:text-7xl">
               Lokesh Burma
@@ -38,7 +38,7 @@ export default function Home() {
                 className="rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
                 href={profile.resumeHref}
               >
-                Download resume
+                Request resume
               </Link>
             </div>
           </div>
@@ -104,7 +104,7 @@ export default function Home() {
       <Section
         eyebrow="Engineering themes"
         title="Selected engineering work"
-        intro="High-level summaries of backend work, written generically so the engineering value is clear without exposing company-specific implementation details."
+        intro="Selected work across distributed backup processing, historical-data migration, reliability, and AI-powered operations."
       >
         <div className="grid gap-5 lg:grid-cols-3">
           {projects.map((project) => (
