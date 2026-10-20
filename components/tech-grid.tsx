@@ -1,6 +1,7 @@
 type TechItem = {
   name: string;
-  slug: string;
+  slug: string | null;
+  icon: string;
   color: string;
   tone: string;
 };
@@ -15,7 +16,7 @@ export function TechGrid({ items }: TechGridProps) {
       {items.map((item) => (
         <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm" key={item.name}>
           <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-md border ${item.tone}`}>
-            <div
+            {item.slug ? <div
               aria-hidden="true"
               className="h-6 w-6"
               style={{
@@ -29,7 +30,11 @@ export function TechGrid({ items }: TechGridProps) {
                 WebkitMaskSize: "contain",
                 maskSize: "contain",
               }}
-            />
+            /> : (
+              <span aria-hidden="true" className="text-xs font-bold" style={{ color: `#${item.color}` }}>
+                {item.icon}
+              </span>
+            )}
           </div>
           <p className="text-sm font-semibold text-slate-950">{item.name}</p>
         </div>

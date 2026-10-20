@@ -210,12 +210,88 @@ export const techHighlights = [
     tone: "bg-orange-50 border-orange-200",
   },
   {
-    name: "Claude",
+    name: "Claude Code",
     icon: "AI",
     slug: "anthropic",
     color: "191919",
     tone: "bg-teal-50 border-teal-200",
-  },
+  },{
+  "name": "Go",
+  "icon": "Go",
+  "slug": "go",
+  "color": "00ADD8",
+  "tone": "bg-cyan-50 border-cyan-200"
+},
+{
+  "name": "Python",
+  "icon": "Py",
+  "slug": "python",
+  "color": "3776AB",
+  "tone": "bg-blue-50 border-blue-200"
+},
+{
+  "name": "JavaScript",
+  "icon": "Ja",
+  "slug": "javascript",
+  "color": "A88A00",
+  "tone": "bg-yellow-50 border-yellow-200"
+},
+{
+  "name": "Express.js",
+  "icon": "Ex",
+  "slug": "express",
+  "color": "333333",
+  "tone": "bg-slate-50 border-slate-200"
+},
+{
+  "name": "Git",
+  "icon": "Gi",
+  "slug": "git",
+  "color": "F05032",
+  "tone": "bg-orange-50 border-orange-200"
+},
+{
+  "name": "Linux",
+  "icon": "Li",
+  "slug": "linux",
+  "color": "333333",
+  "tone": "bg-slate-50 border-slate-200"
+},
+{
+  "name": "Kibana",
+  "icon": "Ki",
+  "slug": "kibana",
+  "color": "005571",
+  "tone": "bg-cyan-50 border-cyan-200"
+},
+{
+  "name": "LangFlow",
+  "icon": "LF",
+  "slug": "langflow",
+  "color": "7C3AED",
+  "tone": "bg-violet-50 border-violet-200"
+},
+{
+  "name": "SQL",
+  "icon": "SQL",
+  "slug": null,
+  "color": "4169E1",
+  "tone": "bg-blue-50 border-blue-200"
+},
+{
+  "name": "RAG",
+  "icon": "RAG",
+  "slug": null,
+  "color": "0F766E",
+  "tone": "bg-teal-50 border-teal-200"
+},
+{
+  "name": "AI Agents",
+  "icon": "AI",
+  "slug": null,
+  "color": "7C3AED",
+  "tone": "bg-violet-50 border-violet-200"
+},
 ];
 
 export const pipelineProjects = [
