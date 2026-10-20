@@ -1,14 +1,10 @@
 import Link from "next/link";
-import { ProjectCard } from "@/components/cards";
 import { Section } from "@/components/section";
 import { SkillMap } from "@/components/skill-map";
 import { TechGrid } from "@/components/tech-grid";
-import { getAllProjects } from "@/lib/content";
 import { fundamentals, highlights, impactAreas, pipelineProjects, profile, skills, techHighlights } from "@/lib/profile";
 
 export default function Home() {
-  const projects = getAllProjects().slice(0, 3);
-
   return (
     <main>
       <section className="bg-white">
@@ -24,9 +20,9 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 className="rounded-md bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-                href="/projects"
+                href="/experience"
               >
-                View engineering themes
+                View experience
               </Link>
               <Link
                 className="rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
@@ -99,18 +95,6 @@ export default function Home() {
         intro="A practical map of how I use tools across implementation, data, architecture, delivery, production support, and AI-assisted workflows."
       >
         <SkillMap items={skills} />
-      </Section>
-
-      <Section
-        eyebrow="Engineering themes"
-        title="Selected engineering work"
-        intro="Selected work across distributed backup processing, historical-data migration, reliability, and AI-powered operations."
-      >
-        <div className="grid gap-5 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard key={project.slug} {...project} />
-          ))}
-        </div>
       </Section>
 
       <Section
