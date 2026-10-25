@@ -1,3 +1,5 @@
+import {referenceFor} from '../reference-notes.mjs';
+import { requestLocalContent, inspectOllama } from '../ollama-provider.mjs';
 import { renderMemorySvg } from '../memory.mjs';
 import test from 'node:test';
 import http from 'node:http';
@@ -7,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createApp } from '../server.mjs';
 import { Store,catalog,generate,renderSvg,uploadToS3 } from '../core.mjs';
-async function fixture(t,options={}){const directory=await mkdtemp(join(tmpdir(),'techcanvas-test-'));const app=await createApp({directory,...options});await new Promise(r=>app.server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${app.server.address().port}`;t.after(async()=>{await app.close();await rm(directory,{recursive:true,force:true});});return {...app,base,directory};}
+async function fixture(t,options={}){const directory=await mkdtemp(join(tmpdir(),'techcanvas-test-'));const app=await createApp({directory,provider:'demo',...options});await new Promise(r=>app.server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${app.server.address().port}`;t.after(async()=>{await app.close();await rm(directory,{recursive:true,force:true});});return {...app,base,directory};}
 async function done(app,id){for(let i=0;i<100;i++){const j=app.store.get(id);if(['completed','failed'].includes(j.status))return j;await new Promise(r=>setTimeout(r,10));}throw new Error('Job never finished');}
 const post=(base,data,key)=>fetch(base+'/api/jobs',{method:'POST',headers:{'Content-Type':'application/json',...(key?{'Idempotency-Key':key}:{})},body:JSON.stringify(data)});
 test('HTTP workflow persists content and exports the portfolio draft contract',async t=>{const app=await fixture(t);assert.equal((await fetch(app.base)).status,200);const r=await post(app.base,{topic:'Cache Aside'},'test-key');assert.equal(r.status,202);const job=await done(app,(await r.json()).id);assert.equal(job.status,'completed');assert.match(job.content.paragraph,/TTL/);for(const name of ['summary.svg','memory.svg','concept-1.svg','concept-2.svg','concept-3.svg','caption.txt','blog.md','portfolio.json'])assert.equal((await fetch(`${app.base}/api/jobs/${job.id}/assets/${name}`)).status,200);const exported=await fetch(`${app.base}/api/jobs/${job.id}/assets/portfolio.json`).then(r=>r.json());assert.equal(exported.status,'draft');assert.match(exported.content_markdown,/# Cache Aside/);assert.equal(exported.title,'Cache Aside');assert.equal((await fetch(app.base+'/api/jobs').then(r=>r.json())).jobs.length,1);});
@@ -43,4 +45,55 @@ test('existing packs receive a memory image without another provider call',async
   assert.match(await response.text(),/CHECK → FILL → FORGET/);
   assert.equal(generations,1);
   assert.match((await app.store.asset(job.id,'memory.svg')).toString(),/visual memory aid/);
+});
+
+test('local model selection rejects cloud models and remote endpoints before fetching',async()=>{
+  for(const model of ['llama3.2:cloud','https://ollama.com/model','gpt-oss-cloud','../model','']){
+    let calls=0;
+    await assert.rejects(requestLocalContent('Databases',model,async()=>calls++),/disabled/);
+    assert.equal(calls,0);
+  }
+});
+test('local adapter requests a bounded schema and reports actionable failures',async()=>{
+  await requestLocalContent('Circuit breakers','llama3.2:3b',async(url,options)=>{
+    const input=JSON.parse(options.body);
+    assert.equal(options.redirect,'error');assert.equal(input.format.type,'object');assert.equal(input.format.properties.concepts.maxItems,3);
+    assert.equal(input.options.num_ctx,4096);assert.equal(input.keep_alive,'2m');
+    return {ok:true,json:async()=>({response:JSON.stringify(catalog.Idempotency)})};
+  });
+  await assert.rejects(requestLocalContent('x','test',async()=>{throw new Error('ECONNREFUSED');}),/ai:serve/);
+  await assert.rejects(requestLocalContent('x','test',async()=>({ok:false,status:404})),/ai:pull/);
+  await assert.rejects(requestLocalContent('x','test',async()=>({ok:true,json:async()=>({response:'{',done_reason:'length'})})),/output limit/);
+  await assert.rejects(requestLocalContent('x','test',async()=>({ok:true,json:async()=>({response:'{'})})),/invalid JSON/);
+  await assert.rejects(requestLocalContent('x','test',async()=>{throw Object.assign(new Error('timeout'),{name:'TimeoutError'});}),/two minutes/);
+});
+test('readiness distinguishes offline, missing, remote and installed local models',async()=>{
+  const offline=await inspectOllama('test',async()=>{throw new Error('offline');});assert.equal(offline.ready,false);assert.match(offline.error,/ai:serve/);
+  const missing=await inspectOllama('test',async()=>({ok:true,json:async()=>({models:[]})}));assert.match(missing.error,/ai:pull/);
+  assert.equal((await inspectOllama('test',async()=>({ok:true,json:async()=>({models:[{name:'test',remote_host:'https://ollama.com'}]})}))).ready,false);
+  assert.equal((await inspectOllama('test',async()=>({ok:true,json:async()=>({models:[{name:'test:latest'}]})}))).ready,true);
+});
+test('jobs wait in the queue until the previous inference completes',async t=>{
+  let release;const wait=new Promise(resolve=>release=resolve);let started=0;
+  const app=await fixture(t,{generator:async()=>{started++;await wait;return structuredClone(catalog.Idempotency);}});
+  try{
+    const first=await post(app.base,{topic:'Idempotency'}).then(r=>r.json());
+    const second=await post(app.base,{topic:'Message Queues'}).then(r=>r.json());
+    assert.equal(app.store.get(first.id).status,'running');assert.equal(app.store.get(second.id).status,'queued');assert.equal(started,1);
+    release();assert.equal((await done(app,second.id)).status,'completed');assert.equal(started,2);
+  }finally{release();}
+});
+
+test('ambiguous software topics receive reviewed grounding and trusted reference links',async()=>{
+  const content=await requestLocalContent('Circuit breakers','test',async(url,options)=>{
+    const input=JSON.parse(options.body);
+    assert.match(input.prompt,/SOFTWARE resilience pattern/);assert.match(input.prompt,/Half-open/);
+    return {ok:true,json:async()=>({response:JSON.stringify({...catalog.Idempotency,sources:[{title:'invented',url:'https://untrusted.example'}]})})};
+  });
+  assert.equal(content.sources.length,1);assert.match(content.sources[0].url,/learn.microsoft.com/);
+});
+
+test('reference lookup treats constructor and prototype names as ordinary custom topics',()=>{
+  assert.equal(referenceFor('constructor'),null);assert.equal(referenceFor('__proto__'),null);
+  assert.equal(referenceFor('Circuit Breaker').url,referenceFor('Circuit breakers').url);
 });

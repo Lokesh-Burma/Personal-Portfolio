@@ -23,16 +23,42 @@ Default mode is explicitly **curated demo**, with Cache Aside, Idempotency, and 
 
 ## Real local AI
 
-The Ollama adapter accepts arbitrary technical topics and renders its structured response into diagrams. Ollama and model weights were **not installed** on this machine during implementation, so live model inference remains unverified. No automatic installation or model download occurs.
+The Ollama adapter accepts arbitrary technical topics and renders its structured response into diagrams. On macOS, install the free CLI once:
 
-With an already-installed local Ollama server and an installed model, set these in `.env`, then restart:
+```sh
+brew install ollama
+```
+
+Start the local runtime in a separate terminal:
+
+```sh
+npm run ai:serve
+```
+
+Then download the selected local model (about 2.5 GB for the default 4B model):
+
+```sh
+npm run ai:pull
+npm run ai:check
+```
+
+Set these in `.env`, then restart the app with `npm run dev`:
 
 ```dotenv
 CONTENT_PROVIDER=ollama
-OLLAMA_MODEL=llama3.2
+OLLAMA_MODEL=qwen3:4b
 ```
 
-The only inference endpoint is `http://127.0.0.1:11434/api/generate`; hosted/paid providers cannot be selected. Model calls time out after two minutes. Invalid output fails visibly rather than silently falling back to demo content. The diagrams are deterministic SVG compositions of the explanation, not diffusion-generated illustrations. Browser downloads rasterize them to 1080 × 1080 PNGs.
+The runtime command binds to `127.0.0.1:11434`, disables Ollama cloud features, permits one inference at a time, and stores models in the ignored `data/ollama/models` directory. It does not create a login service. Keep its terminal open while using AI; Ctrl+C stops it. Models unload after two idle minutes to release memory.
+
+The app only calls the fixed localhost endpoint and rejects cloud model names and remote URLs. JSON-schema output and validation keep each pack structured; malformed or truncated output fails visibly. Jobs wait in the application queue before starting their two-minute inference timeout. The studio reports missing-runtime/model errors with the appropriate setup command.
+
+```sh
+npm test             # offline tests; no model installation needed
+npm run test:live    # real local inference for three technical topics
+```
+
+Live evaluations write generated samples and timings to ignored `data/evaluations/` for review. They verify the job/export pipeline and a few focused regressions, not the factual correctness of every explanation. Three initial topics (indexing, circuit breakers, consistent hashing) include reviewed reference notes; their source links appear in Writing and in the blog draft. Other topics remain ungrounded local-model drafts and must be reviewed. No runtime web search is performed. The diagrams are SVG compositions of the explanation, not diffusion-generated illustrations. Browser downloads rasterize them to 1080 × 1080 PNGs.
 
 ## Review and export
 

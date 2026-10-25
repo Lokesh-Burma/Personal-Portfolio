@@ -1,3 +1,4 @@
+import { DEFAULT_MODEL, inspectOllama, validateLocalModel } from './ollama-provider.mjs';
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { resolve, dirname, join } from 'node:path';
@@ -5,11 +6,13 @@ import { fileURLToPath } from 'node:url';
 import { Store, catalog, assetNames, uploadToS3 } from './core.mjs';
 const root=dirname(fileURLToPath(import.meta.url));
 const uuid=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
-export async function createApp({directory=resolve(process.env.DATA_DIR||join(root,'data')),provider=process.env.CONTENT_PROVIDER||'demo',model=process.env.OLLAMA_MODEL||'llama3.2',generator}={}) {
+export async function createApp({directory=resolve(process.env.DATA_DIR||join(root,'data')),provider=process.env.CONTENT_PROVIDER||'demo',model=process.env.OLLAMA_MODEL||DEFAULT_MODEL,generator}={}) {
   if(!['demo','ollama'].includes(provider)) throw new Error('CONTENT_PROVIDER must be demo or ollama.');
+  if(provider==='ollama')validateLocalModel(model);
   const store=await new Store(directory).init();
-  const pending=new Set();
-  const schedule=id=>{const task=store.run(id,model,generator); pending.add(task); task.finally(()=>pending.delete(task));};
+  let worker=Promise.resolve();
+  // Serialize generation so queued jobs do not spend their timeout waiting for the GPU.
+  const schedule=id=>{worker=worker.then(()=>store.run(id,model,generator));};
   const server=http.createServer(async(req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff'); res.setHeader('Referrer-Policy','no-referrer');
     res.setHeader('Content-Security-Policy',"default-src 'self'; img-src 'self' blob:; style-src 'self'; script-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'");
@@ -20,7 +23,8 @@ export async function createApp({directory=resolve(process.env.DATA_DIR||join(ro
       if(!/^(127\.0\.0\.1|localhost)(:\d+)?$/.test(req.headers.host||'')) return send(403,{error:'Local requests only.'});
       if(req.headers.origin && ![`http://${req.headers.host}`].includes(req.headers.origin)) return send(403,{error:'Cross-origin requests are blocked.'});
       const path=new URL(req.url,'http://localhost').pathname;
-      if(req.method==='GET' && path==='/api/config') return send(200,{provider,topics:Object.keys(catalog),s3Enabled:process.env.S3_UPLOAD_APPROVED==='true'});
+      if(req.method==='GET' && path==='/api/config') return send(200,{provider,model:provider==='ollama'?model:null,topics:Object.keys(catalog),s3Enabled:process.env.S3_UPLOAD_APPROVED==='true'});
+      if(req.method==='GET' && path==='/api/provider') return send(200,provider==='ollama'?await inspectOllama(model):{ready:true,provider:'demo'});
       if(req.method==='GET' && path==='/api/health') return send(200,{ok:true});
       if(req.method==='GET' && path==='/api/jobs') return send(200,{jobs:store.list()});
       if(req.method==='POST' && path==='/api/jobs') {
@@ -62,7 +66,7 @@ export async function createApp({directory=resolve(process.env.DATA_DIR||join(ro
     } catch(error) { send(error.status||500,{error:error.status?error.message:'The operation failed. Check local configuration and try again.'}); }
   });
   server.requestTimeout=15000;
-  return {server,store,async close(){await new Promise(r=>server.close(r));await Promise.allSettled(pending);store.close();}};
+  return {server,store,async close(){await new Promise(r=>server.close(r));await worker;store.close();}};
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const app=await createApp(); const port=Number(process.env.PORT||4310);
