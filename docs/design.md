@@ -59,3 +59,7 @@ SQLite stores metadata/content and an optional unique request key with request f
 2. Review the proposed hosting bill and approve any AWS usage.
 3. Add authenticated HTTPS hosting, scoped private S3 access, retention/backups and budget alerts.
 4. Add portfolio draft creation with explicit user review. Instagram publishing requires a separately authorized integration.
+
+## Visual memory aid
+
+Each pack includes an additional icon/diagram image with a recall cue. Curated examples use topic-specific flows; custom AI topics use a connected concept map. SVG is persisted with the other assets; Canvas exports PNG in the browser. Older completed packs lazily receive this new asset using their stored content, without another inference request.

@@ -1,6 +1,6 @@
 # TechCanvas AI
 
-A local concept studio: technical topic → three visual notes + one summary image + one sentence + one paragraph + a Markdown blog draft. Export square PNGs for Instagram and draft JSON matching the existing portfolio API.
+A local concept studio: technical topic → three visual notes + one summary image + an icon-based visual memory aid + one sentence + one paragraph + a Markdown blog draft. Export square PNGs for Instagram and draft JSON matching the existing portfolio API.
 
 ## Run locally
 
@@ -45,7 +45,7 @@ Nothing is posted to Instagram or your portfolio automatically. This MVP does no
 
 ## Optional S3 adapter — disabled
 
-`S3_UPLOAD_APPROVED=false` is the shipped default. Merely having AWS credentials does not enable it. **Do not change it until the user explicitly approves paid AWS usage.** After approval, configure an existing private bucket, region, AWS CLI and scoped credentials externally. An explicit button uploads the seven text/SVG files under `techcanvas/<job-id>/`. PNGs are browser exports and are not uploaded by this adapter. No bucket creation, public ACL, scheduled upload or deployment code runs. A partial upload can be retried at the same keys; extra PUTs may cost money. CLI integration is tested with a fake runner, not a real AWS account.
+`S3_UPLOAD_APPROVED=false` is the shipped default. Merely having AWS credentials does not enable it. **Do not change it until the user explicitly approves paid AWS usage.** After approval, configure an existing private bucket, region, AWS CLI and scoped credentials externally. An explicit button uploads the eight text/SVG files under `techcanvas/<job-id>/`. PNGs are browser exports and are not uploaded by this adapter. No bucket creation, public ACL, scheduled upload or deployment code runs. A partial upload can be retried at the same keys; extra PUTs may cost money. CLI integration is tested with a fake runner, not a real AWS account.
 
 ## API
 
@@ -67,3 +67,7 @@ Optional `Idempotency-Key` header on creation replays the same logical request; 
 This is a single-user, loopback-only local app. Host/origin checks protect local state from cross-site requests; generated text is rendered as text and XML-escaped. Do not expose it to the internet without authentication, HTTPS, rate limits and a deployment review. Storage grows with use; manage retention manually. Back up the whole data folder with the app stopped (including SQLite WAL/SHM if present). No secrets or runtime data belong in Git.
 
 See [design](docs/design.md), [learning map](docs/learning.md), [AWS cost plan](docs/aws-costs.md), and [validation](docs/validation.md).
+
+## Visual memory aids
+
+Each pack also includes `memory.svg`: a square diagram using icons, connections and a short recall cue. Curated topics use purpose-built flow diagrams (cache hit/miss and invalidation; idempotency retries and replay; queue delivery and retry). Custom local-AI topics use a concept map of the generated ideas without assuming a sequence. Download it as an editable SVG or a 1080 × 1080 PNG from the Visuals view. Existing saved packs receive this extra asset on first access, without another model call. No extra service or paid API is used.

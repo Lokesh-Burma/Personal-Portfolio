@@ -1,3 +1,4 @@
+import { renderMemorySvg } from './memory.mjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rename, rm } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -107,7 +108,7 @@ export class Store {
     try {
       const c=validateContent(await generator(job.topic,job.provider,model));
       await mkdir(directory,{recursive:true});
-      const assets = {'blog.md':markdown(job.topic,c),'summary.svg':renderSvg(job.topic,c,null,job.provider),
+      const assets = {'blog.md':markdown(job.topic,c),'summary.svg':renderSvg(job.topic,c,null,job.provider),'memory.svg':renderMemorySvg(job.topic,c,job.provider),
         'portfolio.json':JSON.stringify({title:job.topic,summary:c.paragraph,content_markdown:markdown(job.topic,c),tags:['techcanvas'],status:'draft'},null,2),
         'caption.txt':`${c.sentence}\n\n${c.paragraph}\n\n#SoftwareEngineering #TechCanvas`};
       c.concepts.forEach((_,i)=>{assets[`concept-${i+1}.svg`]=renderSvg(job.topic,c,i,job.provider);});
@@ -118,15 +119,31 @@ export class Store {
       this.db.prepare("UPDATE jobs SET status='failed',error=? WHERE id=?").run(error.name==='TimeoutError'?'Local model timed out. Try a smaller model.': String(error.message).slice(0,400),id);
     }
   }
-  async asset(id,name) { return readFile(join(this.directory,id,name)); }
+  async asset(id,name) {
+    const target=join(this.directory,id,name);
+    try { return await readFile(target); }
+    catch(error) {
+      // Old saved packs receive the new visual without regenerating their content.
+      if(error.code!=='ENOENT' || name!=='memory.svg') throw error;
+      const job=this.get(id);
+      if(job?.status!=='completed' || !job.content) throw error;
+      const body=renderMemorySvg(job.topic,job.content,job.provider);
+      const temporary=target+'.'+randomUUID()+'.tmp';
+      await writeFile(temporary,body); await rename(temporary,target);
+      return Buffer.from(body);
+    }
+  }
   close() { this.db.close(); }
 }
-export const assetNames = new Set(['blog.md','summary.svg','concept-1.svg','concept-2.svg','concept-3.svg','portfolio.json','caption.txt']);
+export const assetNames = new Set(['blog.md','summary.svg','memory.svg','concept-1.svg','concept-2.svg','concept-3.svg','portfolio.json','caption.txt']);
 export async function uploadToS3(store,id,env=process.env,execute=promisify(execFile)) {
   if(env.S3_UPLOAD_APPROVED!=='true') throw new Error('S3 uploads are disabled pending your approval.');
   if(!/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/.test(env.S3_BUCKET||'') || !/^[a-z]{2}-[a-z]+-\d$/.test(env.AWS_REGION||'')) throw new Error('Configure a valid S3 bucket and AWS region.');
   if(store.get(id)?.status!=='completed') throw new Error('Only completed jobs can be uploaded.');
   // Sequential writes; private bucket only. No bucket creation or ACL changes.
-  for(const name of assetNames) await execute('aws',['s3','cp',join(store.directory,id,name),`s3://${env.S3_BUCKET}/techcanvas/${id}/${name}`,'--region',env.AWS_REGION,'--only-show-errors'],{timeout:30000});
+  for(const name of assetNames) {
+    await store.asset(id,name);
+    await execute('aws',['s3','cp',join(store.directory,id,name),`s3://${env.S3_BUCKET}/techcanvas/${id}/${name}`,'--region',env.AWS_REGION,'--only-show-errors'],{timeout:30000});
+  }
   return {prefix:`s3://${env.S3_BUCKET}/techcanvas/${id}/`};
 }
