@@ -37,3 +37,13 @@ Editorial files under content/drafts are ignored and excluded from packages. Exi
 The target is roughly ₹1,000/month across hosting, storage, logs, transfer and any separately approved inference; it is not a billing cap. Stale price snapshots and prototype estimators were removed. Obtain current regional rates and measure billed runtime/environment lifetime, storage, traffic and logs before enabling a model or changing capacity; request count alone is not enough. Keep paid inference and both processing triggers disabled. Never reset quota counters to recover a job.
 
 Prefer the existing on-demand services. Do not add GPU instances, provisioned model capacity, paid feature upgrades, new regions or an always-on container fleet for this workload without approval. Code changes do not authorize deployment, data migration, invitations, draft publication or resource deletion.
+
+## Image trial preparation
+
+The new image pipeline is implemented but not deployed. Local tests use fake Bedrock/S3 clients and valid PNG fixtures; the demo remains credential-free SVG output. No test invokes a paid model.
+
+Before a trial, review the chosen image model, its region, current rates and an explicit spending allowance. The candidate adapter uses Stable Image Core in us-west-2; existing infrastructure stays in its current region. Do not enable another region or grant model invocation merely to run local checks.
+
+A reviewed activation must coordinate: owner-partition cloudJobWrites permissions, server-side TECHCANVAS_JOB_CREATION_APPROVED and BEDROCK_USAGE_APPROVED, worker inference permissions, and then (separately) TECHCANVAS_IMAGE_CREATION_APPROVED, BEDROCK_IMAGE_USAGE_APPROVED and BEDROCK_IMAGE_REGION. Committed values remain false/empty, and both queue mappings remain disabled. First invoke isolated approved jobs manually with triggers off; inspect existing outbox and queue records before enabling consumers so stale jobs are not processed unexpectedly.
+
+Initial image limits are one reserved attempt per UTC day and five per UTC month, one image per requested job. These are attempt limits, not a currency cap. Text reservations keep their existing limits. Unknown outcomes are never refunded or automatically retried. A failed optional image leaves a completed text pack with an image error; publication remains manual. Private preview links expire after five minutes and must not become public article URLs.

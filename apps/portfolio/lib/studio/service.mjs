@@ -10,7 +10,7 @@ const ownerPk = owner => `OWNER#${owner}`;
 const change = (pk, sk, before, value) => ({ pk, sk, before, value });
 export const jobIdValid = id => typeof id === 'string' && /^[a-z0-9]{10}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(id);
 export class HttpError extends Error { constructor(status, message) { super(message); this.status = status; } }
-export const publicJob = j => ({ id: j.id, topic: j.topic, status: j.status, created: j.created, provider: 'bedrock', attempts: j.attempts, revision: j.revision, error: j.error, content: j.content });
+export const publicJob = j => ({ id: j.id, topic: j.topic, status: j.status, created: j.created, provider: 'bedrock', attempts: j.attempts, revision: j.revision, error: j.error, content: j.content, generateImage: j.generateImage === true, imageStatus: j.imageStatus, imageError: j.imageError });
 export function topicInput(topic) {
   if (typeof topic !== 'string' || topic.trim().length < 3 || topic.trim().length > 120 || /[\u0000-\u001f\u007f]/.test(topic)) throw new HttpError(400, 'Topic must contain 3–120 characters without control characters.');
   return topic.trim();
@@ -53,9 +53,10 @@ export function renderAssets(topic, c, provider = 'bedrock') {
 export function createService({ repo, now = () => new Date(), uuid = randomUUID, provider, assets, queue, enabled = false }) {
   const get = (owner, id) => repo.get(ownerPk(owner), 'JOB#' + id);
   const retryConflict = async fn => { for (let i=0;i<5;i++) { try { return await fn(); } catch(e) { if (!(e instanceof Conflict)) throw e; } } throw new HttpError(409, 'Concurrent update. Retry with the same request key.'); };
-  async function create(owner, topic, key, retryId) {
+  async function create(owner, topic, key, retryId, { generateImage = false } = {}) {
+    if(typeof generateImage!=='boolean')throw new HttpError(400,'Invalid image selection.');
     topic = retryId ? undefined : topicInput(topic);
-    const pk = ownerPk(owner), idem = idempotency(key), fingerprint = hash(JSON.stringify({ topic, retryId }));
+    const pk = ownerPk(owner), idem = idempotency(key), fingerprint = hash(JSON.stringify({ topic, retryId, ...(generateImage && !retryId ? { generateImage:true } : {}) }));
     return retryConflict(async () => {
       const existing = await repo.get(pk, idem);
       if (existing) { if (existing.fingerprint !== fingerprint) throw new HttpError(409, 'This request key was already used for different input.'); return get(owner, existing.id); }
@@ -63,7 +64,7 @@ export function createService({ repo, now = () => new Date(), uuid = randomUUID,
       const [previous, slots] = await Promise.all([retryId ? get(owner,id) : undefined, repo.get(pk, 'QUEUE')]);
       if (retryId && (!previous || previous.status !== 'failed' || previous.revision >= LIMITS.runs-1)) throw new HttpError(409, 'Only a failed job with fewer than two runs can be retried.');
       if ((slots?.count || 0) >= LIMITS.queue) throw new HttpError(429, 'Generation queue is full.');
-      const job = retryId ? { ...previous, status: 'queued', revision: previous.revision+1, error: null, updated: timestamp.toISOString() } : { kind: 'job', id, topic, owner, status: 'queued', attempts: 0, revision: 0, created: timestamp.toISOString() };
+      const job = retryId ? { ...previous, status: 'queued', revision: previous.revision+1, error: null, imageStatus:undefined,imageError:undefined, updated: timestamp.toISOString() } : { kind: 'job', id, topic, owner, generateImage, status: 'queued', attempts: 0, revision: 0, created: timestamp.toISOString() };
       await repo.commit([
         change(pk, 'JOB#'+id, previous, job),
         change(pk, idem, undefined, { kind: 'idempotency', id, fingerprint }),
@@ -109,6 +110,7 @@ export function createService({ repo, now = () => new Date(), uuid = randomUUID,
       await finish(owner,id,revision,'failed',{ error: 'The prior attempt was interrupted. Its outcome is unknown; no automatic model retry was made.' });
       return;
     }
+    if(j.generateImage){await finish(owner,id,revision,'failed',{error:'Image jobs require the Go worker.'},'queued');return;}
     const prompt = buildPrompt(j.topic);
     let inputBytes;
     try { inputBytes = checkPrompt(prompt); }

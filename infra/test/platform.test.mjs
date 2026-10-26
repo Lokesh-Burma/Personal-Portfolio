@@ -24,3 +24,14 @@ test('common revision preserves identities, legacy login and scoped storage boun
 test('post-cutover protection closes legacy password access and public preview without removing rollback resources',()=>{
  const a=new App({context:{commonApp:true,protectLegacyApi:true,closeCommonPreview:true}}),d=new PlatformData(a,'Data',{env}),p=new PlatformPreview(a,'Preview',{env,data:d}),t=Template.fromStack(p).toJSON();assert.deepEqual(Object.keys(t.Resources),Object.keys(pt.Resources));for(const r of Object.values(t.Resources).filter(r=>r.Type==='AWS::Lambda::WebFunctionEndpoint'))assert.equal(r.Properties.AuthType,'IamAuth');assert.equal(t.Resources.portfolioRevision.DeletionPolicy,'Retain');
 });
+
+test('cloud job writes are opt-in and restricted to the configured owner partition',()=>{
+ const a=new App({context:{commonApp:true,cloudJobWrites:true}}),d=new PlatformData(a,'Data',{env}),p=new PlatformPreview(a,'Preview',{env,data:d}),t=Template.fromStack(p).toJSON();
+ assert.deepEqual(Object.keys(t.Resources),Object.keys(pt.Resources));
+ const policy=Object.values(t.Resources).find(r=>r.Type==='AWS::IAM::Policy' && JSON.stringify(r.Properties.Roles).includes('portfolioRole'));
+ const write=policy.Properties.PolicyDocument.Statement.find(s=>s.Action==='dynamodb:PutItem' && JSON.stringify(s.Resource).includes('TechCanvasTableName'));
+ assert.ok(write);assert.equal(write.Condition.Null['dynamodb:LeadingKeys'],'false');assert.ok(JSON.stringify(write.Condition['ForAllValues:StringEquals']['dynamodb:LeadingKeys']).includes('TechCanvasOwnerSubject'));
+ assert.equal(t.Resources.portfolioRevision.Properties.ServiceConfig.EnvironmentVariables.TECHCANVAS_JOB_CREATION_APPROVED,'false');
+ assert.equal(t.Resources.portfolioRevision.Properties.ServiceConfig.EnvironmentVariables.TECHCANVAS_IMAGE_CREATION_APPROVED,'false');
+ assert.ok(!JSON.stringify(t).includes('bedrock:'));
+});

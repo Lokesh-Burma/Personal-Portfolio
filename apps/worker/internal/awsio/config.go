@@ -10,6 +10,7 @@ var ownerID = regexp.MustCompile(`^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-
 
 type Settings struct {
 	Enabled              bool
+	ImageEnabled         bool
 	Owner, Table, Bucket string
 }
 
@@ -20,6 +21,10 @@ func SettingsFrom(get func(string) string) (Settings, error) {
 	}
 	if s.Enabled && (!ownerID.MatchString(s.Owner) || s.Table == "" || s.Bucket == "") {
 		return s, errors.New("worker requires reviewed owner and storage configuration")
+	}
+	s.ImageEnabled = s.Enabled && get("BEDROCK_IMAGE_USAGE_APPROVED") == "true"
+	if s.ImageEnabled && get("BEDROCK_IMAGE_REGION") != ImageRegion {
+		return s, errors.New("image model region requires explicit approved configuration")
 	}
 	return s, nil
 }

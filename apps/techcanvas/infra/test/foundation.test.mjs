@@ -103,3 +103,11 @@ test('legacy studio entrypoints retire without deleting shared identity, storage
  const a=new App({context:{commonAppOrigin:'https://lokeshburma.com',retireLegacyStudio:true}}),t=Template.fromStack(new FoundationStack(a,'TestFoundation',{env:{region:'ap-southeast-2'}})).toJSON();assert.deepEqual(Object.keys(t.Resources),Object.keys(template.Resources));const all=Object.values(t.Resources);
  assert.equal(all.find(r=>r.Type==='AWS::CloudFront::Distribution').Properties.DistributionConfig.Enabled,false);assert.equal(all.find(r=>r.Type==='AWS::ApiGatewayV2::Api').Properties.DisableExecuteApiEndpoint,true);assert.equal(all.find(r=>r.Type==='AWS::Cognito::UserPool').Properties.MfaConfiguration,'ON');const c=all.find(r=>r.Type==='AWS::Cognito::UserPoolClient').Properties;assert.deepEqual(c.CallbackURLs,['https://lokeshburma.com/api/auth/callback']);assert.deepEqual(c.LogoutURLs,['https://lokeshburma.com/']);for(const r of all.filter(r=>['AWS::DynamoDB::Table','AWS::S3::Bucket','AWS::Cognito::UserPool'].includes(r.Type)))assert.equal(r.DeletionPolicy,'Retain');assert.ok(all.filter(r=>r.Type==='AWS::Lambda::EventSourceMapping').every(r=>r.Properties.Enabled===false));assert.ok(!JSON.stringify(t).includes('bedrock:'));
 });
+
+test('image inference is off with no configured image region or model grants',()=>{
+ const a=new App(),s=new FoundationStack(a,'ImageSafety',{env:{region:'ap-southeast-2'}}),t=Template.fromStack(s).toJSON();
+ for(const r of Object.values(t.Resources).filter(r=>r.Type==='AWS::Lambda::Function')){
+  assert.equal(r.Properties.Environment.Variables.BEDROCK_IMAGE_USAGE_APPROVED,'false');assert.equal(r.Properties.Environment.Variables.BEDROCK_IMAGE_REGION,'');
+ }
+ assert.ok(!JSON.stringify(t).includes('bedrock:InvokeModel'));
+});

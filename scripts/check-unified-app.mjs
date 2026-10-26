@@ -50,7 +50,27 @@ try{
    await page.getByRole('button',{name:'Save blog draft',exact:true}).click();await page.getByRole('status').filter({hasText:'Saved as an unpublished draft'}).waitFor();
    await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:join(root,'.artifacts/unified-studio-desktop.png'),fullPage:true});
    await page.setViewportSize({width:390,height:844});await page.screenshot({path:join(root,'.artifacts/unified-studio-mobile.png'),fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(errors,[]);
-   await context.close();console.log('Browser checks passed: shared owner login, native studio UI, loaded SVG, direct draft save, desktop/mobile and no client errors.');
+   // Exercise activated UI with intercepted responses only; no cloud or model calls.
+   const attempts=[],mockJob={id:'0000000000-22222222-2222-4222-8222-222222222222',topic:'Cache Aside',status:'completed',provider:'bedrock',revision:0,imageStatus:'completed',content:{paragraph:'Mock cloud explanation',example:'Mock example',tradeoff:'Mock tradeoff'},assets:{'illustration.png':base+'/images/blog/portfolio-techcanvas-architecture-92f1827d326b.png'}};
+   await page.route('**/api/techcanvas/**',async route=>{
+    const url=new URL(route.request().url()),path=url.pathname;
+    const reply=(body,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(body)});
+    if(path.endsWith('/config'))return reply({mode:'cloud',ready:true,imageGeneration:true,topics:['Cache Aside'],notice:'Mock cloud trial: no model calls.'});
+    if(path.endsWith('/jobs') && route.request().method()==='POST'){
+     attempts.push({key:route.request().headers()['idempotency-key'],body:route.request().postDataJSON()});
+     return attempts.length===1?reply({error:'Simulated lost response. Retry the same request.'},503):reply(mockJob,202);
+    }
+    if(path.endsWith('/jobs'))return reply({jobs:attempts.length>=2?[mockJob]:[],nextCursor:null});
+    if(path.endsWith('/'+mockJob.id))return reply(mockJob);
+    return route.abort();
+   });
+   await page.goto(base+'/techcanvas/studio');await page.getByRole('button',{name:'Create content pack',exact:true}).waitFor();
+   await page.getByLabel('Include one AI illustration',{exact:false}).check();await page.getByRole('button',{name:'Create content pack',exact:true}).click();
+   await page.getByRole('status').filter({hasText:'Simulated lost response'}).waitFor();await page.getByRole('button',{name:'Create content pack',exact:true}).click();
+   const illustration=page.getByAltText('Cache Aside AI illustration');await illustration.waitFor();await illustration.evaluate(i=>i.decode());assert.equal(attempts.length,2);assert.equal(attempts[0].key,attempts[1].key);assert.deepEqual(attempts[0].body,{topic:'Cache Aside',generateImage:true});
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(errors,[]);
+   await page.screenshot({path:join(root,'.artifacts/studio-image-trial-mock-mobile.png'),fullPage:true});
+   await context.close();console.log('Browser checks passed: shared login, SVG/draft workflow, desktop/mobile, mocked cloud image preview and stable retry request keys. No model calls.');
   }finally{await browser.close();}
  }
  console.log('Unified app integration passed: one Next.js process; owner login, CSRF/body limits, studio generation, idempotency, eight private assets, direct draft save, publish/withdraw and logout. No NestJS, standalone studio server or AWS calls.');

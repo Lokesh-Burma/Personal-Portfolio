@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Invalid worker configuration")
 	}
-	w := &engine.Worker{Enabled: settings.Enabled}
+	w := &engine.Worker{Enabled: settings.Enabled, ImageEnabled: settings.ImageEnabled}
 	if settings.Enabled {
 		cfg, err := awsio.Configuration(context.Background())
 		if err != nil {
@@ -39,6 +39,9 @@ func main() {
 		w.Repo = &awsio.Repository{Table: settings.Table, Client: dynamodb.NewFromConfig(cfg)}
 		w.Assets = &awsio.Assets{Bucket: settings.Bucket, Client: s3.NewFromConfig(cfg)}
 		w.Provider = &awsio.Provider{Client: bedrockruntime.NewFromConfig(cfg)}
+		if settings.ImageEnabled {
+			w.Images = &awsio.ImageProvider{Client: bedrockruntime.NewFromConfig(cfg, func(o *bedrockruntime.Options) { o.Region = awsio.ImageRegion }), Approved: true, Region: awsio.ImageRegion}
+		}
 	}
 	lambda.Start(engine.Handler(w, settings.Owner))
 }

@@ -160,7 +160,7 @@ func (p *Provider) Invoke(ctx context.Context, prompt engine.Prompt) (string, st
 		}
 		input.Messages = append(input.Messages, message)
 	}
-	op, cancel := context.WithTimeout(ctx, 80*time.Second)
+	op, cancel := context.WithTimeout(ctx, 45*time.Second)
 	defer cancel()
 	out, err := p.Client.Converse(op, input)
 	if err != nil {

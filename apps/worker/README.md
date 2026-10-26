@@ -1,8 +1,10 @@
 # TechCanvas background worker
 
-A Go Lambda worker for queued TechCanvas jobs. It validates messages, reserves quota, prevents duplicate generation and saves private draft assets. Visuals are rendered SVGs; image-model generation is not implemented.
+A Go Lambda worker for queued TechCanvas jobs. It validates messages, reserves quota, prevents duplicate generation and saves private draft assets. Editable visuals are rendered SVGs. The new optional PNG adapter is implemented but has not been deployed or activated.
 
 The worker is deployed as a Linux ARM64 binary using `provided.al2023`. Both processing triggers and paid inference remain disabled, and its role has no Bedrock invocation permission.
+
+The candidate image adapter uses Bedrock Stable Image Core in `us-west-2`; use of that region/model still requires approval. It reserves at most one image attempt per day and five per month, including failed or uncertain calls. Image failures preserve the text pack; no automatic image retry occurs.
 
 ## Local demo and checks
 

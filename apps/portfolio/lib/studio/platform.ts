@@ -4,6 +4,7 @@ import { RequestError } from "../http.ts";
 import { catalog,assetNames } from "./content.mjs";
 import { createService,publicJob,jobIdValid,renderAssets } from "./service.mjs";
 import { Repository } from "./repository.mjs";
+import { generationControls,cloudJobInput,cloudRetryInput } from "./activation.mjs";
 import { privateAssets } from "./aws-assets.mjs";
 const hash=(s:string)=>createHash("sha256").update(s).digest("hex");
 const topics=Object.keys(catalog);
@@ -15,7 +16,10 @@ function cloud() {
  if(!table || !bucket || !owner || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(owner))throw new RequestError(503,"TechCanvas storage is not configured.");
  return cloudInstance={owner,assets:privateAssets(bucket),service:createService({repo:new Repository({table,client:undefined}),enabled:false} as any)};
 }
-export async function studioConfig() { return {mode:localDemoEnabled()?"demo":"cloud",ready:localDemoEnabled(),imageGeneration:false,topics,notice:localDemoEnabled()?"Curated demo: SVG visuals, no model calls.":"Paid generation is paused. Existing jobs remain available when storage is configured."}; }
+export async function studioConfig() {
+ const demo=localDemoEnabled(),controls=generationControls();
+ return {mode:demo?"demo":"cloud",ready:demo || controls.ready,imageGeneration:!demo && controls.imageGeneration,topics,notice:demo?"Curated demo: SVG visuals, no model calls.":controls.ready?"Cloud generation uses reserved attempts. Review all content before publishing.":"Paid generation is paused. Existing jobs remain available when storage is configured."};
+}
 export async function studioList(cursor?:string) { if(!localDemoEnabled()){const c=cloud();return c.service.list(c.owner,cursor);}return localState(s=>({jobs:Object.values(s.jobs || {}).map((j:any)=>({...publicJob(j),provider:"demo"})),nextCursor:null})); }
 export async function studioGet(id:string):Promise<any> {
  if(!jobIdValid(id))throw new RequestError(404,"Job not found.");
@@ -23,7 +27,10 @@ export async function studioGet(id:string):Promise<any> {
  const c=cloud(),j=await c.service.get(c.owner,id);if(!j)throw new RequestError(404,"Job not found.");return {...publicJob(j),assets:await c.assets.urls(c.owner,j)};
 }
 export async function studioCreate(input:any,key:string|null):Promise<any> {
- if(!localDemoEnabled())throw new RequestError(503,"Generation awaits activation approval. No paid call was made.");
+ if(!localDemoEnabled()){
+  const request=cloudJobInput(input,generationControls()),c=cloud();
+  return publicJob(await c.service.create(c.owner,request.topic,key,undefined,{generateImage:request.generateImage}));
+ }
  if(!input || typeof input!=="object" || Array.isArray(input) || Object.keys(input).some(k=>k!=="topic") || !Object.hasOwn(catalog,input.topic))throw new RequestError(400,"Choose a curated example topic.");
  if(!key || !/^[A-Za-z0-9_-]{8,100}$/.test(key))throw new RequestError(400,"Supply a stable Idempotency-Key.");
  const topic=input.topic as keyof typeof catalog;
@@ -36,9 +43,18 @@ export async function studioCreate(input:any,key:string|null):Promise<any> {
   const j={id,topic,content,files,status:"completed",created:new Date().toISOString(),attempts:0,revision:0};s.jobs[id]=j;s.studioKeys[key]={id,fingerprint};return {...publicJob(j),provider:"demo"};
  });
 }
+export async function studioRetry(id:string,input:any,key:string|null):Promise<any> {
+ if(localDemoEnabled())throw new RequestError(409,"Curated demo packs do not need a model retry.");
+ cloudRetryInput(input,generationControls());
+ if(!jobIdValid(id))throw new RequestError(404,"Job not found.");
+ const c=cloud(),previous=await c.service.get(c.owner,id);
+ if(previous?.generateImage && !generationControls().imageGeneration)throw new RequestError(503,"Image generation awaits separate activation approval.");
+ return publicJob(await c.service.create(c.owner,undefined,key,id));
+}
 export async function studioAsset(id:string,name:string):Promise<{body?:string;url?:string;type:string}> {
- if(!assetNames.has(name))throw new RequestError(404,"Asset not found.");const job=await studioGet(id);
- const type=name.endsWith(".svg")?"image/svg+xml":name.endsWith(".json")?"application/json":"text/plain; charset=utf-8";
+ if(!assetNames.has(name) && name!=="illustration.png")throw new RequestError(404,"Asset not found.");const job=await studioGet(id);
+ if(name==="illustration.png" && !job.assets?.[name])throw new RequestError(404,"Image is not available.");
+ const type=name.endsWith(".png")?"image/png":name.endsWith(".svg")?"image/svg+xml":name.endsWith(".json")?"application/json":"text/plain; charset=utf-8";
  if(job.status!=="completed")throw new RequestError(409,"Assets are not ready.");
  if(localDemoEnabled())return localState(s=>({body:s.jobs[id].files[name],type}));return {url:job.assets[name],type};
 }

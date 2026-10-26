@@ -2,7 +2,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { checkRequest, readJson, json, errorResponse, RequestError } from "@/lib/http";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-import { studioConfig,studioList,studioGet,studioCreate,studioAsset,studioDraft } from "@/lib/studio/platform";
+import { studioConfig,studioList,studioGet,studioCreate,studioRetry,studioAsset,studioDraft } from "@/lib/studio/platform";
 import { parseTechCanvasDraft } from "@/lib/techcanvas-import";
 import { createPost } from "@/lib/blog-db";
 type Params={params:Promise<{path?:string[]}>};
@@ -19,7 +19,7 @@ async function handle(request:Request,{params}:Params){try{
    const body=await readJson(request,4096);if(!body || typeof body!=="object" || Array.isArray(body) || Object.keys(body).length)throw new RequestError(400,"Expected an empty object.");
    const draft=parseTechCanvasDraft(await studioDraft(p[1]));const post=await createPost({...draft,tags:draft.tags.split(",").map(t=>t.trim()).filter(Boolean),cover_image:null,published_at:null,status:"draft"});return json({post},201);
   }
-  if(p.length===3 && p[2]==="retry" && method==="POST")throw new RequestError(503,"Paid generation and retries await activation approval.");
+  if(p.length===3 && p[2]==="retry" && method==="POST")return json(await studioRetry(p[1],await readJson(request,4096),request.headers.get("idempotency-key")),202);
  }
  throw new RequestError(404,"Route not found.");
 }catch(e){return errorResponse(e);}}

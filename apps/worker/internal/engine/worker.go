@@ -34,12 +34,14 @@ type Message struct {
 	Revision int    `json:"revision"`
 }
 type Worker struct {
-	Repo     Repository
-	Provider Provider
-	Assets   Assets
-	Now      func() time.Time
-	Enabled  bool
-	Demo     bool
+	Repo         Repository
+	Provider     Provider
+	Images       ImageProvider
+	ImageEnabled bool
+	Assets       Assets
+	Now          func() time.Time
+	Enabled      bool
+	Demo         bool
 }
 
 var JobID = regexp.MustCompile(`^[a-z0-9]{10}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
@@ -168,7 +170,16 @@ func (w *Worker) Work(ctx context.Context, m Message) error {
 		if w.now().UnixMilli() < number(j["leaseUntil"]) {
 			return errors.New("attempt still in progress")
 		}
+		if j["generateImage"] == true && j["content"] != nil && number(j["assetRevision"]) == int64(m.Revision) {
+			return w.finish(ctx, m, "completed", "running", Item{"imageStatus": "failed", "imageError": "The image attempt was interrupted. Its outcome is unknown; the saved text pack was preserved and no model call was repeated."})
+		}
 		return w.finish(ctx, m, "failed", "running", Item{"error": "The prior attempt was interrupted. Its outcome is unknown; no automatic model retry was made."})
+	}
+	wantsImage, _ := j["generateImage"].(bool)
+	if wantsImage {
+		if _, ok := w.Assets.(ImageAssets); !w.ImageEnabled || w.Images == nil || !ok {
+			return w.finish(ctx, m, "failed", "queued", Item{"error": "Image generation awaits separate activation approval. No model call was made."})
+		}
 	}
 	topic, ok := j["topic"].(string)
 	if !ok {
@@ -212,6 +223,18 @@ func (w *Worker) Work(ctx context.Context, m Message) error {
 	if err = json.Unmarshal(raw, &stored); err != nil {
 		return err
 	}
-	return w.finish(ctx, m, "completed", "running", Item{"content": stored, "assetRevision": m.Revision})
+	extra := Item{"content": stored, "assetRevision": m.Revision}
+	if wantsImage {
+		if err = w.checkpointText(ctx, m, stored); err != nil {
+			return err
+		}
+		if imageErr := w.generateImage(ctx, m, topic, content); imageErr != nil {
+			extra["imageStatus"] = "failed"
+			extra["imageError"] = "Image generation or storage failed, or its quota was exhausted. Any reserved image attempt remains counted. No automatic image retry was made."
+		} else {
+			extra["imageStatus"] = "completed"
+		}
+	}
+	return w.finish(ctx, m, "completed", "running", extra)
 }
 func (m Message) String() string { return fmt.Sprintf("job revision %d", m.Revision) }
