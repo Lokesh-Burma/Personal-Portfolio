@@ -1,7 +1,23 @@
-# Existing portfolio infrastructure
+# Platform infrastructure
 
-These CDK definitions describe the currently deployed split portfolio/API system. LokeshPlatformData retains blog storage/build artifacts; LokeshPlatformPreview owns the two web functions; LokeshPortfolioDomain owns the public front door and selected portfolio revision.
+AWS CDK definitions for the common application, blog storage and public domain.
 
-Run npm ci, npm test and npm run synth locally. Preserve construct/resource IDs, retained data, scoped grants, signed origin access and revision rollback information. Synthesis tests do not establish live state.
+| Stack | Responsibility |
+| --- | --- |
+| LokeshPlatformData | Blog table and versioned build artifacts |
+| LokeshPlatformPreview | Common web function, IAM-protected preview and retained legacy API |
+| LokeshPortfolioDomain | Custom domain, CloudFront and signed application origin |
 
-The common Next.js replacement requires reviewed native storage grants, owner settings and Cognito callback configuration before promotion. Do not deploy its artifact using the old frontend-only settings. Follow ../docs/unified-app-migration.md. No deployment, data deletion or inference activation is authorized by a build.
+TechCanvas authentication, jobs and worker resources are managed in [../apps/techcanvas/infra](../apps/techcanvas/infra).
+
+## Validate
+
+Run from this directory:
+
+```sh
+npm ci
+npm test
+npm run synth
+```
+
+Synthesis is local and does not deploy. Preserve resource identities, retained data, scoped permissions and rollback revisions. See [release and rollback](../docs/unified-app-migration.md) before applying changes.

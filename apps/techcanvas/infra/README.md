@@ -1,5 +1,22 @@
-# Shared TechCanvas infrastructure
+# TechCanvas infrastructure
 
-This stack retains existing owner identity, job data, private assets and queue identities. Required TOTP MFA remains enabled. Committed contexts select the Go worker and canonical common-app callback; retireLegacyStudio disables the old distribution/default HTTP API without deleting data. Both processing mappings and paid inference remain disabled.
+AWS CDK definitions for shared Cognito MFA, job storage, private assets, queues, dispatcher and Go worker. Existing resource identities and stored data are preserved.
 
-Use npm ci, npm test and npm run synth after building the Go artifact (or root pnpm infra:synth). Legacy site packaging remains for coordinated rollback only. Inventory inspects local templates; live contract tests require explicit test-write approval. See ../../../docs/unified-app-migration.md.
+The committed configuration selects the Go worker and common-app login callback. Legacy static hosting and the default HTTP API endpoint are disabled. Both processing triggers and paid inference remain disabled.
+
+## Validate
+
+Run from the repository root:
+
+```sh
+pnpm infra:synth
+```
+
+For infrastructure tests only, run from this directory:
+
+```sh
+npm ci
+npm test
+```
+
+Root synthesis builds the required worker artifact and handlers. It does not deploy. See [release and rollback](../../../docs/unified-app-migration.md) before applying changes.

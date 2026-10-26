@@ -1,3 +1,16 @@
-# Retained content API rollback source
+# Legacy content API
 
-Production blog APIs and shared MFA now run inside ../portfolio. This NestJS application and its IAM-protected function are retained for coordinated rollback, not called by the common app. Preserve its lockfile/build/tests until rollback retention is explicitly retired. See ../../docs/unified-app-migration.md and ../../docs/operations.md.
+This NestJS API is retained for rollback. The production application uses native routes in [../portfolio](../portfolio); its legacy API endpoint now requires IAM access.
+
+## Build and test
+
+Run from this directory:
+
+```sh
+pnpm install --frozen-lockfile --ignore-scripts
+pnpm build
+pnpm test --runInBand
+pnpm test:e2e --runInBand
+```
+
+Keep the source and lockfile until rollback support is retired. See [release and rollback](../../docs/unified-app-migration.md) before restoring this service.

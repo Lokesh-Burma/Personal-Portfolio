@@ -1,5 +1,10 @@
-# TechCanvas shared infrastructure and rollback source
+# TechCanvas
 
-The active Studio is part of ../portfolio. public/ retains the old static frontend for rollback; its distribution and default HTTP API endpoint are disabled. infra/ still owns the shared Cognito pool/client, private assets, jobs/quotas/outbox, queues, dispatcher and deployed Go worker. Both processing mappings and paid inference remain disabled.
+The active Studio runs inside the [common web app](../portfolio). Its shared modules live in `../portfolio/lib/studio`.
 
-Canonical studio modules live in ../portfolio/lib/studio. Use pnpm dev from the root. See ../../docs/architecture.md and ../../docs/unified-app-migration.md.
+- [infra](infra) manages Cognito authentication, jobs, private assets, queues and worker deployment.
+- `public/` retains the legacy static Studio for rollback. Its distribution and default HTTP API endpoint are disabled.
+
+Use `pnpm dev` from the repository root for local development. Processing triggers and paid inference remain disabled.
+
+See the [architecture](../../docs/architecture.md) and [release guide](../../docs/unified-app-migration.md).

@@ -1,7 +1,17 @@
 # Common web application
 
-Portfolio, blog, shared Cognito MFA owner login and TechCanvas run in this single Next.js application. It is implemented but not yet deployed as the combined runtime.
+The production Next.js app serves the portfolio, blog, owner login and TechCanvas Studio. Native API routes handle blog storage and Studio access; one Cognito MFA session covers both private areas.
 
-Use pnpm dev, pnpm check and pnpm build from the repository root. Server configuration is documented in .env.example; private local-demo configuration is generated automatically and excluded from Git/builds. Canonical studio modules are in lib/studio. Published writing uses the database, not source Markdown files.
+## Develop and check
 
-See ../../docs/architecture.md and ../../docs/operations.md. Do not use the previous frontend-only runtime settings to deploy this artifact.
+Run from the repository root:
+
+```sh
+pnpm dev
+pnpm check --target portfolio
+pnpm build --target portfolio
+```
+
+Server settings are listed in [.env.example](.env.example). Local demo configuration is generated automatically and excluded from Git and builds. Studio modules live in `lib/studio`; published posts are stored in DynamoDB.
+
+See [operations](../../docs/operations.md) for builds and [shared MFA](../../docs/shared-owner-mfa.md) for authentication.

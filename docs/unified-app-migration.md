@@ -12,7 +12,7 @@ The common application was promoted on 2026-10-26 after local checks and the own
 
 ## Current retirement and rollback boundary
 
-The common revision is rev-pyfyj. Previous portfolio revision rev-jjh5n and API revision rev-wygsg are retained. The legacy API and preview endpoints require IAM. The old studio distribution and default HTTP API endpoint are disabled using retireLegacyStudio; Cognito permits only the canonical common callback/logout URLs.
+The selected common revision is recorded in the deployed stack parameters. Previous working revisions are retained; capture their exact IDs with each release for rollback. The legacy API and preview endpoints require IAM. The old studio distribution and default HTTP API endpoint are disabled using retireLegacyStudio; Cognito permits only the canonical common callback/logout URLs.
 
 Rollback is a reviewed coordinated infrastructure change: restoring only an old web revision is insufficient. Restore its required runtime settings, old API access policy, relevant legacy studio endpoints and callback URLs before selecting a prior architecture. Keep required TOTP MFA and stored data intact. Do not enable processing as part of rollback.
 
