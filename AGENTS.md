@@ -1,6 +1,6 @@
 # Lokesh Platform monorepo
 
-- Canonical root: this repository. Apps are apps/portfolio, apps/api and apps/techcanvas; portfolio infrastructure is infra and studio infrastructure is apps/techcanvas/infra.
+- Canonical root: this repository. Active runtimes are the common Next.js app at apps/portfolio and Go worker at apps/worker. apps/api and standalone studio sources are retained rollback/compatibility code; studio infrastructure remains apps/techcanvas/infra.
 - Node 24+, pnpm 10.17.1. Preserve each app's lockfile. Use pnpm install:all, pnpm check and pnpm build from the root.
 - Keep environment files, credentials, editorial drafts, installed dependencies, model/runtime data and generated artifacts out of Git and deployment packages.
 - Preserve the existing AWS stack/resource identities. Both portfolio and API share LokeshPlatformPreview; serialize their release and promote the portfolio revision in LokeshPortfolioDomain afterward. TechCanvasFoundation is separate.
@@ -8,3 +8,5 @@
 - Paid inference and both studio processing triggers stay disabled unless explicitly approved. Code deployment does not authorize publishing blog drafts, data migration, destructive cleanup or new paid services.
 - scripts/release-plan.mjs is a plan-only command. CI templates outside .github/workflows are inactive. Do not represent a plan as an enabled automatic pipeline.
 - Do not delete or archive the old API/TechCanvas repositories or their runtime data without explicit authorization. Their app histories are imported here without squash.
+
+- The combined app has not been deployed. Block the previous code-only promotion path until the common app credentials and scoped storage grants are reviewed. Use docs/unified-app-migration.md. Local development uses private .env.unified.local and .local-platform; never package these files.

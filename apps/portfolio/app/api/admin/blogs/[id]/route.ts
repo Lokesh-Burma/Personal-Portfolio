@@ -1,51 +1,9 @@
-import { forwardPortfolioApi } from "@/lib/portfolio-api";
-import { NextResponse } from "next/server";
-import { deletePost, updatePost } from "@/lib/blog-db";
 import { requireAdmin } from "@/lib/admin-auth";
-
+import { checkRequest, readJson, json, errorResponse, RequestError } from "@/lib/http";
 export const runtime = "nodejs";
-
-type Params = {
-  params: Promise<{ id: string }>;
-};
-
-export async function PATCH(request: Request, { params }: Params) {
-  const upstream = await forwardPortfolioApi(request, "/admin/blogs/" + encodeURIComponent((await params).id));
-  if (upstream) return upstream;
-  if (!(await requireAdmin())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const { id } = await params;
-    const post = await updatePost(id, await request.json());
-    if (!post) {
-      return NextResponse.json({ error: "Post not found" }, { status: 404 });
-    }
-    return NextResponse.json({ post });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to update post" },
-      { status: 400 },
-    );
-  }
-}
-
-export async function DELETE(_request: Request, { params }: Params) {
-  const upstream = await forwardPortfolioApi(_request, "/admin/blogs/" + encodeURIComponent((await params).id));
-  if (upstream) return upstream;
-  if (!(await requireAdmin())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const { id } = await params;
-    await deletePost(id);
-    return NextResponse.json({ ok: true });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to delete post" },
-      { status: 400 },
-    );
-  }
-}
+export const dynamic = "force-dynamic";
+import { updatePost,deletePost } from "@/lib/blog-db";
+type Params={params:Promise<{id:string}>};
+async function authorize(request:Request){checkRequest(request);if(!await requireAdmin())throw new RequestError(401,"Unauthorized");}
+export async function PATCH(request:Request,{params}:Params){try{await authorize(request);const post=await updatePost((await params).id,await readJson(request));if(!post)throw new RequestError(404,"Post not found");return json({post});}catch(e){return errorResponse(e);}}
+export async function DELETE(request:Request,{params}:Params){try{await authorize(request);await deletePost((await params).id);return json({ok:true});}catch(e){return errorResponse(e);}}

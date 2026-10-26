@@ -1,31 +1,17 @@
-# Runtime, Docker builds and the Go worker
+# Runtime and containers
 
-One repository does not require one runtime or one deployment. The system currently runs like this:
+The common application runs portfolio pages, blog APIs, owner authentication and TechCanvas inside one Next.js process at apps/portfolio. Go at apps/worker is the separate asynchronous generation worker. These are the two active root build targets.
 
-| Component | Current AWS hosting | Docker role |
-| --- | --- | --- |
-| Portfolio | Node.js HTTP server in Lambda Web Functions, behind CloudFront | apps/portfolio/aws/Dockerfile.build builds its Linux ZIP; apps/portfolio/Dockerfile optionally runs it locally |
-| Portfolio API | NestJS HTTP server in Lambda Web Functions | apps/api/aws/Dockerfile.build builds its Linux ZIP; apps/api/Dockerfile optionally runs it locally |
-| TechCanvas UI | Private static S3 files through CloudFront | No production container; apps/techcanvas/Dockerfile runs the local curated-demo server only |
-| Studio API/dispatcher/current worker | Bundled Node.js Lambda Event Functions; processing remains disabled | Bundling does not require runtime container hosting |
-| New Go worker | Implemented/tested locally; opt-in Lambda provided.al2023 binary path prepared, not deployed | apps/worker/Dockerfile builds the Linux ARM64 bootstrap and can run a local demo container |
+Use pnpm dev from the root for the complete local web application. The first run generates private demo configuration and owner credentials under apps/portfolio/.local-platform. No NestJS process or standalone studio server is needed. Local data is single-process development storage only.
 
-The root has no application Dockerfile because it is an orchestration repository, not one server. Dockerfiles are next to their corresponding apps. The .build Dockerfiles end in scratch artifact stages: they export files for Lambda ZIP deployment. They do not create running production containers.
+Dockerfiles:
+- apps/portfolio/Dockerfile: optional common web runtime container.
+- apps/portfolio/aws/Dockerfile.build: exports the Linux ARM64 Lambda ZIP contents.
+- apps/worker/Dockerfile: exports Go bootstrap artifacts or runs a one-shot credential-free demo.
+- apps/api/aws/Dockerfile.build: retained previous API artifact builder for rollback only.
 
-Lambda provides managed execution environments; we do not operate an ECS/EKS/EC2 Docker fleet. Static files do not need a server container. The Go binary uses the Lambda OS-only provided runtime and AWS Lambda's Go event library; it cannot be placed in the Node-only Web Functions runtime.
+The previous optional API/studio runtime Dockerfiles were removed. Docker is not required to host static files, and no ECS/EKS/EC2 fleet was created.
 
-The worker's role is asynchronous content generation/rendering behind the queue, where it shares a clear message and storage contract with the Node API/dispatcher. It does not replace NestJS, change owner logins or introduce a separate repository. Production selection stays Node unless explicitly reviewed; neither processing nor paid inference has been activated.
+Production has not been changed by this implementation. It still runs the previous portfolio and NestJS API in Lambda Web Functions, a static studio on S3/CloudFront and disabled Node event consumers. The Go binary is prepared for a provided.al2023 event runtime but not deployed. Read unified-app-migration.md before any deployment; the common artifact needs reviewed server credentials/storage grants, and shared-login security must be approved.
 
-Local runtime images are conveniences, not a production migration. Publish local ports on host loopback, supply private runtime environment files explicitly and keep .env out of build contexts. Example portfolio container:
-
-```sh
-docker build -t portfolio:local apps/portfolio
-docker run --rm -p 127.0.0.1:3000:3000 portfolio:local
-```
-
-For the API, provide its required private owner/database configuration and publish port 4000 on loopback. Its explicit listen-address variable is reused inside the container; it does not imply AWS is running locally. The studio container deliberately uses curated demo mode and no cloud credentials. Go's Docker demo runs once and exits; its generated files are temporary unless copied out. Use pnpm demo:worker for persistent local review files.
-
-Primary sources:
-- https://docs.aws.amazon.com/lambda/latest/dg/web-functions-runtimes.html
-- https://docs.aws.amazon.com/lambda/latest/dg/golang-package.html
-- https://docs.aws.amazon.com/sdk-for-go/v2/developer-guide/configure-retries-timeouts.html
+For local Docker use publish ports on host loopback and pass private runtime settings explicitly. A production Next build can be tested with local demo settings only outside Lambda; local development files are excluded from build contexts and Lambda packages. Do not deploy local demo credentials/data.

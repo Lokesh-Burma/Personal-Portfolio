@@ -6,7 +6,7 @@ Status: proposal, 26 October 2026. No model invocation, subscription, region cha
 
 The Node studio adapter and the new Go worker contain a bounded Amazon Nova Lite Converse text call. Production inference is disabled, its role has no Bedrock invocation permission, and processing triggers remain disabled. The eight-asset pack uses deterministic SVG rendering. There is no raster image-model call. The Go worker is implemented and tested locally, not deployed.
 
-Repository consolidation is complete; application consolidation is not. The proposed target is one Next.js application for portfolio, blog, TechCanvas and server routes, plus one Go background worker. Existing NestJS and studio functionality must be migrated with authentication and draft-isolation regression checks before removing either application.
+The common Next.js application is now implemented locally for portfolio, blog, TechCanvas and native server routes, alongside the Go worker. Production still uses the previous split deployment. See unified-app-migration.md for the release boundary, shared-login review and storage grants; no paid image generation is activated.
 
 ## Proposed image workflow
 

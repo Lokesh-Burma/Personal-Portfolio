@@ -1,10 +1,4 @@
-import { forwardPortfolioApi } from "@/lib/portfolio-api";
-import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin-auth";
-
-export async function GET(request: Request) {
-  const upstream = await forwardPortfolioApi(request, "/auth/session");
-  if (upstream) return upstream;
-  const session = await getAdminSession();
-  return NextResponse.json({ authenticated: Boolean(session), email: session?.email || null });
-}
+import { requireAdmin } from "@/lib/admin-auth";
+import { checkRequest,json,errorResponse } from "@/lib/http";
+export const dynamic="force-dynamic";
+export async function GET(request:Request) { try {checkRequest(request);const s=await requireAdmin();return json({authenticated:Boolean(s),email:s?.email || null});}catch(e){return errorResponse(e);} }

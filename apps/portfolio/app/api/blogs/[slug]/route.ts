@@ -1,4 +1,3 @@
-import { forwardPortfolioApi } from "@/lib/portfolio-api";
 import { NextResponse } from "next/server";
 import { getPublishedPostBySlug } from "@/lib/blog-db";
 
@@ -9,8 +8,6 @@ type Params = {
 };
 
 export async function GET(_request: Request, { params }: Params) {
-  const upstream = await forwardPortfolioApi(_request, "/blogs/" + encodeURIComponent((await params).slug));
-  if (upstream) return upstream;
   try {
     const { slug } = await params;
     const post = await getPublishedPostBySlug(slug);
@@ -20,10 +17,5 @@ export async function GET(_request: Request, { params }: Params) {
     }
 
     return NextResponse.json({ post });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to load post" },
-      { status: 500 },
-    );
-  }
+  } catch { return NextResponse.json({error:"Content storage is temporarily unavailable."},{status:503,headers:{"cache-control":"no-store"}}); }
 }

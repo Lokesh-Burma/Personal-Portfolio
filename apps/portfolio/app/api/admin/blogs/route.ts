@@ -1,41 +1,8 @@
-import { forwardPortfolioApi } from "@/lib/portfolio-api";
-import { NextResponse } from "next/server";
-import { createPost, listAdminPosts } from "@/lib/blog-db";
 import { requireAdmin } from "@/lib/admin-auth";
-
+import { checkRequest, readJson, json, errorResponse, RequestError } from "@/lib/http";
 export const runtime = "nodejs";
-
-export async function GET(request: Request) {
-  const upstream = await forwardPortfolioApi(request, "/admin/blogs");
-  if (upstream) return upstream;
-  if (!(await requireAdmin())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    return NextResponse.json({ posts: await listAdminPosts() });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to load posts" },
-      { status: 500 },
-    );
-  }
-}
-
-export async function POST(request: Request) {
-  const upstream = await forwardPortfolioApi(request, "/admin/blogs");
-  if (upstream) return upstream;
-  if (!(await requireAdmin())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const post = await createPost(await request.json());
-    return NextResponse.json({ post }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to create post" },
-      { status: 400 },
-    );
-  }
-}
+export const dynamic = "force-dynamic";
+import { createPost,listAdminPosts } from "@/lib/blog-db";
+async function authorize(request:Request) {checkRequest(request);if(!await requireAdmin())throw new RequestError(401,"Unauthorized");}
+export async function GET(request:Request){try{await authorize(request);return json({posts:await listAdminPosts()});}catch(e){return errorResponse(e);}}
+export async function POST(request:Request){try{await authorize(request);return json({post:await createPost(await readJson(request))},201);}catch(e){return errorResponse(e);}}

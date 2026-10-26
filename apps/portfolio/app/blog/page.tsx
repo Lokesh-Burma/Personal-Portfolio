@@ -1,5 +1,5 @@
 import { listPublishedPosts } from "@/lib/blog-db";
-import { apiConfigured, readPublicPortfolioApi } from "@/lib/portfolio-api";
+import { hasBlogDbConfig as apiConfigured } from "@/lib/blog-db";
 import { PostCard } from "@/components/cards";
 import { Section } from "@/components/section";
 import { getAllBlogPosts } from "@/lib/content";
@@ -17,8 +17,7 @@ type ApiBlogPost = {
 
 async function getPosts() {
   try {
-    const remote=await readPublicPortfolioApi<{posts:ApiBlogPost[]}>("/blogs");
-    const posts=remote?remote.posts:await listPublishedPosts();
+    const posts=await listPublishedPosts();
     return posts.map(post=>({slug:post.slug,title:post.title,date:post.published_at || post.created_at,summary:post.summary || "",tags:post.tags || [],body:""}));
   } catch { return apiConfigured()?[]:getAllBlogPosts(); }
 }

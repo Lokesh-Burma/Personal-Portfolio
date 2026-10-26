@@ -1,3 +1,5 @@
+> Retained previous application source for rollback and infrastructure compatibility. The active common web app is now apps/portfolio; run `pnpm dev` from the repository root. This folder is not a separate runtime requirement. The instructions below describe the previous standalone application.
+
 > This application is part of the [Lokesh Platform monorepo](../../README.md). Run shared build/check commands from the repository root; this app retains its own runtime and package configuration.
 
 # Portfolio API

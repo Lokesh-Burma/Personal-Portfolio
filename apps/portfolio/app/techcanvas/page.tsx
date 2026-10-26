@@ -15,7 +15,7 @@ export default function TechCanvasPage() {
           {[
             ["01", "Explore a concept", "Work through an explanation, a practical example, and the tradeoffs."],
             ["02", "Remember it visually", "Use concept cards and connected diagrams as cues for what you learned."],
-            ["03", "Review and publish", "Bring the blog draft into this portfolio, verify its claims, and publish when it is ready."],
+            ["03", "Review and publish", "Save the blog draft directly in this portfolio, verify its claims, and publish when it is ready."],
           ].map(([number, title, description]) => (
             <article key={number} className="rounded-xl border border-line bg-panel p-6 shadow-sm">
               <p className="text-sm font-semibold tracking-widest text-accent-soft">{number}</p>
@@ -28,10 +28,10 @@ export default function TechCanvasPage() {
           <h2 className="text-xl font-semibold text-ink">Owner workspace</h2>
           <p className="mt-2 max-w-2xl leading-7 text-muted">The studio is private and requires owner sign-in. AI generation is currently paused. Saved content and exported drafts remain yours to review.</p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <a href="https://d3ezvecjyqm5h9.cloudfront.net/" target="_blank" rel="noopener noreferrer" className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink">Open owner studio</a>
-            <Link href="/admin" className="rounded-md border border-line bg-panel px-4 py-2 text-sm font-semibold text-ink">Import a draft in the blog editor</Link>
+            <a href="/techcanvas/studio" className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink">Open owner studio</a>
+            <Link href="/admin" className="rounded-md border border-line bg-panel px-4 py-2 text-sm font-semibold text-ink">Open the blog editor</Link>
           </div>
-          <p className="mt-4 text-sm text-muted">In TechCanvas, download the Portfolio draft JSON export. In the blog editor, choose Import TechCanvas draft, review it, then save. Imports start as unpublished drafts.</p>
+          <p className="mt-4 text-sm text-muted">The studio uses the same owner login as the blog editor. Save a completed pack directly as an unpublished draft, then review it in the editor. JSON import and export remain available.</p>
         </div>
       </Section>
     </main>

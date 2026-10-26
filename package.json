@@ -16,9 +16,12 @@
     "infra:synth": "node scripts/workspace.mjs synth",
     "test:browser": "node scripts/workspace.mjs browser",
     "dev:portfolio": "node scripts/workspace.mjs dev portfolio",
-    "dev:api": "node scripts/workspace.mjs dev api",
-    "dev:techcanvas": "node scripts/workspace.mjs dev techcanvas",
+    "dev:api": "node scripts/workspace.mjs dev portfolio",
+    "dev:techcanvas": "node scripts/workspace.mjs dev portfolio",
     "demo:worker": "node scripts/workspace.mjs dev worker",
-    "worker:build": "node scripts/build-go-worker.mjs"
+    "worker:build": "node scripts/build-go-worker.mjs",
+    "dev": "node scripts/workspace.mjs dev portfolio",
+    "test:integration": "node scripts/check-unified-app.mjs",
+    "dev:setup": "node apps/portfolio/scripts/dev-unified.mjs --setup-only"
   }
 }

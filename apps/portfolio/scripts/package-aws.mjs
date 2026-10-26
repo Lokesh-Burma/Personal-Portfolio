@@ -4,7 +4,7 @@ const preview=process.argv.includes('--local-preview');
 if(process.platform!=='linux' && !preview)throw new Error('Build this package on Linux for AWS. Use --local-preview only to validate the current local platform; it is not a deployment artifact.');
 const root=resolve('.'),destination=join(root,'.aws-build/portfolio');
 await rm(destination,{recursive:true,force:true});await mkdir(destination,{recursive:true});
-const filter=path=>!basename(path).startsWith('.env') && basename(path)!=='.git' && !path.includes('/content/drafts/') && !path.endsWith('/content/drafts');
+const filter=path=>!basename(path).startsWith('.env') && basename(path)!=='.git' && !path.includes('/.local-platform') && !path.includes('/content/drafts/') && !path.endsWith('/content/drafts');
 await cp(join(root,'.next/standalone'),destination,{recursive:true,dereference:false,verbatimSymlinks:true,filter});
 await cp(join(root,'public'),join(destination,'public'),{recursive:true,filter});
 await cp(join(root,'.next/static'),join(destination,'.next/static'),{recursive:true});

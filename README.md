@@ -1,73 +1,62 @@
 # Lokesh Platform
 
-One repository for the portfolio, its API and TechCanvas. The applications keep separate runtime, authentication and storage boundaries while sharing development and release tooling.
+One Next.js application for the portfolio, writing, owner authentication and TechCanvas studio, plus one Go background worker. The active web application remains at apps/portfolio to preserve build and deployment paths.
 
-```
-apps/
-  portfolio/        Next.js portfolio, writing editor and public assets
-  api/              NestJS blog API, PostgreSQL/DynamoDB adapters
-  worker/           Go SQS worker, deterministic assets and guarded Lambda adapter
-  techcanvas/       Visual learning studio and its cloud backend
-    infra/          Existing TechCanvasFoundation stack and runtime
-infra/              Existing portfolio data, app and custom-domain stacks
-scripts/            Shared check/build/release-plan commands
-ci/                 Inactive workflow templates
-```
+## Run locally
 
-Canonical repository: https://github.com/Lokesh-Burma/Personal-Portfolio
-
-## Quick start
-
-Use Node 24+, pnpm 10.17.1 and Go 1.27.3. The root package has no dependencies. Each application keeps its existing lockfile and isolated package configuration; no Turborepo or cross-project dependency hoisting is needed.
+Requires Node 24+, pnpm 10.17.1 and Go 1.27.3 for worker checks.
 
 ```sh
 pnpm install:all
-pnpm check
-pnpm build
-pnpm dev:portfolio
-# Separate terminals as needed:
-pnpm dev:api
-pnpm dev:techcanvas
-pnpm demo:worker    # local curated Go job; no AWS calls
+pnpm dev
 ```
 
-Configure private environment files inside the corresponding app directory using its examples. Existing local portfolio credentials were moved to apps/portfolio/.env.local and remain ignored. The API's Docker Compose/PostgreSQL setup remains in apps/api. TechCanvas's existing external Ollama service can still be used; model files and runtime data are not imported into Git.
+Open http://127.0.0.1:3000. The first run creates private local configuration without overwriting your existing .env.local. Local owner login details are in apps/portfolio/.local-platform/local-login.txt. Both that directory and .env.unified.local are ignored by Git and excluded from Docker/Lambda packages. Local demo data is a single-process JSON file; it is not an AWS database replacement.
 
-## One release entry point
+- /admin: owner login and blog editor.
+- /techcanvas/studio: same owner session, topic packs, asset previews/downloads and direct Save blog draft.
+- /blog: published posts only; withdrawing a post hides it immediately.
+- /api/admin/*, /api/blogs/* and /api/techcanvas/*: native server routes in the same app. No HTTP bridge, NestJS process or separate studio server is needed.
+
+The local studio uses explicitly labelled curated SVG demos. Paid text/image generation remains disabled. Saving a pack creates a private draft, never an automatic publication. JSON imports remain supported.
+
+## Source layout
+
+```text
+apps/portfolio/             Common Next.js app and its Dockerfile
+  app/techcanvas/studio/    Native React studio
+  app/api/                 Blog, authentication and TechCanvas routes
+  lib/blogs/               DynamoDB repository preserving existing records
+  lib/studio/              Canonical studio content, rendering and job contracts
+apps/worker/               Go event worker and Dockerfile (not activated)
+apps/api/                  Previous NestJS source, retained for rollback/reference
+apps/techcanvas/           Previous studio tooling/infrastructure compatibility
+infra/                     Existing deployed portfolio/API infrastructure
+scripts/                   Two-target checks/builds and integration verification
+```
+
+Old API/studio repositories and production resources have not been removed. Compatibility entrypoints use the common app's canonical studio modules. They are not additional runtime targets for the combined app.
+
+## Verify and build
 
 ```sh
-pnpm release:plan                       # all apps; no AWS calls
-pnpm release:plan --target portfolio
-pnpm release:plan --target api
-pnpm release:plan --target techcanvas
-pnpm build:aws --target all             # local Docker builds, no upload
-pnpm infra:synth                       # reviewed templates, no deploy
+pnpm check
+pnpm build
+pnpm test:integration
+pnpm test:browser          # Chrome; CHROME_PATH may override its location
+pnpm demo:worker
+pnpm build:aws --target portfolio
+pnpm release:plan
 ```
 
-Linux packages are exported into a fresh .artifacts/timestamp directory. TechCanvas's bundled handlers remain under apps/techcanvas/infra/build; its site is packaged from approved live outputs. Preserve internal dependency symlinks when zipping. Docker must be running; this Mac uses the existing Colima profile techcanvas. Use the standard Docker credential configuration appropriate to your machine.
+`api`, `techcanvas` and `web` target aliases resolve to the common web app. The only active build targets are portfolio and worker. Existing lockfiles in retained rollback sources are preserved; the common app has its own frozen pnpm lockfile.
 
-Portfolio and API releases update their shared stack together when both change. A frontend release then promotes the new PortfolioRevisionId in the domain stack. TechCanvas keeps its separate stack. The release-plan command explains this order and refuses deployment flags; it never uploads, provisions or deploys automatically.
+The integration check starts only Next.js with temporary local data and tests login, secure cookies, CSRF, bounded requests, studio packs, private assets, direct draft save, publishing/withdrawal and logout. It makes no AWS calls. The browser variant exercises the real UI at desktop/mobile widths.
 
-Automatic deployment is not enabled yet. The [updated plan](docs/automatic-deployment-plan.md) now needs one repository/workflow and no cross-repository dispatch or GitHub App. App-only changes can be selected by path; shared infrastructure changes include both portfolio and API. Workflow templates stay outside .github/workflows until deliberately enabled.
+Docker is optional for local runtime portability and Linux ARM64 artifact builds. The production runtime is still Lambda/S3/CloudFront, not a Docker fleet. See docs/runtime-and-containers.md.
 
-## Checks and history
+## Deployment status
 
-`pnpm check` runs root orchestration tests, portfolio tests, API build/unit/HTTP/lint checks, both infrastructure test suites and TechCanvas syntax/tests. `pnpm build` builds both servers and bundles the studio backend. After those builds, `pnpm test:browser` checks the real Next-to-Nest workflow with an isolated fixture database; set CHROME_EXECUTABLE if Chrome is not at the macOS default path.
+This consolidation is implemented and verified locally, not released to AWS. The existing stacks still describe the previous split application. The plan-only release command explicitly blocks the old code-only promotion path until the common app has reviewed owner secrets and scoped access to the existing blog/studio resources. No resources, data, DNS, Cognito settings, paid inference or processing triggers were changed.
 
-The API and TechCanvas histories were imported with git subtree without squash. Their original commits remain ancestors of this repository. Original repositories are retained as migration references, not deleted or archived. See [migration record](docs/monorepo-migration.md).
-
-## Production
-
-- Portfolio: https://lokeshburma.com
-- Studio: linked from https://lokeshburma.com/techcanvas
-- Production stack names, resource identities, DNS and owner logins are unchanged by the repository move.
-- Paid inference and processing remain disabled. Infrastructure changes, migrations and paid-service activation retain their approval gates.
-- Blog publication state is stored in DynamoDB; code commits do not publish drafts. Private editorial files, environment files, installed dependencies, model/runtime data and generated bundles are excluded from Git.
-
-See [custom domain](docs/custom-domain.md), [media publication](docs/blog-media-publication.md) and the application READMEs for implementation details. Historical documentation may describe the pre-monorepo rollout; this README and the migration/deployment plan define current paths.
-
-The root vercel.json disables legacy automatic Vercel Git builds for this AWS-hosted repository. DNS remains managed in Vercel; this configuration does not change domain records. If intentionally returning to Vercel hosting later, review this setting and configure apps/portfolio as the project root.
-
-## Docker and Go
-
-Docker builds the Linux deployment packages; production currently runs Lambda and S3/CloudFront rather than an ECS/EC2 container fleet. Optional local runtime Dockerfiles now exist in apps/portfolio, apps/api, apps/techcanvas and apps/worker. See [runtime explanation](docs/runtime-and-containers.md) and the [Go worker](apps/worker/README.md). The Go worker is implemented and tested but production still selects Node by default; processing and paid inference stay disabled.
+Before deploying, follow docs/unified-app-migration.md. CI templates remain inactive; pushing main does not deploy this consolidation. The total budget target remains around ₹1,000/month. Real image generation is a separate proposal in docs/image-generation-plan.md.

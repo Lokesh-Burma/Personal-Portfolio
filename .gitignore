@@ -24,3 +24,6 @@ apps/techcanvas/infra/site-build/
 
 # Go build/demo artifacts
 .build/
+
+# Private single-process local development data
+.local-platform/

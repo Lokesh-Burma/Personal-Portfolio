@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import { getPublishedPostBySlug } from "@/lib/blog-db";
-import { apiConfigured, readPublicPortfolioApi } from "@/lib/portfolio-api";
+import { hasBlogDbConfig as apiConfigured } from "@/lib/blog-db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Markdown } from "@/components/markdown";
@@ -23,8 +23,7 @@ export const dynamic = "force-dynamic";
 
 const getPost = cache(async (slug: string) => {
   try {
-    const remote=await readPublicPortfolioApi<{post:ApiBlogPost|null}>("/blogs/"+encodeURIComponent(slug));
-    const post=remote?remote.post:await getPublishedPostBySlug(slug);
+    const post=await getPublishedPostBySlug(slug);
     if(post)return {title:post.title,date:post.published_at || post.created_at,summary:post.summary || "",body:post.content_markdown};
     if(apiConfigured())return null;
   } catch { if(apiConfigured())return null; }
