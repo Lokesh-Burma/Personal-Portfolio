@@ -1,0 +1,10 @@
+.git
+**/node_modules
+**/.env*
+**/.next
+**/.aws-build
+**/.aws-linux
+**/coverage
+**/content/drafts
+**/data
+.artifacts

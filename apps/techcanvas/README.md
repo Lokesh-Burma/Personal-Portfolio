@@ -1,3 +1,5 @@
+> This application is part of the [Lokesh Platform monorepo](../../README.md). Run shared build/check commands from the repository root; this app retains its own runtime and package configuration.
+
 # TechCanvas AI
 
 A local concept studio: technical topic → three visual notes + one summary image + an icon-based visual memory aid + one sentence + one paragraph + a Markdown blog draft. Export square PNGs for Instagram and draft JSON matching the existing portfolio API.

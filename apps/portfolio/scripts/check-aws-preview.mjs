@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 if(!process.argv.includes('--allow-preview-test-writes'))throw new Error('This check creates and deletes a temporary preview draft; explicit test-write flag required.');
-const studio=resolve(process.env.TECHCANVAS_ROOT || '../techcanvas-ai');
+const studio=resolve(process.env.TECHCANVAS_ROOT || '../techcanvas');
 const {chromium}=await import(pathToFileURL(studio+'/infra/node_modules/playwright-core/index.mjs'));
 const {renderAssets}=await import(pathToFileURL(studio+'/infra/runtime/service.mjs'));
 const {catalog}=await import(pathToFileURL(studio+'/content.mjs'));

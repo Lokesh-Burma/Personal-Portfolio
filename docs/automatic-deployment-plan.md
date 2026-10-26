@@ -1,74 +1,77 @@
-# Automatic deployment from main
+# Automatic deployment from the monorepo
 
-Status: implementation plan only, requested 2026-10-26. No GitHub Actions workflow, AWS federation role, GitHub App, deployment secret or paid pipeline service is enabled by this document.
+Current canonical repository: Lokesh-Burma/Personal-Portfolio. This plan supersedes archive/automatic-deployment-plan-multi-repo.md. The repo consolidation and local tooling are implemented. Automatic production deployment and AWS federation remain disabled until their permissions are configured/reviewed. No cross-repository dispatch, GitHub App or personal dispatch token is needed now.
 
-## Intended behavior
+## One main-branch flow
 
-Every push or merge into main starts validation for the affected repository. Application code deploys automatically only after its checks and Linux build pass. A failed check leaves the live release untouched. For closely spaced commits, the controller deploys the latest eligible version; it never rolls production back to an older SHA just because that commit's CI finished later.
+```
+PR / push to main
+  → select affected apps
+  → locked dependency install + checks
+  → Linux ARM64 packages and SHA-addressed release manifest
+  → one serialized production release
+  → public smoke checks
+  → record success, or restore the previous release
+```
 
-Infrastructure, IAM, model access, paid-service activation, database migration and DNS changes remain a separate reviewed lane. Automatic app releases preserve existing credentials, region, endpoint limits, disabled inference and disabled processing triggers. Publishing an application build does not publish draft blog posts; editorial status lives in the blog database.
+Every main push runs validation. Only successful, eligible source revisions can deploy. Closely spaced commits may be superseded by the latest passing version; never deploy an older SHA just because its CI completed later. GitHub queue order alone is not a source-order guarantee.
 
-## Repository ownership
+| Changed paths | Release targets |
+| --- | --- |
+| apps/portfolio/** | Portfolio code, then production portfolio revision promotion |
+| apps/api/** | API code; stable backend endpoint URL remains unchanged |
+| apps/techcanvas/** | Studio backend/frontend in TechCanvasFoundation |
+| infra/** | Portfolio + API infrastructure review; no automatic resource changes |
+| scripts/**, ci/**, package.json | Validate all apps; review deployment-tool changes |
+| docs/** | Documentation checks; no application deployment needed |
 
-| Repository | Validation/build | Production release ownership |
-| --- | --- | --- |
-| Lokesh-Burma/Personal-Portfolio | Portfolio tests, infrastructure tests/synthesis, Linux ARM64 standalone package, image/package checks | Central controller for both portfolio and API because they share LokeshPlatformPreview; also updates the portfolio revision parameter in LokeshPortfolioDomain |
-| Lokesh-Burma/Personal-Portfolio-API | Nest build, lint, unit/HTTP tests, production Linux ARM64 package | Requests an API-code release through the central controller; does not independently update the shared stack |
-| Lokesh-Burma/Tech-Canvas-AI | Root syntax/tests, cloud/infrastructure tests, bundled Lambda build, frontend packaging | Separate serialized release for TechCanvasFoundation and its allowlisted frontend objects |
+The selection rules live in scripts/workspace-config.mjs and are tested. Shared API/contracts or auth behavior changes must include both consumers in their compatibility checks even when only one source directory changed.
 
-The public portfolio domain, private asset stores and original TechCanvas deployment are already live. This plan adds repeatable releases to the existing system; it does not migrate data or create a replacement application stack.
+## Commands implemented now
 
-## Trigger and authentication design
+- pnpm install:all: frozen app dependencies and pinned infrastructure dependencies.
+- pnpm check: root tooling, portfolio, API build/tests/lint and studio/cloud/infrastructure checks.
+- pnpm build: build both app servers and studio handlers from one root.
+- pnpm build:aws --target all: isolated Linux ARM64 Docker builds to fresh .artifacts/timestamp directories; bundle studio handlers separately.
+- pnpm release:plan --target all: one shared-stack update for both apps, portfolio promotion second, studio stack separately. It makes no AWS calls and rejects mutation flags.
 
-1. Pull requests run checks without production AWS credentials. Protect main with the checks supported by the repository's GitHub plan. Pin third-party actions to reviewed commit SHAs and package dependencies with their lockfiles.
-2. A main push runs the same validation and produces an immutable release manifest containing source repository/SHA, build identity, package SHA256 and object version IDs. Build on Linux ARM64, either a verified hosted ARM runner or an explicitly configured Docker Buildx ARM64 path. Do not deploy a macOS package. Export into a clean directory and preserve internal pnpm symlinks.
-3. The portfolio controller handles its own main pushes and authenticated workflow_dispatch requests from the API repository. Use a GitHub App installed only on the required repositories, with narrowly scoped Actions dispatch and Contents read permissions, rather than a personal broad-access token. Resolve the source workflow run and verify the allowlisted repository, main branch, successful checks and requested SHA; never trust dispatch input alone. If dispatch credentials are not configured, automatic API promotion stays disabled.
-4. Production AWS access uses GitHub OIDC and short-lived STS credentials. Do not use the local aws-toolkit session or store static AWS keys in GitHub. Restrict audience to sts.amazonaws.com and subjects to the exact controller/TechCanvas repository production environments. Restrict those environments to main; when using environment subjects, a branch check must still be enforced by environment rules and the workflow.
-5. Separate app deployment permissions from infrastructure administration. Scope uploads to existing build/frontend prefixes, CloudFormation operations to the named stacks, invocation updates to the intended functions/endpoints and PassRole to reviewed existing roles only where required. Do not give the automation AdministratorAccess or let a broadly privileged CloudFormation execution role bypass the intended scope. Infrastructure changes use a separate approved role/workflow. Generate and review the actual IAM definitions during implementation; none are applied by this plan.
+The build files remain app-local to preserve working standalone packaging and lockfiles. This is one source repository with isolated dependency boundaries, not an unnecessary shared-package/lockfile rewrite.
 
-AWS login has expired locally. Before enabling federation, reauthenticate and verify that the project's managed IAM experience permits the OIDC provider and scoped roles. Do not upgrade the AWS plan or enable advanced services as a workaround without approval.
+## Production controller
 
-## Serialization and ordering
+Use one workflow and one production concurrency group in this repository, cancel-in-progress=false. A running CloudFormation operation must finish before another release starts. The controller can coordinate all apps without GitHub cross-repository credentials. Use supported queue settings and verify the requested source SHA is still eligible before each deployment.
 
-GitHub concurrency groups are scoped to one repository. Giving the API and portfolio workflows the same group string would not serialize them across repositories. Both shared-stack deployments must therefore execute in the portfolio controller.
+1. Build a manifest from the exact monorepo SHA containing selected apps, package SHA256, immutable S3 keys/versions and previous deployed revisions. Exclude .env, editorial drafts, runtime/model data and build dependencies from artifacts; preserve internal relative pnpm links. Never export into a dirty artifact directory.
+2. For portfolio/API code changes, create one reviewed change set against the existing LokeshPlatformPreview template, replacing only the selected code key/version parameters. Preserve all owner/secret/origin parameters through UsePreviousValue. Reject IAM, storage, auth, event-trigger or paid-service mutations from the automatic app-code lane.
+3. Wait for the shared stack. When the portfolio changed, read its new verified revision and update PortfolioRevisionId in LokeshPortfolioDomain. Preserve certificate, domain, caching and other settings. API-only releases need no domain-stack revision update.
+4. For TechCanvas changes, bundle its handlers, review the code-only TechCanvasFoundation changes and preserve OwnerSubject, disabled processing triggers, missing Bedrock permission and BEDROCK_USAGE_APPROVED=false. Package its frontend from the resulting stack outputs and use the existing allowlisted encrypted/no-store publisher, not bucket sync/delete.
+5. Verify HTTPS/public pages, API health, static assets and anonymous admin rejection. Keep authenticated CRUD/auth fixture checks in local CI tests; do not put the owner's actual password into CI or publish synthetic test posts. Do not call paid inference as a deployment smoke check.
+6. Record success only after endpoints and public health match the manifest. Keep prior artifact versions/revisions for rollback. On failure restore the prior code versions and production portfolio revision, then verify health. Code rollback does not roll back data.
 
-Use one production deployment group in that controller, cancel-in-progress=false, and the supported queue setting when implementing. A running CloudFormation deployment must finish; never cancel it midway because another commit arrived. New requests re-check release eligibility and current main/source state before changing production. Superseded requests can complete as skipped; every push runs CI, but a burst of commits need not result in an intermediate production deployment for every SHA. GitHub queue ordering is based on waiting order, so retain explicit SHA/order guards.
+All stack names and construct/resource identities remain unchanged. The repository move itself does not need a production deployment. Main pushes must not change blog draft publication status; that remains an explicit editorial action in DynamoDB.
 
-TechCanvas uses a separate concurrency group against its separate stack. Manual production app releases should go through the same controller to avoid colliding with automation.
+## AWS access and gates
 
-## Portfolio/API release sequence
+Use GitHub OIDC with short-lived STS credentials, not static AWS keys or a developer's expiring aws-toolkit login. Restrict the trust audience to sts.amazonaws.com and subject to the exact canonical repository production environment; restrict that environment to main. Separate untrusted PR validation from production credentials.
 
-1. Read the current deployed parameter values, endpoint revisions and release manifest privately. Preserve NoEcho parameters via UsePreviousValue; never print their values. Record the prior frontend/API code object versions and the production portfolio revision for rollback.
-2. Upload the validated ZIP under a SHA-addressed key in the existing private versioned artifact bucket. Check archive integrity, internal links, correct runtime/architecture, and absence of environment files, drafts, model files and installed build dependencies that are not runtime inputs.
-3. Create a change set against the current application template, changing only the requested frontend or API code key/version. A normal app-code promotion may change only the corresponding immutable revision and preview endpoint routing. If the change set alters IAM, storage, auth configuration, event mappings or paid-service settings, stop and route it to infrastructure review.
-4. Execute and wait for the shared stack to finish. For a portfolio release, read the new portfolio revision and update only PortfolioRevisionId in the domain stack, preserving its certificate parameter and distribution settings. An API release preserves the portfolio revision and the stable backend endpoint URL.
-5. Run read-only public smoke checks: homepage/blog status, expected build identity, static image/asset loading, HTTPS/www redirects, anonymous admin rejection and API health. Run authenticated CRUD/auth fixtures locally in CI; do not put the actual owner's password in CI or create public test posts. Do not call Bedrock or activate workers to test a release.
-6. Mark the manifest successful only after both stacks/endpoints are consistent and smoke checks pass. Record source SHA, artifact digest/version, revision IDs, stack events and the verification result so the deployed version can be traced to Git.
-7. On rollout or smoke failure, restore the previous code object versions and production portfolio revision through reviewed CloudFormation operations. Verify public health after rollback. Restoring code is not a database rollback; schema migrations stay out of this automatic lane and must be backward-compatible.
+Create narrowly scoped application-deployment permissions: uploads only to existing release/site prefixes, operations only on the named stacks/functions/endpoints, and PassRole only where explicitly needed. Do not grant AdministratorAccess or reuse a broadly privileged CloudFormation execution role to bypass the intended scope. Generate/review the concrete IAM configuration during implementation. Verify that the current managed AWS project experience permits OIDC and the roles; no paid-plan or advanced-service upgrade is implicit.
 
-## TechCanvas release sequence
+Infrastructure changes, IAM/model permissions, new paid services, data migrations, DNS changes and paid inference activation remain a separate approval lane. Enforce these boundaries in change-set checks and permissions, not only workflow comments. Use the branch/environment protections supported by the actual GitHub plan; if enforced review is unavailable, keep the infrastructure lane manual.
 
-1. Validate and bundle the actual Lambda/runtime sources with pinned dependencies. Run root, cloud, session and infrastructure checks. Preserve the currently disabled generation path.
-2. Create/review a change set. App releases may replace function code only; keep owner parameters, scoped permissions, BEDROCK_USAGE_APPROVED=false and both event source mappings disabled. New IAM/model access or stateful changes require review.
-3. After a successful backend update, package the frontend using the resulting stack outputs. Source public/cloud-config.json intentionally defaults to cloud=false for local development; production configuration must be generated, not copied blindly from that file.
-4. Use the existing allowlisted frontend publisher, which uploads only the intended objects with encryption and no-store caching. Do not sync/delete a whole bucket. Verify the HTTPS frontend and anonymous API rejection.
-5. Record previous object versions/configuration and backend versions for rollback. Preserve existing jobs/assets; no data cleanup or inferred paid quality test belongs in the pipeline.
+## CI template and next enablement steps
 
-## Cost and enablement gates
+ci/workflow-templates/checks.yml is an inactive template, outside .github/workflows. It runs on PR/main once deliberately installed, using pinned official actions and Node 24. It grants no AWS identity token and contains no deployment job.
 
-Prefer GitHub Actions over adding an always-running deployment server. Check repository visibility, included Actions minutes, ARM runner availability and artifact storage before choosing runners; do not assume CI is free. Set build/job timeouts, short artifact retention, dependency caches and sensible supersession to limit usage. Builds and CI storage are additional to the existing AWS hosting estimate. No paid CodePipeline/CodeBuild subscription is needed for this proposed path, and none is enabled now.
+1. Review the consolidated repo and verify the existing source histories and reproducible builds.
+2. The root vercel.json disables legacy automatic Vercel Git builds for this AWS-hosted repository. Confirm the provider has picked up that configuration; a future intentional Vercel deployment must use apps/portfolio as its root. Vercel DNS and the AWS-served custom domain are unaffected.
+3. Enable only the check workflow after verifying GitHub runner/minute availability and repository settings. It can later use affected-target optimization.
+4. Implement the manifest-driven deployment executor, concrete OIDC/role permissions and production environment restrictions; test serialization and rollback.
+5. Enable automatic app-code promotion on main after those checks pass. Preserve infrastructure and paid-service gates.
 
-Enable in phases:
+Check included Actions minutes, ARM runner availability and artifact storage rather than assuming CI is free. Apply timeouts, short artifact retention and reasonable supersession. The existing AWS hosting target remains traffic-dependent; this plan creates no deployment server, CodePipeline, CodeBuild or other paid service.
 
-1. Commit/push the current code and this plan; verify remote heads. No new AWS deployment is triggered by our work because no workflow is installed yet. A pre-existing Vercel Git integration may still build its own project; it is separate from AWS and should be inspected before cleanup.
-2. Implement PR/main checks without deployment credentials. Verify reproducible packages and build manifests from Git alone.
-3. Add scoped OIDC roles, GitHub environment restrictions and the narrow cross-repository dispatch integration after their concrete permission review. Confirm compatibility with the current AWS project experience and CI budget.
-4. Test controller serialization and rollback against a safe release; then enable automatic application-code releases on main. Keep infrastructure changes gated.
+## Primary references
 
-Acceptance criteria: successful main changes deploy without a local Mac or interactive AWS login; failed checks cannot deploy; concurrent portfolio/API pushes cannot race the shared stack; deployment is traceable to exact SHAs; rollback restores a known-good release; no credentials/drafts reach Git or packages; automatic releases cannot enable paid inference or migrate/delete production data.
-
-## Primary sources
-
-- GitHub workflow triggers: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
-- OIDC with AWS: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
-- Concurrency, repository scope and queue behavior: https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency
+- https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+- https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
+- https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency

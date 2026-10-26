@@ -1,7 +1,8 @@
+import {mkdir} from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-const frontRoot=process.cwd(),apiRoot=resolve(process.env.PORTFOLIO_API_ROOT || '../portfolio-api'),studioRoot=resolve(process.env.TECHCANVAS_ROOT || '../techcanvas-ai');
+const frontRoot=process.cwd(),apiRoot=resolve(process.env.PORTFOLIO_API_ROOT || '../api'),studioRoot=resolve(process.env.TECHCANVAS_ROOT || '../techcanvas');
 const {chromium}=await import(pathToFileURL(studioRoot+'/infra/node_modules/playwright-core/index.mjs'));
 const {renderAssets}=await import(pathToFileURL(studioRoot+'/infra/runtime/service.mjs'));
 const {catalog}=await import(pathToFileURL(studioRoot+'/content.mjs'));
@@ -10,6 +11,7 @@ import { createServer } from 'node:net';
 import { pbkdf2Sync } from 'node:crypto';
 import assert from 'node:assert/strict';
 
+await mkdir(frontRoot+'/.aws-build',{recursive:true});
 const require=createRequire(apiRoot+'/package.json');
 async function freePort(){const s=createServer();await new Promise(r=>s.listen(0,'127.0.0.1',r));const p=s.address().port;await new Promise(r=>s.close(r));return p;}
 const frontPort=await freePort(),front='http://localhost:'+frontPort;

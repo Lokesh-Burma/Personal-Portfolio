@@ -1,3 +1,5 @@
+> This application is part of the [Lokesh Platform monorepo](../../README.md). Run shared build/check commands from the repository root; this app retains its own runtime and package configuration.
+
 # Portfolio API
 
 Standalone NestJS backend API for portfolio/blog administration.
