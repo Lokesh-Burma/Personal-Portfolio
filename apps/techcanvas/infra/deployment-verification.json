@@ -1,0 +1,38 @@
+{
+  "verifiedAt": "2026-10-25T11:12:21.676962+00:00",
+  "region": "ap-southeast-2",
+  "stackStatus": "UPDATE_COMPLETE",
+  "resourceCount": 46,
+  "terminationProtection": true,
+  "frontendUrl": "https://d3ezvecjyqm5h9.cloudfront.net",
+  "apiUrl": "https://jnpegpnh9a.execute-api.ap-southeast-2.amazonaws.com",
+  "backendPublished": true,
+  "ownerConfigured": true,
+  "ownerInvitationRequested": true,
+  "paidInferenceEnabled": false,
+  "checks": [
+    "Bucket public access blocked",
+    "Bucket public access blocked",
+    "CloudFront deployed",
+    "Bucket public access blocked",
+    "Processing trigger disabled",
+    "Processing trigger disabled",
+    "No Bedrock permission in deployed template",
+    "Live Lambda owner harness: GET /api/config -> 200",
+    "Live Lambda owner harness: GET /api/jobs -> 200",
+    "Live Lambda owner harness: POST /api/jobs -> 503",
+    "Anonymous GET rejected (401)",
+    "Anonymous POST rejected (401)",
+    "API preflight allows exact frontend origin",
+    "Frontend served over HTTPS with browser security headers",
+    "Published cloud configuration matches stack outputs",
+    "Live Chrome: published site and visible Cognito hosted sign-in form reachable; no credentials entered"
+  ],
+  "remainingHumanStep": "Complete invited password setup and TOTP; live owner browser sign-in has not been exercised.",
+  "tests": {
+    "local": 17,
+    "cloud_infrastructure_auth": 26,
+    "isolated_browser_workflows": 2,
+    "live_dynamodb_contract": true
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "techcanvas-ai-infra",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "synth": "npm run build && cdk synth --strict --no-lookups --path-metadata false --asset-metadata false",
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check lib/foundation-stack.mjs && node --check runtime/service.mjs && node --check runtime/handlers.mjs && node --check runtime/repository.mjs",
+    "inventory": "node bin/inventory.mjs",
+    "build": "node bin/build.mjs",
+    "test:browser": "node bin/browser-test.mjs",
+    "test:contract": "node bin/contract-test.mjs",
+    "site:package": "node bin/package-site.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "3.1156.0",
+    "@aws-sdk/client-dynamodb": "3.1156.0",
+    "@aws-sdk/client-s3": "3.1156.0",
+    "@aws-sdk/client-sqs": "3.1156.0",
+    "@aws-sdk/lib-dynamodb": "3.1156.0",
+    "@aws-sdk/s3-request-presigner": "3.1156.0",
+    "@aws-sdk/util-dynamodb": "3.996.9",
+    "aws-cdk-lib": "2.274.0",
+    "constructs": "10.8.1"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.1146.1",
+    "cdk-nag": "3.0.2",
+    "esbuild": "0.28.2",
+    "playwright-core": "1.64.1"
+  }
+}

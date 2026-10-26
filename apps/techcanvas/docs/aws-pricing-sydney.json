@@ -1,0 +1,331 @@
+{
+  "checked_on": "2026-10-25",
+  "region": "ap-southeast-2",
+  "model_id": "amazon.nova-lite-v1:0",
+  "status": "planning_only_not_deployed",
+  "sources": {
+    "api": "AWS Price List GetProducts, us-east-1 endpoint, Sydney product filters",
+    "bedrock": "https://aws.amazon.com/bedrock/pricing/",
+    "cloudfront": "https://aws.amazon.com/cloudfront/pricing/",
+    "s3": "https://aws.amazon.com/s3/pricing/",
+    "project_eligibility": "https://docs.aws.amazon.com/accounts/latest/reference/project-regions.html"
+  },
+  "rates": {
+    "bedrock_input_1k": {
+      "usd": "0.0000630000",
+      "unit": "1K tokens",
+      "sku": "VE26ZEBZ95PNKV6H",
+      "description": "$0.000063 per 1K tokens for APS2-NovaLite-input-tokens in Asia Pacific (Sydney)",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "inferenceType": "Input tokens",
+        "servicecode": "AmazonBedrock",
+        "feature": "On-demand Inference",
+        "usagetype": "APS2-NovaLite-input-tokens",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "model": "Nova Lite",
+        "servicename": "Amazon Bedrock",
+        "operation": ""
+      }
+    },
+    "bedrock_output_1k": {
+      "usd": "0.0002520000",
+      "unit": "1K tokens",
+      "sku": "8QD3UNYB3WE6E2YA",
+      "description": "$0.000252 per 1K tokens for APS2-NovaLite-output-tokens in Asia Pacific (Sydney)",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "inferenceType": "Output tokens",
+        "servicecode": "AmazonBedrock",
+        "feature": "On-demand Inference",
+        "usagetype": "APS2-NovaLite-output-tokens",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "model": "Nova Lite",
+        "servicename": "Amazon Bedrock",
+        "operation": ""
+      }
+    },
+    "lambda_gb_second": {
+      "usd": "0.0000133334",
+      "unit": "Lambda-GB-Second",
+      "sku": "KDEJ26SV7QK2N7DW",
+      "description": "AWS Lambda - Total Compute for ARM - Asia Pacific (Sydney)-Tier-1",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AWSLambda",
+        "groupDescription": "Invocation duration weighted by memory assigned to function, measured in GB-s for ARM",
+        "usagetype": "APS2-Lambda-GB-Second-ARM",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "AWS Lambda",
+        "operation": "",
+        "group": "AWS-Lambda-Duration-ARM"
+      }
+    },
+    "lambda_request": {
+      "usd": "0.0000002000",
+      "unit": "Request",
+      "sku": "ZW6UHD4Q6EPUCZWU",
+      "description": "AWS Lambda - Total Requests - Asia Pacific (Sydney)",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AWSLambda",
+        "groupDescription": "Invocation call for a Lambda function",
+        "usagetype": "APS2-Request",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "AWS Lambda",
+        "operation": "",
+        "group": "AWS-Lambda-Requests"
+      }
+    },
+    "http_api_request": {
+      "usd": "0.0000012900",
+      "unit": "Requests",
+      "sku": "GHZQQPU8NMGFKBQZ",
+      "description": "$1.29/million requests - API Gateway HTTP API (first 300 million)",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonApiGateway",
+        "usagetype": "APS2-ApiGatewayHttpRequest",
+        "description": "HTTP API Requests",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon API Gateway",
+        "operation": "ApiGatewayHttpApi"
+      }
+    },
+    "ddb_read": {
+      "usd": "0.0000001425",
+      "unit": "ReadRequestUnits",
+      "sku": "BQCZ4TYN2JVHEH4Z",
+      "description": "$0.1425 per million read request units (Asia Pacific (Sydney))",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonDynamoDB",
+        "groupDescription": "DynamoDB PayPerRequest Read Request Units",
+        "usagetype": "APS2-ReadRequestUnits",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon DynamoDB",
+        "operation": "PayPerRequestThroughput",
+        "group": "DDB-ReadUnits"
+      }
+    },
+    "ddb_write": {
+      "usd": "0.0000007100",
+      "unit": "WriteRequestUnits",
+      "sku": "X43FXEDHFRVHHYQR",
+      "description": "$0.71 per million write request units (Asia Pacific (Sydney))",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonDynamoDB",
+        "groupDescription": "DynamoDB PayPerRequest Write Request Units",
+        "usagetype": "APS2-WriteRequestUnits",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon DynamoDB",
+        "operation": "PayPerRequestThroughput",
+        "group": "DDB-WriteUnits"
+      }
+    },
+    "ddb_storage_gb": {
+      "usd": "0.2850000000",
+      "unit": "GB-Mo",
+      "sku": "NF4X2QKU7Y7QVY5C",
+      "description": "$0.285 per GB-Month of storage used beyond first 25 free GB-Months",
+      "attributes": {
+        "volumeType": "Amazon DynamoDB - Indexed DataStore",
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonDynamoDB",
+        "usagetype": "APS2-TimedStorage-ByteHrs",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon DynamoDB",
+        "operation": ""
+      }
+    },
+    "sqs_request": {
+      "usd": "0.0000005000",
+      "unit": "Requests",
+      "sku": "9EZTQJC84BRJ8CHZ",
+      "description": "$0.50 per million Amazon SQS FIFO requests in Tier1 in Asia Pacific (Sydney)",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AWSQueueService",
+        "groupDescription": "Amazon SQS Requests",
+        "messageDeliveryFrequency": "Exactly Once",
+        "messageDeliveryOrder": "Guaranteed",
+        "usagetype": "APS2-Requests-FIFO-Tier1",
+        "locationType": "AWS Region",
+        "queueType": "FIFO (first-in, first-out)",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon Simple Queue Service",
+        "operation": "",
+        "group": "SQS-APIRequest-Tier1"
+      }
+    },
+    "s3_storage_gb": {
+      "usd": "0.0250000000",
+      "unit": "GB-Mo",
+      "sku": "5QVJMK36NJC9G6DC",
+      "description": "$0.025 per GB - first 50 TB / month of storage used",
+      "attributes": {
+        "volumeType": "Standard",
+        "storageClass": "General Purpose",
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonS3",
+        "durability": "99.999999999%",
+        "usagetype": "APS2-TimedStorage-ByteHrs",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon Simple Storage Service",
+        "availability": "99.99%",
+        "operation": ""
+      }
+    },
+    "s3_put": {
+      "usd": "0.0000055000",
+      "unit": "Requests",
+      "sku": "U4DFWUZRRJK76GFK",
+      "description": "$0.0055 per 1,000 PUT, COPY, POST, or LIST requests",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonS3",
+        "groupDescription": "PUT/COPY/POST or LIST requests",
+        "usagetype": "APS2-Requests-Tier1",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon Simple Storage Service",
+        "operation": "",
+        "group": "S3-API-Tier1"
+      }
+    },
+    "s3_get": {
+      "usd": "0.0000004400",
+      "unit": "Requests",
+      "sku": "ZE67FX933AEQ43H2",
+      "description": "$0.0044 per 10,000 GET and all other requests",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonS3",
+        "groupDescription": "GET and all other requests",
+        "usagetype": "APS2-Requests-Tier2",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon Simple Storage Service",
+        "operation": "",
+        "group": "S3-API-Tier2"
+      }
+    },
+    "cognito_mau": {
+      "usd": "0.0150000000",
+      "unit": "CognitoUserPoolsMAU",
+      "sku": "JVU799QJR37664RR",
+      "description": "Cognito Essentials ap-southeast-2 tier 1 pricing",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonCognito",
+        "usagetype": "APS2-CognitoEssentialsMAU",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon Cognito",
+        "operation": "CognitoEssentialsOperation"
+      }
+    },
+    "log_ingestion_gb": {
+      "usd": "0.6700000000",
+      "unit": "GB",
+      "sku": "VSJ57WXDQXM2VKQK",
+      "description": "$0.67 per GB custom log data ingested in Standard log class - Asia Pacific (Sydney)",
+      "attributes": {
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonCloudWatch",
+        "groupDescription": "Existing system, application, and custom log files",
+        "usagetype": "APS2-DataProcessing-Bytes",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "AmazonCloudWatch",
+        "operation": "PutLogEvents",
+        "version": "Current",
+        "group": "Ingested Logs",
+        "logsDestination": "Amazon CloudWatch Logs"
+      }
+    },
+    "log_storage_gb": {
+      "usd": "0.0330000000",
+      "unit": "GB-Mo",
+      "sku": "SXS5MH23MB3SHA9C",
+      "description": "$0.033 per GB-mo of log storage - Asia Pacific (Sydney)",
+      "attributes": {
+        "storageMedia": "Amazon S3",
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonCloudWatch",
+        "groupDescription": "Amazon CloudWatch Logs Storage Current version",
+        "usagetype": "APS2-TimedStorage-ByteHrs",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "AmazonCloudWatch",
+        "operation": "",
+        "version": "Current",
+        "group": "Amazon CloudWatch Standard Storage pricing current"
+      }
+    },
+    "cdn_request": {
+      "usd": "0.0000012500",
+      "unit": "Requests",
+      "sku": "XXEA4SCG9TSQCDF2",
+      "description": "$0.0125 per 10,000 HTTPS Requests",
+      "attributes": {
+        "regionCode": "",
+        "servicecode": "AmazonCloudFront",
+        "requestType": "CloudFront-Request-Tier2",
+        "usagetype": "AU-Requests-Tier2-HTTPS",
+        "locationType": "AWS Edge Location",
+        "location": "Australia",
+        "servicename": "Amazon CloudFront",
+        "operation": "",
+        "requestDescription": "HTTPS GET and HEAD requests"
+      }
+    },
+    "cdn_gb_out": {
+      "usd": "0.1140000000",
+      "unit": "GB",
+      "sku": "8JNNPNBQD9DSHV5K",
+      "description": "$0.114 per GB - first 10 TB / month data transfer out",
+      "attributes": {
+        "fromLocationType": "AWS Edge Location",
+        "toRegionCode": "",
+        "servicecode": "AmazonCloudFront",
+        "usagetype": "AU-DataTransfer-Out-Bytes",
+        "fromRegionCode": "",
+        "transferType": "CloudFront Outbound",
+        "servicename": "Amazon CloudFront",
+        "fromLocation": "Australia",
+        "toLocationType": "Other",
+        "toLocation": "External",
+        "operation": ""
+      }
+    },
+    "ddb_pitr_gb": {
+      "usd": "0.2280000000",
+      "unit": "GB-Mo",
+      "sku": "KHP6CW3RY2FP49W3",
+      "description": "$0.228 per GB-Month of storage used for DynamoDB PITR backup",
+      "attributes": {
+        "volumeType": "Amazon DynamoDB - Point-In-Time-Restore (PITR) Backup Storage",
+        "regionCode": "ap-southeast-2",
+        "servicecode": "AmazonDynamoDB",
+        "usagetype": "APS2-TimedPITRStorage-ByteHrs",
+        "locationType": "AWS Region",
+        "location": "Asia Pacific (Sydney)",
+        "servicename": "Amazon DynamoDB",
+        "operation": ""
+      }
+    }
+  },
+  "architecture": "owner_only_http_api_without_waf",
+  "eligibility_notes": "CloudFront serves frontend only. The Sydney HTTP API is accessed directly with owner JWT authorization. CloudFront/WAF integration and flat-rate plans are excluded for the current new-experience Free project."
+}
