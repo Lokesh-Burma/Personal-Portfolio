@@ -1,46 +1,23 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-.pnpm-store/
 node_modules/
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
-.env*.local
-.env
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# Local and Linux AWS package artifacts
+.pnpm-store/
+.next/
 .aws-build/
 .aws-linux/
-infra/cdk.out/
-infra/cdk.context.json
-
-# Unpublished editorial review files
+.artifacts/
+dist/
+coverage/
+cdk.out/
+cdk.context.json
+.env
+.env.*
+!.env.example
+.DS_Store
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
 content/drafts/
+apps/portfolio/content/drafts/
+apps/techcanvas/data/
+apps/techcanvas/infra/build/
+apps/techcanvas/infra/site-build/
