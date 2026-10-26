@@ -2,7 +2,7 @@
 
 # dependencies
 .pnpm-store/
-/node_modules
+node_modules/
 /.pnp
 .pnp.js
 
@@ -35,3 +35,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local and Linux AWS package artifacts
+.aws-build/
+.aws-linux/
+infra/cdk.out/
+infra/cdk.context.json
+
+# Unpublished editorial review files
+content/drafts/

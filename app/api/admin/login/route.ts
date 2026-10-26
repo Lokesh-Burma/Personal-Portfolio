@@ -1,9 +1,12 @@
+import { forwardPortfolioApi } from "@/lib/portfolio-api";
 import { NextResponse } from "next/server";
 import { createAdminSession, setAdminSessionCookie, verifyAdminPassword } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const upstream = await forwardPortfolioApi(request, "/auth/login");
+  if (upstream) return upstream;
   try {
     const { email, password } = await request.json();
 

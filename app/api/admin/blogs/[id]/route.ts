@@ -1,3 +1,4 @@
+import { forwardPortfolioApi } from "@/lib/portfolio-api";
 import { NextResponse } from "next/server";
 import { deletePost, updatePost } from "@/lib/blog-db";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -9,6 +10,8 @@ type Params = {
 };
 
 export async function PATCH(request: Request, { params }: Params) {
+  const upstream = await forwardPortfolioApi(request, "/admin/blogs/" + encodeURIComponent((await params).id));
+  if (upstream) return upstream;
   if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -29,6 +32,8 @@ export async function PATCH(request: Request, { params }: Params) {
 }
 
 export async function DELETE(_request: Request, { params }: Params) {
+  const upstream = await forwardPortfolioApi(_request, "/admin/blogs/" + encodeURIComponent((await params).id));
+  if (upstream) return upstream;
   if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

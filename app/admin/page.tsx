@@ -1,6 +1,8 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+
+import { MAX_TECHCANVAS_IMPORT_BYTES, parseTechCanvasDraft } from "@/lib/techcanvas-import";
 
 type BlogPost = {
   id: string;
@@ -52,6 +54,7 @@ export default function AdminPage() {
   const [form, setForm] = useState(emptyPost);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const preserveImportedForm = useRef(false);
 
   const selectedPost = useMemo(
     () => posts.find((post) => post.id === selectedId) || null,
@@ -81,6 +84,10 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
+    if (preserveImportedForm.current) {
+      preserveImportedForm.current = false;
+      return;
+    }
     if (!selectedPost) {
       setForm(emptyPost);
       return;
@@ -169,6 +176,29 @@ export default function AdminPage() {
     await loadPosts();
   }
 
+  function exportPostsBackup() {
+    const url=URL.createObjectURL(new Blob([JSON.stringify({version:1,exported_at:new Date().toISOString(),posts},null,2)],{type:"application/json"}));
+    const link=document.createElement("a");link.href=url;link.download="portfolio-posts-export-"+new Date().toISOString().slice(0,10)+".json";link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }
+
+  async function importTechCanvasDraft(file: File) {
+    if (file.size > MAX_TECHCANVAS_IMPORT_BYTES) {
+      setMessage("Choose a TechCanvas JSON export smaller than 256 KB.");
+      return;
+    }
+    if ((form.title || form.content_markdown) && !confirm("Replace the editor content with this TechCanvas draft?")) return;
+    setBusy(true);
+    try {
+      const draft = parseTechCanvasDraft(await file.text());
+      preserveImportedForm.current = selectedPost !== null;
+      setSelectedId(null);
+      setForm(draft);
+      setMessage("Imported for review. Save when ready; this starts as an unpublished draft.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to import this file.");
+    } finally { setBusy(false); }
+  }
+
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
     setAuthenticated(false);
@@ -178,24 +208,28 @@ export default function AdminPage() {
   if (!authenticated) {
     return (
       <main className="mx-auto flex min-h-[calc(100vh-72px)] w-full max-w-md flex-col justify-center px-5 py-16">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">Admin</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Sign in</h1>
+        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-accent-soft">Admin</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-ink">Sign in</h1>
         <form onSubmit={login} className="mt-8 space-y-4">
           <input
-            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+            className="w-full rounded-md border border-line bg-panel px-3 py-2 text-sm"
             type="email"
+            aria-label="Email"
+            autoComplete="username"
             placeholder="Email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
           <input
-            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+            className="w-full rounded-md border border-line bg-panel px-3 py-2 text-sm"
             type="password"
+            aria-label="Password"
+            autoComplete="current-password"
             placeholder="Password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
-          <button className="w-full rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white" disabled={busy}>
+          <button className="w-full rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink" disabled={busy}>
             {busy ? "Signing in..." : "Sign in"}
           </button>
         </form>
@@ -205,17 +239,17 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="border-t border-slate-200 bg-slate-50">
+    <main className="border-t border-line bg-canvas">
       <div className="mx-auto min-h-[calc(100vh-72px)] w-full max-w-7xl px-5 py-10">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-accent-soft">
               Admin
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Blog editor</h1>
-            <p className="mt-1 text-sm text-slate-500">{email}</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-ink">Blog editor</h1>
+            <p className="mt-1 text-sm text-subtle">{email}</p>
           </div>
-          <button className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700" onClick={logout}>
+          <button className="rounded-md border border-line bg-panel px-3 py-2 text-sm font-semibold text-muted" onClick={logout}>
             Sign out
           </button>
         </div>
@@ -223,31 +257,41 @@ export default function AdminPage() {
         <div className="mt-8 grid gap-8 lg:grid-cols-[320px_1fr]">
           <aside className="space-y-3">
             <button
-              className="w-full rounded-md bg-slate-950 px-4 py-2 text-left text-sm font-semibold text-white"
-              onClick={() => setSelectedId(null)}
+              className="w-full rounded-md bg-accent px-4 py-2 text-left text-sm font-semibold text-accent-ink"
+              onClick={() => { setSelectedId(null); setForm(emptyPost); }}
             >
               New post
             </button>
+            <label className="block rounded-lg border border-line bg-panel p-4 text-sm font-semibold text-ink">
+              Import TechCanvas draft
+              <input className="mt-3 block w-full text-xs font-normal" type="file" accept="application/json,.json" disabled={busy} onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                event.currentTarget.value = "";
+                if (file) void importTechCanvasDraft(file);
+              }} />
+              <span className="mt-2 block text-xs font-normal leading-5 text-subtle">Choose portfolio.json from your content pack. Review before saving.</span>
+            </label>
+            <button type="button" onClick={exportPostsBackup} disabled={busy} className="w-full rounded-lg border border-line bg-panel px-4 py-3 text-left text-xs text-muted">Export posts backup (includes drafts)</button>
             {posts.map((post) => (
               <button
                 key={post.id}
-                className={`w-full rounded-lg border bg-white px-4 py-3 text-left text-sm shadow-sm transition ${
-                  post.id === selectedId ? "border-teal-600" : "border-slate-200"
+                className={`w-full rounded-lg border bg-panel px-4 py-3 text-left text-sm shadow-sm transition ${
+                  post.id === selectedId ? "border-accent" : "border-line"
                 }`}
                 onClick={() => setSelectedId(post.id)}
               >
-                <span className="block font-semibold text-slate-950">{post.title}</span>
-                <span className="mt-1 block text-xs text-slate-500">{post.status}</span>
+                <span className="block font-semibold text-ink">{post.title}</span>
+                <span className="mt-1 block text-xs text-subtle">{post.status}</span>
               </button>
             ))}
           </aside>
 
-          <form onSubmit={savePost} className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <form onSubmit={savePost} className="space-y-4 rounded-lg border border-line bg-panel p-5 shadow-sm">
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="space-y-1 text-sm font-medium text-slate-700">
+              <label className="space-y-1 text-sm font-medium text-muted">
                 <span>Title</span>
                 <input
-                  className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  className="w-full rounded-md border border-line px-3 py-2"
                   value={form.title}
                   onChange={(event) =>
                     setForm((current) => ({
@@ -258,40 +302,40 @@ export default function AdminPage() {
                   }
                 />
               </label>
-              <label className="space-y-1 text-sm font-medium text-slate-700">
+              <label className="space-y-1 text-sm font-medium text-muted">
                 <span>Slug</span>
                 <input
-                  className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  className="w-full rounded-md border border-line px-3 py-2"
                   value={form.slug}
                   onChange={(event) => setForm((current) => ({ ...current, slug: event.target.value }))}
                 />
               </label>
             </div>
 
-            <label className="block space-y-1 text-sm font-medium text-slate-700">
+            <label className="block space-y-1 text-sm font-medium text-muted">
               <span>Summary</span>
               <textarea
-                className="min-h-20 w-full rounded-md border border-slate-300 px-3 py-2"
+                className="min-h-20 w-full rounded-md border border-line px-3 py-2"
                 value={form.summary}
                 onChange={(event) => setForm((current) => ({ ...current, summary: event.target.value }))}
               />
             </label>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="space-y-1 text-sm font-medium text-slate-700">
+              <label className="space-y-1 text-sm font-medium text-muted">
                 <span>Cover image URL</span>
                 <input
-                  className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  className="w-full rounded-md border border-line px-3 py-2"
                   value={form.cover_image}
                   onChange={(event) =>
                     setForm((current) => ({ ...current, cover_image: event.target.value }))
                   }
                 />
               </label>
-              <label className="space-y-1 text-sm font-medium text-slate-700">
+              <label className="space-y-1 text-sm font-medium text-muted">
                 <span>Tags</span>
                 <input
-                  className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  className="w-full rounded-md border border-line px-3 py-2"
                   placeholder="backend, postgres, systems"
                   value={form.tags}
                   onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
@@ -299,10 +343,10 @@ export default function AdminPage() {
               </label>
             </div>
 
-            <label className="block space-y-1 text-sm font-medium text-slate-700">
+            <label className="block space-y-1 text-sm font-medium text-muted">
               <span>Status</span>
               <select
-                className="rounded-md border border-slate-300 px-3 py-2"
+                className="rounded-md border border-line px-3 py-2"
                 value={form.status}
                 onChange={(event) =>
                   setForm((current) => ({
@@ -316,10 +360,10 @@ export default function AdminPage() {
               </select>
             </label>
 
-            <label className="block space-y-1 text-sm font-medium text-slate-700">
+            <label className="block space-y-1 text-sm font-medium text-muted">
               <span>Markdown</span>
               <textarea
-                className="min-h-[420px] w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm"
+                className="min-h-[420px] w-full rounded-md border border-line px-3 py-2 font-mono text-sm"
                 value={form.content_markdown}
                 onChange={(event) =>
                   setForm((current) => ({ ...current, content_markdown: event.target.value }))
@@ -328,7 +372,7 @@ export default function AdminPage() {
             </label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <button className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white" disabled={busy}>
+              <button className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink" disabled={busy}>
                 {busy ? "Saving..." : "Save"}
               </button>
               {selectedId ? (
@@ -341,7 +385,7 @@ export default function AdminPage() {
                   Delete
                 </button>
               ) : null}
-              {message ? <p className="text-sm text-slate-500">{message}</p> : null}
+              {message ? <p className="text-sm text-subtle">{message}</p> : null}
             </div>
           </form>
         </div>

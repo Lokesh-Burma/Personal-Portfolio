@@ -1,0 +1,1 @@
+{"name":"lokesh-platform-infra","version":"0.1.0","private":true,"type":"module","scripts":{"synth":"cdk synth --strict --no-lookups --path-metadata false --asset-metadata false","test":"node --test test/*.test.mjs"},"dependencies":{"aws-cdk-lib":"2.274.0","constructs":"10.8.1"},"devDependencies":{"aws-cdk":"2.1146.1","cdk-nag":"3.0.2"}}

@@ -1,3 +1,4 @@
+import { forwardPortfolioApi } from "@/lib/portfolio-api";
 import { NextResponse } from "next/server";
 import { getPublishedPostBySlug } from "@/lib/blog-db";
 
@@ -8,6 +9,8 @@ type Params = {
 };
 
 export async function GET(_request: Request, { params }: Params) {
+  const upstream = await forwardPortfolioApi(_request, "/blogs/" + encodeURIComponent((await params).slug));
+  if (upstream) return upstream;
   try {
     const { slug } = await params;
     const post = await getPublishedPostBySlug(slug);

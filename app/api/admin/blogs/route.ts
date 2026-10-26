@@ -1,10 +1,13 @@
+import { forwardPortfolioApi } from "@/lib/portfolio-api";
 import { NextResponse } from "next/server";
 import { createPost, listAdminPosts } from "@/lib/blog-db";
 import { requireAdmin } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const upstream = await forwardPortfolioApi(request, "/admin/blogs");
+  if (upstream) return upstream;
   if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -20,6 +23,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const upstream = await forwardPortfolioApi(request, "/admin/blogs");
+  if (upstream) return upstream;
   if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

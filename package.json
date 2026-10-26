@@ -8,13 +8,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "hash-password": "node scripts/hash-password.mjs"
+    "hash-password": "node scripts/hash-password.mjs",
+    "test:techcanvas": "node --experimental-strip-types --test test/techcanvas-import.test.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.mjs",
+    "aws:package": "node scripts/package-aws.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "next": "16.2.9",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
@@ -22,6 +25,6 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "tailwindcss": "latest",
-    "typescript": "latest"
+    "typescript": "5.9.3"
   }
 }

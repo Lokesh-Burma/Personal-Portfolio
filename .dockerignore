@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+.env*
+.aws-build
+.aws-linux
+coverage
+
+# Unpublished editorial review files
+content/drafts

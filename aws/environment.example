@@ -1,0 +1,5 @@
+NODE_ENV=production
+PORTFOLIO_API_URL=https://REVIEWED_API_ENDPOINT
+SITE_ORIGIN=https://lokeshburma.com
+# Do not configure Supabase keys or admin password secrets in the frontend when using the API.
+# PORTFOLIO_ALLOW_LOCAL_API is only for isolated local integration tests; leave it unset on AWS.

@@ -15,7 +15,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <Nav />
         {children}
-        <Analytics />
+        <footer className="border-t border-line"><div className="mx-auto flex max-w-6xl flex-col justify-between gap-4 px-5 py-8 text-xs text-subtle sm:flex-row"><span className="tracking-[.15em]">LOKESH BURMA / ENGINEERING & IDEAS</span><span className="flex gap-5"><a href="/blog" className="hover:text-accent-soft">Writing</a><a href="/techcanvas" className="hover:text-accent-soft">TechCanvas</a><a href="/contact" className="hover:text-accent-soft">Contact</a></span></div></footer>
+        {process.env.VERCEL === "1" ? <Analytics /> : null}
       </body>
     </html>
   );

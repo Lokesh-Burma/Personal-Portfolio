@@ -138,7 +138,7 @@ export const techHighlights = [
     icon: "PHP",
     slug: "php",
     color: "777BB4",
-    tone: "bg-indigo-50 border-indigo-200",
+    tone: "bg-indigo-400/10 border-indigo-400/20",
   },
   {
     name: "TypeScript",
@@ -146,7 +146,7 @@ export const techHighlights = [
     icon: "TS",
     slug: "typescript",
     color: "3178C6",
-    tone: "bg-blue-50 border-blue-200",
+    tone: "bg-blue-400/10 border-blue-400/20",
   },
   {
     name: "Node.js",
@@ -154,7 +154,7 @@ export const techHighlights = [
     icon: "N",
     slug: "nodedotjs",
     color: "5FA04E",
-    tone: "bg-emerald-50 border-emerald-200",
+    tone: "bg-emerald-400/10 border-emerald-400/20",
   },
   {
     name: "NestJS",
@@ -162,7 +162,7 @@ export const techHighlights = [
     icon: "NS",
     slug: "nestjs",
     color: "E0234E",
-    tone: "bg-rose-50 border-rose-200",
+    tone: "bg-rose-400/10 border-rose-400/20",
   },
   {
     name: "AWS",
@@ -170,7 +170,7 @@ export const techHighlights = [
     icon: "AWS",
     slug: "amazonwebservices",
     color: "FF9900",
-    tone: "bg-amber-50 border-amber-200",
+    tone: "bg-amber-400/10 border-amber-400/20",
   },
   {
     name: "Docker",
@@ -186,7 +186,7 @@ export const techHighlights = [
     icon: "P",
     slug: "postman",
     color: "FF6C37",
-    tone: "bg-orange-50 border-orange-200",
+    tone: "bg-orange-400/10 border-orange-400/20",
   },
   {
     name: "PostgreSQL",
@@ -194,7 +194,7 @@ export const techHighlights = [
     icon: "PG",
     slug: "postgresql",
     color: "4169E1",
-    tone: "bg-cyan-50 border-cyan-200",
+    tone: "bg-cyan-400/10 border-cyan-400/20",
   },
   {
     name: "DynamoDB",
@@ -202,7 +202,7 @@ export const techHighlights = [
     icon: "DB",
     slug: "amazondynamodb",
     color: "4053D6",
-    tone: "bg-violet-50 border-violet-200",
+    tone: "bg-violet-400/10 border-violet-400/20",
   },
   {
     name: "Redis",
@@ -210,7 +210,7 @@ export const techHighlights = [
     icon: "R",
     slug: "redis",
     color: "FF4438",
-    tone: "bg-red-50 border-red-200",
+    tone: "bg-red-400/10 border-red-400/20",
   },
   {
     name: "Grafana",
@@ -218,7 +218,7 @@ export const techHighlights = [
     icon: "G",
     slug: "grafana",
     color: "F46800",
-    tone: "bg-orange-50 border-orange-200",
+    tone: "bg-orange-400/10 border-orange-400/20",
   },
   {
     name: "Claude Code",
@@ -226,14 +226,14 @@ export const techHighlights = [
     icon: "AI",
     slug: "anthropic",
     color: "191919",
-    tone: "bg-teal-50 border-teal-200",
+    tone: "bg-accent/10 border-teal-200",
   },{
   "name": "Go",
     group: "Languages",
   "icon": "Go",
   "slug": "go",
   "color": "00ADD8",
-  "tone": "bg-cyan-50 border-cyan-200"
+  "tone": "bg-cyan-400/10 border-cyan-400/20"
 },
 {
   "name": "Python",
@@ -241,7 +241,7 @@ export const techHighlights = [
   "icon": "Py",
   "slug": "python",
   "color": "3776AB",
-  "tone": "bg-blue-50 border-blue-200"
+  "tone": "bg-blue-400/10 border-blue-400/20"
 },
 {
   "name": "JavaScript",
@@ -257,7 +257,7 @@ export const techHighlights = [
   "icon": "Ex",
   "slug": "express",
   "color": "333333",
-  "tone": "bg-slate-50 border-slate-200"
+  "tone": "bg-canvas border-line"
 },
 {
   "name": "Git",
@@ -265,7 +265,7 @@ export const techHighlights = [
   "icon": "Gi",
   "slug": "git",
   "color": "F05032",
-  "tone": "bg-orange-50 border-orange-200"
+  "tone": "bg-orange-400/10 border-orange-400/20"
 },
 {
   "name": "Linux",
@@ -273,7 +273,7 @@ export const techHighlights = [
   "icon": "Li",
   "slug": "linux",
   "color": "333333",
-  "tone": "bg-slate-50 border-slate-200"
+  "tone": "bg-canvas border-line"
 },
 {
   "name": "Kibana",
@@ -281,7 +281,7 @@ export const techHighlights = [
   "icon": "Ki",
   "slug": "kibana",
   "color": "005571",
-  "tone": "bg-cyan-50 border-cyan-200"
+  "tone": "bg-cyan-400/10 border-cyan-400/20"
 },
 {
   "name": "LangFlow",
@@ -289,7 +289,7 @@ export const techHighlights = [
   "icon": "LF",
   "slug": "langflow",
   "color": "7C3AED",
-  "tone": "bg-violet-50 border-violet-200"
+  "tone": "bg-violet-400/10 border-violet-400/20"
 },
 {
   "name": "SQL",
@@ -297,7 +297,7 @@ export const techHighlights = [
   "icon": "SQL",
   "slug": null,
   "color": "4169E1",
-  "tone": "bg-blue-50 border-blue-200"
+  "tone": "bg-blue-400/10 border-blue-400/20"
 },
 {
   "name": "RAG",
@@ -305,7 +305,7 @@ export const techHighlights = [
   "icon": "RAG",
   "slug": null,
   "color": "0F766E",
-  "tone": "bg-teal-50 border-teal-200"
+  "tone": "bg-accent/10 border-teal-200"
 },
 {
   "name": "AI Agents",
@@ -313,7 +313,7 @@ export const techHighlights = [
   "icon": "AI",
   "slug": null,
   "color": "7C3AED",
-  "tone": "bg-violet-50 border-violet-200"
+  "tone": "bg-violet-400/10 border-violet-400/20"
 },
 ];
 

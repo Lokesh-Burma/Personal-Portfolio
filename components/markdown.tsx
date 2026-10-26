@@ -1,3 +1,4 @@
+import { parseMarkdownImage } from "@/lib/markdown-image";
 import { CopyCode } from "@/components/copy-code";
 
 type MarkdownProps = {
@@ -34,16 +35,29 @@ export function Markdown({ content }: MarkdownProps) {
   const blocks = splitBlocks(content);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 break-words">
       {blocks.map((block, index) => {
         if (block.type === "code") {
           return <CopyCode code={block.value} key={`${block.value}-${index}`} />;
         }
 
         return block.value.split(/\n{2,}/).filter(Boolean).map((textBlock) => {
+          const image = parseMarkdownImage(textBlock);
+          if (image) {
+            return (
+              <figure className="space-y-3" key={textBlock}>
+                <a href={image.src} target="_blank" rel="noopener noreferrer">
+                  <img src={image.src} alt={image.alt} loading="lazy" decoding="async" className="h-auto w-full rounded-xl border border-line" />
+                </a>
+                <figcaption className="text-sm text-subtle">
+                  <a href={image.src} target="_blank" rel="noopener noreferrer" className="text-accent-soft hover:text-ink">Open image at full size ↗</a>
+                </figcaption>
+              </figure>
+            );
+          }
           if (textBlock.startsWith("# ")) {
             return (
-              <h1 className="text-4xl font-semibold tracking-tight text-slate-950" key={textBlock}>
+              <h1 className="text-4xl font-semibold tracking-tight text-ink" key={textBlock}>
                 {textBlock.replace("# ", "")}
               </h1>
             );
@@ -51,7 +65,7 @@ export function Markdown({ content }: MarkdownProps) {
 
           if (textBlock.startsWith("## ")) {
             return (
-              <h2 className="pt-4 text-2xl font-semibold tracking-tight text-slate-950" key={textBlock}>
+              <h2 className="pt-4 text-2xl font-semibold tracking-tight text-ink" key={textBlock}>
                 {textBlock.replace("## ", "")}
               </h2>
             );
@@ -59,7 +73,7 @@ export function Markdown({ content }: MarkdownProps) {
 
           if (textBlock.startsWith("### ")) {
             return (
-              <h3 className="pt-2 text-lg font-semibold text-slate-950" key={textBlock}>
+              <h3 className="pt-2 text-lg font-semibold text-ink" key={textBlock}>
                 {textBlock.replace("### ", "")}
               </h3>
             );
@@ -69,7 +83,7 @@ export function Markdown({ content }: MarkdownProps) {
             return (
               <ul className="space-y-2 pl-5" key={textBlock}>
                 {textBlock.split("\n").map((item) => (
-                  <li className="list-disc text-base leading-7 text-slate-700" key={item}>
+                  <li className="list-disc text-base leading-7 text-muted" key={item}>
                     {item.replace("- ", "")}
                   </li>
                 ))}
@@ -78,7 +92,7 @@ export function Markdown({ content }: MarkdownProps) {
           }
 
           return (
-            <p className="text-base leading-8 text-slate-700" key={textBlock}>
+            <p className="text-base leading-8 text-muted" key={textBlock}>
               {textBlock}
             </p>
           );

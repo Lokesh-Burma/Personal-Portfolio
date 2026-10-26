@@ -37,14 +37,14 @@ export default async function ProjectPage({ params }: PageProps) {
   const fullProject = getProject(slug);
 
   return (
-    <main className="border-t border-slate-200 bg-white">
+    <main className="border-t border-line bg-panel">
       <article className="mx-auto max-w-3xl px-5 py-16">
-        <Link className="text-sm font-semibold text-teal-700 hover:text-teal-900" href="/projects">
+        <Link className="text-sm font-semibold text-accent-soft hover:text-ink" href="/projects">
           Back to projects
         </Link>
         <div className="mt-8 flex flex-wrap gap-2">
           {fullProject.stack.map((item) => (
-            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700" key={item}>
+            <span className="rounded-md bg-panel-raised px-2.5 py-1 text-xs font-medium text-muted" key={item}>
               {item}
             </span>
           ))}

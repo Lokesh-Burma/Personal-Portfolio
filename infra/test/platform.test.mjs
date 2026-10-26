@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {App} from 'aws-cdk-lib';
+import {Template} from 'aws-cdk-lib/assertions';
+import {PlatformData,PlatformPreview} from '../lib/platform.mjs';
+const app=new App(),env={region:'ap-southeast-2'},data=new PlatformData(app,'Data',{env}),preview=new PlatformPreview(app,'Preview',{env,data});
+const dt=Template.fromStack(data).toJSON(),pt=Template.fromStack(preview).toJSON();const all=[...Object.values(dt.Resources),...Object.values(pt.Resources)];
+test('new regional stacks reject other Regions',()=>{assert.throws(()=>new PlatformData(new App(),'Wrong',{env:{region:'ap-south-1'}}),/Sydney/);});
+test('stateful data and versioned artifacts are retained and private',()=>{for(const r of Object.values(dt.Resources).filter(r=>['AWS::S3::Bucket','AWS::DynamoDB::Table'].includes(r.Type)))assert.equal(r.DeletionPolicy,'Retain');const table=all.find(r=>r.Type==='AWS::DynamoDB::Table');assert.equal(table.Properties.BillingMode,'PAY_PER_REQUEST');assert.equal(table.Properties.DeletionProtectionEnabled,true);for(const b of all.filter(r=>r.Type==='AWS::S3::Bucket'))assert.ok(Object.values(b.Properties.PublicAccessBlockConfiguration).every(Boolean));});
+test('two HTTP services stay single-Region and use correct capped endpoint schema',()=>{const endpoints=all.filter(r=>r.Type==='AWS::Lambda::WebFunctionEndpoint');assert.equal(endpoints.length,2);for(const e of endpoints){assert.equal(e.Properties.EndpointType,'HomeRegion');assert.equal(e.Properties.ScalingConfig.MaxEnvironments,2);assert.equal(e.Properties.ThrottleConfig.RateLimit,100);assert.ok(!e.Properties.Regions);}for(const r of all.filter(r=>r.Type==='AWS::Lambda::WebFunctionRevision'))assert.equal(r.Properties.BuildConfig.RuntimeConfig.Runtime,'nodejs24.x');});
+test('owner secrets are API-only and hidden in template parameters',()=>{for(const p of ['AdminEmail','AdminPasswordHash','SessionSecret'])assert.equal(pt.Parameters[p].NoEcho,true);const front=all.find(r=>r.Type==='AWS::Lambda::WebFunctionRevision'&&r.Properties.FunctionName==='lokesh-portfolio');assert.ok(!Object.keys(front.Properties.ServiceConfig.EnvironmentVariables).some(k=>/PASSWORD|SECRET|SUPABASE/.test(k)));});
+test('preview does not create an always-on database, VPC, custom certificate, DNS or AI permissions',()=>{assert.ok(!all.some(r=>/AWS::(RDS|EC2|Route53|CertificateManager)|AWS::CloudFront/.test(r.Type)));assert.ok(!JSON.stringify(pt).includes('bedrock:'));});

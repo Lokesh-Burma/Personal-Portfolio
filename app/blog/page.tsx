@@ -1,4 +1,5 @@
-import { headers } from "next/headers";
+import { listPublishedPosts } from "@/lib/blog-db";
+import { apiConfigured, readPublicPortfolioApi } from "@/lib/portfolio-api";
 import { PostCard } from "@/components/cards";
 import { Section } from "@/components/section";
 import { getAllBlogPosts } from "@/lib/content";
@@ -14,38 +15,12 @@ type ApiBlogPost = {
   created_at: string;
 };
 
-async function getRequestOrigin() {
-  const headerStore = await headers();
-  const host = headerStore.get("x-forwarded-host") || headerStore.get("host");
-  const protocol = headerStore.get("x-forwarded-proto") || "http";
-
-  return host ? protocol + "://" + host : null;
-}
-
 async function getPosts() {
-  const origin = await getRequestOrigin();
-
-  if (origin) {
-    try {
-      const response = await fetch(origin + "/api/blogs", { cache: "no-store" });
-
-      if (response.ok) {
-        const data = (await response.json()) as { posts?: ApiBlogPost[] };
-        return (data.posts || []).map((post) => ({
-          slug: post.slug,
-          title: post.title,
-          date: post.published_at || post.created_at,
-          summary: post.summary || "",
-          tags: post.tags || [],
-          body: "",
-        }));
-      }
-    } catch {
-      // Fall through to local MDX posts when the API is unavailable locally.
-    }
-  }
-
-  return getAllBlogPosts();
+  try {
+    const remote=await readPublicPortfolioApi<{posts:ApiBlogPost[]}>("/blogs");
+    const posts=remote?remote.posts:await listPublishedPosts();
+    return posts.map(post=>({slug:post.slug,title:post.title,date:post.published_at || post.created_at,summary:post.summary || "",tags:post.tags || [],body:""}));
+  } catch { return apiConfigured()?[]:getAllBlogPosts(); }
 }
 
 export default async function BlogPage() {
@@ -55,8 +30,8 @@ export default async function BlogPage() {
     <main>
       <Section
         eyebrow="Blog"
-        title="Engineering notes under review"
-        intro="I am refining these posts before publishing them. The blog will focus on backend fundamentals, production systems, reliability, security, databases, and AI-assisted engineering."
+        title="The engineering notebook."
+        intro="Notes on backend fundamentals, distributed systems, production lessons, and ideas explored through TechCanvas."
       >
         {posts.length > 0 ? (
           <div className="grid gap-5 lg:grid-cols-3">
@@ -65,8 +40,8 @@ export default async function BlogPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm leading-6 text-slate-600">
+          <div className="rounded-lg border border-line bg-panel p-6 shadow-sm">
+            <p className="text-sm leading-6 text-muted">
               No posts are published right now. Drafts can be managed from the admin editor.
             </p>
           </div>

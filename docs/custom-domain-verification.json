@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-10-25T13:16:56.336Z",
+  "domain": "https://lokeshburma.com",
+  "localDnsOverride": false,
+  "checks": [
+    "HTTPS and security headers",
+    "responsive public routes",
+    "www canonical path/query redirect",
+    "owner UI login and host-only secure session",
+    "TechCanvas draft save through CloudFront and API",
+    "draft remains private",
+    "test draft removed and logout verified"
+  ],
+  "sampleBlogsMigrated": false,
+  "distributionDomain": "d9axko35mbymg.cloudfront.net",
+  "distributionId": "E46ZR7FM0AGS1",
+  "certificateStatus": "ISSUED",
+  "certificateRegion": "us-east-1",
+  "appRegion": "ap-southeast-2",
+  "unsignedProtectedOriginStatus": 403,
+  "publicDnsCutoverVerified": true,
+  "preCutoverVerifiedAt": "2026-10-25T13:11:50.033Z",
+  "httpRedirectStatus": 301,
+  "wwwRedirectStatus": 308,
+  "anonymousAdminStatus": 401,
+  "crossSiteWriteStatus": 403,
+  "staticAssetCacheHitVerified": true
+}

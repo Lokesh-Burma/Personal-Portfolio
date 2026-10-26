@@ -11,17 +11,17 @@ export default function ContactPage() {
         intro="For roles, collaborations, or technical conversations around cloud-native SaaS engineering."
       >
         <div className="grid gap-5 md:grid-cols-3">
-          <a className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-teal-500" href={`mailto:${profile.email}`}>
-            <p className="text-sm font-semibold text-slate-500">Email</p>
-            <p className="mt-2 font-semibold text-slate-950">{profile.email}</p>
+          <a className="rounded-lg border border-line bg-panel p-6 shadow-sm transition hover:border-accent" href={`mailto:${profile.email}`}>
+            <p className="text-sm font-semibold text-subtle">Email</p>
+            <p className="mt-2 font-semibold text-ink">{profile.email}</p>
           </a>
-          <Link className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-teal-500" href={profile.linkedin}>
-            <p className="text-sm font-semibold text-slate-500">LinkedIn</p>
-            <p className="mt-2 font-semibold text-slate-950">linkedin.com/in/lokeshburma</p>
+          <Link className="rounded-lg border border-line bg-panel p-6 shadow-sm transition hover:border-accent" href={profile.linkedin}>
+            <p className="text-sm font-semibold text-subtle">LinkedIn</p>
+            <p className="mt-2 font-semibold text-ink">linkedin.com/in/lokeshburma</p>
           </Link>
-          <Link className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-teal-500" href={profile.resumeHref}>
-            <p className="text-sm font-semibold text-slate-500">Resume</p>
-            <p className="mt-2 font-semibold text-slate-950">Request by email</p>
+          <Link className="rounded-lg border border-line bg-panel p-6 shadow-sm transition hover:border-accent" href={profile.resumeHref}>
+            <p className="text-sm font-semibold text-subtle">Resume</p>
+            <p className="mt-2 font-semibold text-ink">Request by email</p>
           </Link>
         </div>
       </Section>

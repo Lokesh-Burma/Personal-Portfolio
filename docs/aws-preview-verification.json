@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-10-25T12:48:37.321Z",
+  "front": "https://p98xcj070mlrbjfz.44l.lambda-web.ap-southeast-2.on.aws",
+  "api": "https://shzm4p4hvmt59m7s.44l.lambda-web.ap-southeast-2.on.aws",
+  "checks": [
+    "API health",
+    "anonymous admin blocked",
+    "live responsive public routes",
+    "owner login and secure host cookie",
+    "TechCanvas import saved through API into DynamoDB",
+    "draft excluded from all public reads",
+    "conditional DynamoDB slug rename",
+    "temporary draft deleted",
+    "logout clears session"
+  ],
+  "productionDataMigrated": false,
+  "dnsChanged": false
+}

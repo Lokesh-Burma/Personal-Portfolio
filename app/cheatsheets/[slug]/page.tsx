@@ -37,12 +37,12 @@ export default async function CheatSheetDetailPage({ params }: PageProps) {
   const fullSheet = getCheatSheet(slug);
 
   return (
-    <main className="border-t border-slate-200 bg-white">
+    <main className="border-t border-line bg-panel">
       <article className="mx-auto max-w-3xl px-5 py-16">
-        <Link className="text-sm font-semibold text-teal-700 hover:text-teal-900" href="/cheatsheets">
+        <Link className="text-sm font-semibold text-accent-soft hover:text-ink" href="/cheatsheets">
           Back to cheatsheets
         </Link>
-        <p className="mt-8 text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">
+        <p className="mt-8 text-sm font-semibold uppercase tracking-[0.14em] text-subtle">
           {fullSheet.category}
         </p>
         <Markdown content={fullSheet.body} />
