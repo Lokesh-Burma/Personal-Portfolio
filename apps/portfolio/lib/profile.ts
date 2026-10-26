@@ -137,7 +137,7 @@ export const techHighlights = [
     group: "Languages",
     icon: "PHP",
     slug: "php",
-    color: "777BB4",
+    color: "A5AFF0",
     tone: "bg-indigo-400/10 border-indigo-400/20",
   },
   {
@@ -145,7 +145,7 @@ export const techHighlights = [
     group: "Languages",
     icon: "TS",
     slug: "typescript",
-    color: "3178C6",
+    color: "60A5FA",
     tone: "bg-blue-400/10 border-blue-400/20",
   },
   {
@@ -153,7 +153,7 @@ export const techHighlights = [
     group: "Backend & APIs",
     icon: "N",
     slug: "nodedotjs",
-    color: "5FA04E",
+    color: "86CB76",
     tone: "bg-emerald-400/10 border-emerald-400/20",
   },
   {
@@ -161,7 +161,7 @@ export const techHighlights = [
     group: "Backend & APIs",
     icon: "NS",
     slug: "nestjs",
-    color: "E0234E",
+    color: "FB7185",
     tone: "bg-rose-400/10 border-rose-400/20",
   },
   {
@@ -177,8 +177,8 @@ export const techHighlights = [
     group: "Cloud & delivery",
     icon: "D",
     slug: "docker",
-    color: "2496ED",
-    tone: "bg-sky-50 border-sky-200",
+    color: "38BDF8",
+    tone: "bg-sky-400/10 border-sky-400/20",
   },
   {
     name: "Postman",
@@ -193,7 +193,7 @@ export const techHighlights = [
     group: "Data & caching",
     icon: "PG",
     slug: "postgresql",
-    color: "4169E1",
+    color: "A5B4FC",
     tone: "bg-cyan-400/10 border-cyan-400/20",
   },
   {
@@ -201,7 +201,7 @@ export const techHighlights = [
     group: "Data & caching",
     icon: "DB",
     slug: "amazondynamodb",
-    color: "4053D6",
+    color: "A5B4FC",
     tone: "bg-violet-400/10 border-violet-400/20",
   },
   {
@@ -225,8 +225,8 @@ export const techHighlights = [
     group: "AI engineering",
     icon: "AI",
     slug: "anthropic",
-    color: "191919",
-    tone: "bg-accent/10 border-teal-200",
+    color: "E8DED0",
+    tone: "bg-accent/10 border-accent/20",
   },{
   "name": "Go",
     group: "Languages",
@@ -240,7 +240,7 @@ export const techHighlights = [
     group: "Languages",
   "icon": "Py",
   "slug": "python",
-  "color": "3776AB",
+  "color": "60A5FA",
   "tone": "bg-blue-400/10 border-blue-400/20"
 },
 {
@@ -248,15 +248,15 @@ export const techHighlights = [
     group: "Languages",
   "icon": "Ja",
   "slug": "javascript",
-  "color": "A88A00",
-  "tone": "bg-yellow-50 border-yellow-200"
+  "color": "F7DF1E",
+  "tone": "bg-yellow-400/10 border-yellow-400/20"
 },
 {
   "name": "Express.js",
     group: "Backend & APIs",
   "icon": "Ex",
   "slug": "express",
-  "color": "333333",
+  "color": "E2E8F0",
   "tone": "bg-canvas border-line"
 },
 {
@@ -272,7 +272,7 @@ export const techHighlights = [
     group: "Cloud & delivery",
   "icon": "Li",
   "slug": "linux",
-  "color": "333333",
+  "color": "E2E8F0",
   "tone": "bg-canvas border-line"
 },
 {
@@ -280,7 +280,7 @@ export const techHighlights = [
     group: "Observability",
   "icon": "Ki",
   "slug": "kibana",
-  "color": "005571",
+  "color": "67E8F9",
   "tone": "bg-cyan-400/10 border-cyan-400/20"
 },
 {
@@ -288,7 +288,7 @@ export const techHighlights = [
     group: "AI engineering",
   "icon": "LF",
   "slug": "langflow",
-  "color": "7C3AED",
+  "color": "C4B5FD",
   "tone": "bg-violet-400/10 border-violet-400/20"
 },
 {
@@ -296,7 +296,7 @@ export const techHighlights = [
     group: "Data & caching",
   "icon": "SQL",
   "slug": null,
-  "color": "4169E1",
+  "color": "A5B4FC",
   "tone": "bg-blue-400/10 border-blue-400/20"
 },
 {
@@ -304,15 +304,15 @@ export const techHighlights = [
     group: "AI engineering",
   "icon": "RAG",
   "slug": null,
-  "color": "0F766E",
-  "tone": "bg-accent/10 border-teal-200"
+  "color": "5EEAD4",
+  "tone": "bg-accent/10 border-accent/20"
 },
 {
   "name": "AI Agents",
     group: "AI engineering",
   "icon": "AI",
   "slug": null,
-  "color": "7C3AED",
+  "color": "C4B5FD",
   "tone": "bg-violet-400/10 border-violet-400/20"
 },
 ];
