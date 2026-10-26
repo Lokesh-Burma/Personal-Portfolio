@@ -44,10 +44,10 @@ export function parseContent(response, topic) {
   if (r) c.sources = [{ title: r.title, url: r.url }];
   return c;
 }
-export function renderAssets(topic, c) {
-  const files = { 'blog.md': markdown(topic, c), 'summary.svg': renderSvg(topic, c, null, 'bedrock'), 'memory.svg': renderMemorySvg(topic, c, 'bedrock'),
+export function renderAssets(topic, c, provider = 'bedrock') {
+  const files = { 'blog.md': markdown(topic, c), 'summary.svg': renderSvg(topic, c, null, provider), 'memory.svg': renderMemorySvg(topic, c, provider),
     'portfolio.json': JSON.stringify({ title: topic, summary: c.paragraph, content_markdown: markdown(topic, c), tags: ['techcanvas'], status: 'draft' }), 'caption.txt': `${c.sentence}\n\n${c.paragraph}\n\n#SoftwareEngineering #TechCanvas` };
-  c.concepts.forEach((_,i) => { files[`concept-${i+1}.svg`] = renderSvg(topic, c, i, 'bedrock'); });
+  c.concepts.forEach((_,i) => { files[`concept-${i+1}.svg`] = renderSvg(topic, c, i, provider); });
   return files;
 }
 export function createService({ repo, now = () => new Date(), uuid = randomUUID, provider, assets, queue, enabled = false }) {

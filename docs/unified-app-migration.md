@@ -8,7 +8,7 @@ Studio routes use the same Cognito MFA owner login as the main app. A server-con
 
 Local demonstration mode is explicit, loopback-only and unavailable under Lambda runtime variables. It uses curated SVGs and private, single-process local file storage. It preserves stable-key replay/conflict handling and supports direct pack-to-blog-draft creation. It is not a distributed queue or paid inference substitute. Real text/image generation is a separate disabled integration; the new Go worker is still not deployed.
 
-The old standalone Ollama experimentation/tooling remains in apps/techcanvas for reference; it is not automatically invoked from web requests. Long-running production generation belongs to Go through the existing queue, rather than an untracked task inside Next.js. S3 upload, hosted generation and retries remain paused.
+The old standalone Ollama/SQLite prototype has been removed. Long-running production generation belongs to Go through the existing queue, rather than an untracked task inside Next.js. S3 upload, hosted generation and retries remain paused.
 
 ## Reviewed release still required
 

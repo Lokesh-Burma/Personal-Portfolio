@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
 import {spawn} from 'node:child_process';
 import {mkdtemp,rm,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -40,7 +41,7 @@ try{
  assert.equal((await request('/api/admin/logout','POST')).status,200);cookie='';assert.equal((await request(job.data.assets['memory.svg'])).status,401);assert.equal((await request('/api/admin/blogs')).status,401);
  if(process.argv.includes('--browser')){
   await mkdir(join(root,'.artifacts'),{recursive:true});
-  const {chromium}=await import('../apps/techcanvas/infra/node_modules/playwright-core/index.mjs');
+  const {chromium}=createRequire(new URL('../apps/portfolio/package.json',import.meta.url))('playwright-core');
   const browser=await chromium.launch({executablePath:process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
   try {const context=await browser.newContext({viewport:{width:1280,height:900}}),page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(base+'/admin');await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByRole('heading',{name:'Blog editor',exact:true}).waitFor();

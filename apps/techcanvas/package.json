@@ -1,5 +1,5 @@
 {
-  "name": "techcanvas-ai",
+  "name": "techcanvas-production-compatibility",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -7,14 +7,6 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "node --watch --env-file-if-exists=.env server.mjs",
-    "start": "node --env-file-if-exists=.env server.mjs",
-    "test": "node --test test/*.test.mjs",
-    "check": "node --check server.mjs && node --check core.mjs && node --check public/app.js && node --check memory.mjs && node --check ollama-provider.mjs && node --check reference-notes.mjs && node --check scripts/ollama.mjs && node --check scripts/evaluate-local.mjs",
-    "ai:serve": "node --env-file-if-exists=.env scripts/ollama.mjs serve",
-    "ai:pull": "node --env-file-if-exists=.env scripts/ollama.mjs pull",
-    "ai:check": "node --env-file-if-exists=.env scripts/ollama.mjs check",
-    "test:live": "node --env-file-if-exists=.env scripts/evaluate-local.mjs",
     "infra:test": "npm --prefix infra run test",
     "infra:synth": "npm --prefix infra run synth",
     "infra:check": "npm --prefix infra run check",

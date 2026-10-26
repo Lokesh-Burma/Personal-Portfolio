@@ -1,15 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
-export type BlogPost = {
-  slug: string;
-  title: string;
-  date: string;
-  summary: string;
-  tags: string[];
-  body: string;
-};
-
 export type Project = {
   slug: string;
   title: string;
@@ -28,19 +19,9 @@ export type CheatSheet = {
   body: string;
 };
 
-type ContentKind = "blog" | "projects" | "cheatsheets";
+type ContentKind = "projects" | "cheatsheets";
 
 const contentRoot = path.join(process.cwd(), "content");
-
-const blogPriority: Record<string, number> = {
-  "ai-writes-code-role-of-backend-developer": 0,
-  "learning-in-the-ai-era": 1,
-  "production-grade-backend-components": 2,
-  "security-best-practices-production-workloads": 3,
-  "zero-downtime-data-migration-patterns": 4,
-  "understanding-how-this-frontend-portfolio-app-works": 5,
-  "from-php-monolith-to-microservices": 6,
-};
 
 function parseFrontmatter(source: string) {
   const match = source.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
@@ -86,36 +67,6 @@ function getSlugs(kind: ContentKind) {
   return readdirSync(path.join(contentRoot, kind))
     .filter((file) => file.endsWith(".mdx"))
     .map((file) => file.replace(/\.mdx$/, ""));
-}
-
-function getBlogRank(slug: string) {
-  return blogPriority[slug] ?? 100;
-}
-
-export function getAllBlogPosts(): BlogPost[] {
-  return getSlugs("blog")
-    .map((slug) => getBlogPost(slug))
-    .sort((a, b) => {
-      const priorityDiff = getBlogRank(a.slug) - getBlogRank(b.slug);
-
-      if (priorityDiff !== 0) {
-        return priorityDiff;
-      }
-
-      return b.date.localeCompare(a.date);
-    });
-}
-
-export function getBlogPost(slug: string): BlogPost {
-  const { data, body } = readContentFile("blog", slug);
-  return {
-    slug,
-    title: String(data.title),
-    date: String(data.date),
-    summary: String(data.summary),
-    tags: Array.isArray(data.tags) ? data.tags : [],
-    body,
-  };
 }
 
 export function getAllProjects(): Project[] {

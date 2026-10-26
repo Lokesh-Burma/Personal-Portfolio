@@ -8,7 +8,7 @@ const root=fileURLToPath(new URL('../',import.meta.url)),listener=createServer()
 const secret='local-boundary-secret-more-than-32-characters',email='owner@example.test';
 process.env.ADMIN_SESSION_SECRET=secret;process.env.ADMIN_EMAIL=email;
 const legacy=createAdminSession(email);
-const child=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port',String(port)],{cwd:join(root,'apps/portfolio'),env:{...process.env,NODE_ENV:'production',PLATFORM_LOCAL_DEMO:'false',ADMIN_EMAIL:email,ADMIN_SESSION_SECRET:secret,SITE_ORIGIN:'https://example.test',COGNITO_USER_POOL_ID:'ap-southeast-2_LocalPool',COGNITO_CLIENT_ID:'localclient123',COGNITO_LOGIN_DOMAIN:'https://local-test.auth.ap-southeast-2.amazoncognito.com',TECHCANVAS_OWNER_SUBJECT:'11111111-1111-4111-8111-111111111111'},stdio:['ignore','pipe','pipe']});
+const child=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port',String(port)],{cwd:join(root,'apps/portfolio'),env:{...process.env,NODE_ENV:'production',BLOG_TABLE_NAME:'',PLATFORM_LOCAL_DEMO:'false',ADMIN_EMAIL:email,ADMIN_SESSION_SECRET:secret,SITE_ORIGIN:'https://example.test',COGNITO_USER_POOL_ID:'ap-southeast-2_LocalPool',COGNITO_CLIENT_ID:'localclient123',COGNITO_LOGIN_DOMAIN:'https://local-test.auth.ap-southeast-2.amazoncognito.com',TECHCANVAS_OWNER_SUBJECT:'11111111-1111-4111-8111-111111111111'},stdio:['ignore','pipe','pipe']});
 let logs='';child.stdout.on('data',b=>logs+=b);child.stderr.on('data',b=>logs+=b);
 async function get(path,headers={}){return fetch(base+path,{headers,redirect:'manual'});}
 try{
@@ -22,6 +22,7 @@ try{
  const denied=await get('/api/auth/callback?error=access_denied&state='+encodeURIComponent(authorize.searchParams.get('state')),{cookie:cookie.split(';')[0]});assert.equal(denied.status,303);assert.ok(denied.headers.getSetCookie().some(c=>c.startsWith('__Host-platform_login=') && /Max-Age=0/.test(c)));assert.ok(!denied.headers.getSetCookie().some(c=>c.startsWith('__Host-platform_owner=')));
  const logout=await fetch(base+'/api/admin/logout',{method:'POST',headers:{origin:'https://example.test'}});assert.equal(logout.status,200);const result=await logout.json();assert.equal(new URL(result.redirectUrl).pathname,'/logout');assert.equal(new URL(result.redirectUrl).searchParams.get('logout_uri'),'https://example.test/');assert.equal(logout.headers.getSetCookie().filter(c=>/Max-Age=0/.test(c)).length,3);
  const blocked=await fetch(base+'/api/admin/logout',{method:'POST',headers:{origin:'https://evil.test'}});assert.equal(blocked.status,403);
+ const writing=await (await get('/blog')).text();assert.match(writing,/Writing is temporarily unavailable/);assert.equal((await get('/api/blogs')).status,503);
  const loginPage=await (await get('/login')).text();assert.match(loginPage,/Sign in with MFA/);assert.ok(!loginPage.includes('type="password"'));
  console.log('Production MFA boundary passed: shared Cognito entrypoint, secure flow cookie, password-only/legacy-cookie rejection for both APIs, invalid callback cleanup and common Cognito logout. No Cognito or other AWS calls.');
 }finally{child.kill('SIGTERM');await new Promise(r=>{if(child.exitCode!==null)r();else{child.once('exit',r);setTimeout(()=>{child.kill('SIGKILL');r();},5000).unref();}});}

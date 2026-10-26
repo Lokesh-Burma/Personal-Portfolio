@@ -1,22 +1,12 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import { getPublishedPostBySlug } from "@/lib/blog-db";
-import { hasBlogDbConfig as apiConfigured } from "@/lib/blog-db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Markdown } from "@/components/markdown";
-import { getAllBlogPosts, getBlogPost } from "@/lib/content";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
-};
-
-type ApiBlogPost = {
-  title: string;
-  summary: string | null;
-  content_markdown: string;
-  published_at: string | null;
-  created_at: string;
 };
 
 export const dynamic = "force-dynamic";
@@ -25,10 +15,8 @@ const getPost = cache(async (slug: string) => {
   try {
     const post=await getPublishedPostBySlug(slug);
     if(post)return {title:post.title,date:post.published_at || post.created_at,summary:post.summary || "",body:post.content_markdown};
-    if(apiConfigured())return null;
-  } catch { if(apiConfigured())return null; }
-  const local=getAllBlogPosts().find(item=>item.slug===slug);
-  return local?getBlogPost(slug):null;
+    return null;
+  } catch { throw new Error("Published content is temporarily unavailable."); }
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

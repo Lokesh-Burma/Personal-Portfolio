@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { Repository } from '../runtime/repository.mjs';
 import { createService } from '../runtime/service.mjs';
-import { catalog } from '../../content.mjs';
+import { catalog } from '../../../portfolio/lib/studio/content.mjs';
 if (!process.env.TECHCANVAS_CONTRACT_TABLE) throw new Error('Set TECHCANVAS_CONTRACT_TABLE to the approved existing Sydney table.');
 const namespace='TEST#'+randomUUID()+'#',owner='contract-owner';
 const repo=new Repository({table:process.env.TECHCANVAS_CONTRACT_TABLE,namespace});

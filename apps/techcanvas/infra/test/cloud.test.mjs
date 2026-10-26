@@ -6,7 +6,7 @@ import { Repository, Conflict } from '../runtime/repository.mjs';
 import { apiHandler, workerHandler, dispatcherHandler } from '../runtime/handlers.mjs';
 import { bedrockProvider, INFERENCE_CONFIG } from '../runtime/aws-provider.mjs';
 import { generationQueue } from '../runtime/aws-queue.mjs';
-import { catalog } from '../../content.mjs';
+import { catalog } from '../../../portfolio/lib/studio/content.mjs';
 class MemoryRepository {
   data = new Map();
   async get(pk,sk) { return structuredClone(this.data.get(pk+'|'+sk)); }

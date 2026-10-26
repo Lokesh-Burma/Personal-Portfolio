@@ -1,65 +1,54 @@
 # Lokesh Platform
 
-One Next.js application for the portfolio, writing, owner authentication and TechCanvas studio, plus one Go background worker. The active web application remains at apps/portfolio to preserve build and deployment paths.
+Reliable systems. Clearer ideas.
 
-## Run locally
+One Next.js application for the portfolio, blog and TechCanvas, with one Go background worker. The combined app and shared Cognito MFA are implemented but **not deployed**. Production still uses the preceding split deployment; its necessary source remains until cutover.
 
-Requires Node 24+, pnpm 10.17.1 and Go 1.27.3 for worker checks.
+## Develop
+
+Requires Node 24+, pnpm 10.17.1 and Go 1.27.3.
 
 ```sh
 pnpm install:all
 pnpm dev
 ```
 
-Open http://127.0.0.1:3000. The first run creates private local configuration without overwriting your existing .env.local. Local owner login details are in apps/portfolio/.local-platform/local-login.txt. Both that directory and .env.unified.local are ignored by Git and excluded from Docker/Lambda packages. Local demo data is a single-process JSON file; it is not an AWS database replacement.
+Open http://127.0.0.1:3000. The first run creates ignored local-demo configuration and credentials at apps/portfolio/.local-platform/local-login.txt. It does not overwrite .env.local, contact AWS or simulate Cognito MFA.
 
-- /login: shared Cognito MFA login in production; local demo entry in development.
-- /admin: blog editor, using the same owner session as TechCanvas.
-- /techcanvas/studio: same owner session, topic packs, asset previews/downloads and direct Save blog draft.
-- /blog: published posts only; withdrawing a post hides it immediately.
-- /api/admin/*, /api/blogs/* and /api/techcanvas/*: native server routes in the same app. No HTTP bridge, NestJS process or separate studio server is needed.
+The app serves /login, /admin, /techcanvas/studio, /blog and their native API routes. Studio packs save directly as private blog drafts. Production-mode code uses one Cognito MFA owner session for the editor and studio; password-only login is local-demo only. Paid generation remains disabled; local visuals are labelled curated SVGs.
 
-The local studio uses explicitly labelled curated SVG demos. Paid text/image generation remains disabled. Saving a pack creates a private draft, never an automatic publication. JSON imports remain supported.
-
-## Source layout
-
-```text
-apps/portfolio/             Common Next.js app and its Dockerfile
-  app/techcanvas/studio/    Native React studio
-  app/api/                 Blog, authentication and TechCanvas routes
-  lib/blogs/               DynamoDB repository preserving existing records
-  lib/studio/              Canonical studio content, rendering and job contracts
-apps/worker/               Go event worker and Dockerfile (not activated)
-apps/api/                  Previous NestJS source, retained for rollback/reference
-apps/techcanvas/           Previous studio tooling/infrastructure compatibility
-infra/                     Existing deployed portfolio/API infrastructure
-scripts/                   Two-target checks/builds and integration verification
-```
-
-Old API/studio repositories and production resources have not been removed. Compatibility entrypoints use the common app's canonical studio modules. They are not additional runtime targets for the combined app.
-
-## Verify and build
+## Verify
 
 ```sh
 pnpm check
 pnpm build
 pnpm test:integration
-pnpm test:browser          # Chrome; CHROME_PATH may override its location
+pnpm test:browser
 pnpm demo:worker
-pnpm build:aws --target portfolio
 pnpm release:plan
 ```
 
-`api`, `techcanvas` and `web` target aliases resolve to the common web app. The only active build targets are portfolio and worker. Existing lockfiles in retained rollback sources are preserved; the common app has its own frozen pnpm lockfile.
+Browser tests require Chrome (CHROME_PATH may override its location). Linux artifacts use pnpm build:aws --target portfolio or --target worker and require Docker. These commands do not deploy. No automatic deployment pipeline is installed.
 
-The integration check starts only Next.js with temporary local data and tests login, secure cookies, CSRF, bounded requests, studio packs, private assets, direct draft save, publishing/withdrawal and logout. It makes no AWS calls. The browser variant exercises the real UI at desktop/mobile widths.
+## Source boundaries
 
-Docker is optional for local runtime portability and Linux ARM64 artifact builds. The production runtime is still Lambda/S3/CloudFront, not a Docker fleet. See docs/runtime-and-containers.md.
+| Path | Why it remains |
+| --- | --- |
+| apps/portfolio | Combined Next.js app, canonical studio modules, local development and tests |
+| apps/worker | Approved Go worker implementation and tests; not activated |
+| apps/api | NestJS source/build/tests still needed for the currently deployed API |
+| apps/techcanvas/public | Currently deployed studio frontend |
+| apps/techcanvas/infra | Existing studio infrastructure, event handlers and compatibility tests |
+| infra | Existing portfolio/API/data/domain stack definitions and safety tests |
+| scripts | Shared checks, builds, local integration tests and release guard |
 
-## Deployment status
+Lockfiles, tests, published media and deployment safety controls are intentional source. Private writing, configuration and runtime data are excluded. Historical plans, snapshots and removed prototypes remain recoverable through Git history.
 
-This consolidation is implemented and verified locally, not released to AWS. The existing stacks still describe the previous split application. The plan-only release command explicitly blocks the old code-only promotion path until the common app has reviewed owner secrets and scoped access to the existing blog/studio resources. No resources, data, DNS, Cognito settings, paid inference or processing triggers were changed.
+## Operate
 
-Before deploying, follow docs/unified-app-migration.md. CI templates remain inactive; pushing main does not deploy this consolidation. The total budget target remains around ₹1,000/month. Real image generation is a separate proposal in docs/image-generation-plan.md.
+- [Architecture](docs/architecture.md): deployed system versus the intended application.
+- [Operations](docs/operations.md): validation, builds, media, costs and change boundaries.
+- [Release checklist](docs/unified-app-migration.md): staged cutover without deleting production dependencies.
+- [Shared MFA](docs/shared-owner-mfa.md): authentication configuration and session behavior.
 
-Production uses one Cognito MFA login for both areas. Password-only login is restricted to explicit local demo mode. See docs/shared-owner-mfa.md for cookie/session behavior and the pending staged release checks.
+The budget target remains around ₹1,000/month. Deployment, paid inference, data changes and resource deletion require explicit authorization.

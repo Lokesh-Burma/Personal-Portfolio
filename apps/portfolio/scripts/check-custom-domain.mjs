@@ -1,12 +1,10 @@
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {resolve} from 'node:path';
-import {pathToFileURL} from 'node:url';
+import {chromium} from 'playwright-core';
+import {renderAssets} from '../lib/studio/service.mjs';
+import {catalog} from '../lib/studio/content.mjs';
 if(!process.argv.includes('--allow-test-writes'))throw new Error('This workflow creates and deletes a temporary draft; explicit test-write flag required.');
-const studio=resolve(process.env.TECHCANVAS_ROOT || '../techcanvas');
-const {chromium}=await import(pathToFileURL(studio+'/infra/node_modules/playwright-core/index.mjs'));
-const {renderAssets}=await import(pathToFileURL(studio+'/infra/runtime/service.mjs'));
-const {catalog}=await import(pathToFileURL(studio+'/content.mjs'));
 process.loadEnvFile(resolve('.env.local'));
 await fs.mkdir('.aws-build',{recursive:true});
 const front='https://lokeshburma.com';const args=process.env.DOMAIN_DNS_OVERRIDE_IP?['--host-resolver-rules=MAP lokeshburma.com '+process.env.DOMAIN_DNS_OVERRIDE_IP+', MAP www.lokeshburma.com '+process.env.DOMAIN_DNS_OVERRIDE_IP]:[];

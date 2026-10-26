@@ -1,9 +1,8 @@
 import { randomUUID,createHash } from "node:crypto";
 import { localDemoEnabled,localState } from "../local-state.ts";
 import { RequestError } from "../http.ts";
-import { catalog,renderSvg,markdown,assetNames } from "./content.mjs";
-import { renderMemorySvg } from "./memory.mjs";
-import { createService,publicJob,jobIdValid } from "./service.mjs";
+import { catalog,assetNames } from "./content.mjs";
+import { createService,publicJob,jobIdValid,renderAssets } from "./service.mjs";
 import { Repository } from "./repository.mjs";
 import { privateAssets } from "./aws-assets.mjs";
 const hash=(s:string)=>createHash("sha256").update(s).digest("hex");
@@ -32,9 +31,8 @@ export async function studioCreate(input:any,key:string|null):Promise<any> {
   s.jobs ||= {};s.studioKeys ||= {};const fingerprint=hash(topic),previous=s.studioKeys[key];
   if(previous){if(previous.fingerprint!==fingerprint)throw new RequestError(409,"Key was used for different input.");return {...publicJob(s.jobs[previous.id]),provider:"demo"};}
   if(Object.keys(s.jobs).length>=100)throw new RequestError(429,"Local demo history is full.");
-  const id=Date.now().toString(36).padStart(10,"0")+"-"+randomUUID(),content=catalog[topic],md=markdown(topic,content);
-  const files:Record<string,string>={"blog.md":md,"summary.svg":renderSvg(topic,content,null,"demo"),"memory.svg":renderMemorySvg(topic,content,"demo"),"portfolio.json":JSON.stringify({title:topic,summary:content.paragraph,content_markdown:md,tags:["techcanvas"],status:"draft"}),"caption.txt":content.sentence};
-  content.concepts.forEach((_:unknown,i:number)=>{files[`concept-${i+1}.svg`]=renderSvg(topic,content,i,"demo");});
+  const id=Date.now().toString(36).padStart(10,"0")+"-"+randomUUID(),content=catalog[topic];
+  const files=renderAssets(topic,content,"demo");
   const j={id,topic,content,files,status:"completed",created:new Date().toISOString(),attempts:0,revision:0};s.jobs[id]=j;s.studioKeys[key]={id,fingerprint};return {...publicJob(j),provider:"demo"};
  });
 }

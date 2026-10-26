@@ -3,10 +3,7 @@ import { DynamoBlogsRepository } from "./blogs/dynamo-repository.ts";
 import { BadRequestException, ConflictException } from "./blogs/errors.ts";
 import type { Blog, BlogWrite } from "./blogs/types.ts";
 import { localDemoEnabled, localState } from "./local-state.ts";
-export type BlogStatus = "draft" | "published";
 export type BlogPostInput = Partial<BlogWrite>;
-export type DbBlogPost = Blog;
-export function hasBlogDbConfig() { return Boolean(process.env.BLOG_TABLE_NAME || localDemoEnabled()); }
 export function validateBlogInput(input: any): BlogWrite {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new BadRequestException("Expected a post object.");
   const allowed = ["title", "slug", "summary", "content_markdown", "cover_image", "tags", "status", "published_at"];

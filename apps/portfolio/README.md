@@ -1,7 +1,7 @@
-# Portfolio app
+# Common web application
 
-Next.js frontend, public writing and owner editor. Part of the [platform monorepo](../../README.md).
+Portfolio, blog, shared Cognito MFA owner login and TechCanvas run in this single Next.js application. It is implemented but not yet deployed as the combined runtime.
 
-From the repository root: pnpm dev:portfolio, pnpm check --target portfolio, pnpm build --target portfolio. Environment variables remain app-local; see aws/environment.example. The API bridge is server-only. Local API testing uses the sibling ../api directory, and browser/export checks use ../techcanvas.
+Use pnpm dev, pnpm check and pnpm build from the repository root. Server configuration is documented in .env.example; private local-demo configuration is generated automatically and excluded from Git/builds. Canonical studio modules are in lib/studio. Published writing uses the database, not source Markdown files.
 
-Linux Docker builds retain this app directory as their context. Shared production infrastructure is at ../../infra; deployment and domain documentation are at ../../docs. Private editorial content stays in content/drafts and is excluded from Git/build packages.
+See ../../docs/architecture.md and ../../docs/operations.md. Do not use the previous frontend-only runtime settings to deploy this artifact.
