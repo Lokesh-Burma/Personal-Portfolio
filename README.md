@@ -2,7 +2,7 @@
 
 Reliable systems. Clearer ideas.
 
-One Next.js application for the portfolio, blog and TechCanvas, with one Go background worker. The combined app and shared Cognito MFA are implemented but **not deployed**. Production still uses the preceding split deployment; its necessary source remains until cutover.
+One Next.js application for the portfolio, blog and TechCanvas, with one Go background worker. The combined app and shared Cognito MFA are live at https://lokeshburma.com. The Go worker is deployed with processing and paid inference disabled. Legacy source remains for rollback.
 
 ## Develop
 
@@ -35,9 +35,9 @@ Browser tests require Chrome (CHROME_PATH may override its location). Linux arti
 | Path | Why it remains |
 | --- | --- |
 | apps/portfolio | Combined Next.js app, canonical studio modules, local development and tests |
-| apps/worker | Approved Go worker implementation and tests; not activated |
-| apps/api | NestJS source/build/tests still needed for the currently deployed API |
-| apps/techcanvas/public | Currently deployed studio frontend |
+| apps/worker | Deployed Go worker and tests; processing disabled |
+| apps/api | Retained NestJS rollback source; endpoint requires IAM |
+| apps/techcanvas/public | Retained legacy studio; distribution disabled |
 | apps/techcanvas/infra | Existing studio infrastructure, event handlers and compatibility tests |
 | infra | Existing portfolio/API/data/domain stack definitions and safety tests |
 | scripts | Shared checks, builds, local integration tests and release guard |
@@ -46,9 +46,9 @@ Lockfiles, tests, published media and deployment safety controls are intentional
 
 ## Operate
 
-- [Architecture](docs/architecture.md): deployed system versus the intended application.
+- [Architecture](docs/architecture.md): current deployed system.
 - [Operations](docs/operations.md): validation, builds, media, costs and change boundaries.
-- [Release checklist](docs/unified-app-migration.md): staged cutover without deleting production dependencies.
+- [Release checklist](docs/unified-app-migration.md): release and rollback controls.
 - [Shared MFA](docs/shared-owner-mfa.md): authentication configuration and session behavior.
 
 The budget target remains around ₹1,000/month. Deployment, paid inference, data changes and resource deletion require explicit authorization.

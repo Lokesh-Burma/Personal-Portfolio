@@ -4,25 +4,27 @@
 
 Run pnpm install:all, pnpm check and pnpm build from the root. pnpm test:integration exercises the common app and its production authentication boundary without AWS calls. pnpm test:browser checks the real local UI at desktop/mobile widths. These are regression checks, not proof of live IAM access or a completed Cognito MFA challenge.
 
-The still-deployed API can be rebuilt and checked with pnpm --dir apps/api install --frozen-lockfile --ignore-scripts, pnpm --dir apps/api build, pnpm --dir apps/api test --runInBand and pnpm --dir apps/api test:e2e --runInBand. Its AWS runtime uses DynamoDB; the retained database adapter/module dependencies are still part of that application source.
+The retained rollback API can be rebuilt and checked with pnpm --dir apps/api install --frozen-lockfile --ignore-scripts, pnpm --dir apps/api build, pnpm --dir apps/api test --runInBand and pnpm --dir apps/api test:e2e --runInBand. Its AWS runtime uses DynamoDB; the retained database adapter/module dependencies are still part of that application source.
 
 Infrastructure validation: pnpm infra:synth. Local templates and tests check resource identities, private retained storage, signed origins, cache behavior and disabled inference/triggers. Synthesized inventory is not a live resource inventory.
 
 ## Package and release
 
-pnpm build:aws --target portfolio exports the Linux ARM64 common web artifact. --target worker exports the Go bootstrap. Current production API reproduction uses apps/api/aws/Dockerfile.build with apps/api as its Docker context. Builders preserve internal dependency symlinks and exclude private configuration, drafts and local data. Export into a fresh destination; old Docker local-export files can otherwise persist.
+pnpm build:aws --target portfolio exports the Linux ARM64 common web artifact. --target worker exports the Go bootstrap. Legacy rollback API reproduction uses apps/api/aws/Dockerfile.build with apps/api as its Docker context. Builders preserve internal dependency symlinks and exclude private configuration, drafts and local data. Export into a fresh destination; old Docker local-export files can otherwise persist.
 
-pnpm release:plan is deliberately blocked for production while the combined application needs its reviewed runtime settings/storage grants and Cognito callbacks. Follow unified-app-migration.md before promotion. Keep old resource identities, exact object versions and web revision IDs from the approved deployment/change set for rollback. Do not delete retained endpoints, queues, tables, pools, buckets or artifacts as part of repository cleanup.
+pnpm release:plan describes the manual common-app release without executing AWS operations. Follow unified-app-migration.md before promotion. Keep old resource identities, exact object versions and web revision IDs from the approved deployment/change set for rollback. Do not delete retained endpoints, queues, tables, pools, buckets or artifacts as part of repository cleanup.
 
 No automatic pipeline is installed. If one is approved later, require passing checks, pinned actions, short-lived OIDC credentials, serialized promotions and immutable rollback artifacts. Resource migrations, inference activation and publishing are separate decisions.
 
 ## Existing production validation
 
-apps/portfolio/scripts/check-custom-domain.mjs is the retained pre-cutover browser smoke tool. It requires --allow-test-writes because it creates and removes a temporary draft, and it expects the current password-based deployed API. Use only with explicit test-write approval; do not treat it as the combined-app MFA test. The new common app uses the root integration/browser checks and a real approved staged MFA verification at release.
+apps/portfolio/scripts/check-custom-domain.mjs is the retained pre-cutover browser smoke tool. It requires --allow-test-writes because it creates and removes a temporary draft, and it expects the legacy password-based API. Use only with explicit test-write approval; do not treat it as the combined-app MFA test. The new common app uses the root integration/browser checks and a real approved staged MFA verification at release.
 
-The studio's infra/bin/package-site.mjs and publish-site.mjs remain necessary to reproduce/update the currently deployed static studio. Its optional live contract test writes isolated TEST partitions and cleans them; it is not a default local test and must target an approved table. No model invocation is needed for those storage checks.
+The studio's infra/bin/package-site.mjs and publish-site.mjs are retained to reproduce the disabled legacy static studio. Its optional live contract test writes isolated TEST partitions and cleans them; it is not a default local test and must target an approved table. No model invocation is needed for those storage checks.
 
-During the 2026-10-26 cleanup audit, AWS CLI credentials were unavailable. Repository cleanup therefore preserves the last verified production boundaries and does not claim a fresh authenticated inventory. Reauthenticate with the existing aws-toolkit profile before reviewing live state. Public HTTP checks do not establish account-level configuration.
+The 2026-10-26 authenticated release verified all four application stacks, promoted the common app and deployed the paused Go worker. The owner confirmed both private areas open with the same real MFA login. Legacy API/preview endpoints now require IAM; old static hosting and the default studio HTTP API are disabled. Unreferenced code revisions were removed without deleting content, identity, queues or rollback versions. No EC2, EBS, Elastic IP, NAT or RDS resources were found in the selected region. Unknown historical logs were left untouched.
+
+Use ~/.local/bin/aws with --profile aws-toolkit --region ap-southeast-2. An older /usr/local/bin/aws installation cannot read this login profile correctly. Reauthenticate when needed; never store exported credentials or private change-set parameters in Git.
 
 ## Media and private data
 

@@ -1,29 +1,19 @@
-# Common application implementation and release boundary
+# Common application release and rollback
 
-## Implemented locally
+The common application was promoted on 2026-10-26 after local checks and the owner's successful staged Cognito MFA login to both Blog editor and TechCanvas Studio. Existing tables, assets, pool/client and function identities were preserved. The Go worker was deployed without enabling processing or paid inference.
 
-One Next.js runtime now serves portfolio pages, published blogs, owner login, blog CRUD and the TechCanvas studio. Blog routes call the in-process DynamoDB repository; the old HTTP proxy and Supabase fallback are removed. The table keys, slug lookups, conditional version writes and index format match the existing NestJS repository. Public reads recheck current publication status. The shared production owner login now uses the existing MFA-required Cognito pool. Password-only production login and legacy portfolio cookies are disabled; both API families use the same verified owner session. Local demo passwords are separate. See shared-owner-mfa.md.
+## Release
 
-Studio routes use the same Cognito MFA owner login as the main app. A server-controlled TECHCANVAS_OWNER_SUBJECT maps that authenticated owner to existing studio records; browser input cannot select another owner. Existing cloud jobs and private S3 asset previews can be read when configured. Cloud create/retry remains disabled regardless of model environment flags. No Cognito configuration was changed; it continues protecting the old deployed studio until cutover. The common login implementation keeps Cognito as the MFA authority for both areas; it is not a replacement password-only login. Callback registration and staged verification remain pending deployment.
+1. Authenticate with the existing aws-toolkit profile and inspect live stack state. Use the current AWS CLI at ~/.local/bin/aws; older installations may not support its login credentials.
+2. Run pnpm check, pnpm build, pnpm test:integration and pnpm test:browser as appropriate. Build immutable Linux ARM64 artifacts with pnpm build:aws. Never package private configuration, authored drafts or local runtime data.
+3. Review synthesized templates/change sets for existing resources. Preserve commonApp, protectLegacyApi and closeCommonPreview contexts, common server settings, narrowly scoped storage grants and canonical Cognito callback. No replacement of stateful resources or activation of inference is part of a code release.
+4. For authentication changes, stage the exact approved callback and complete a real MFA check before promotion. Local fixtures cannot prove live identity or IAM access. Remove temporary callbacks after verification.
+5. Promote the selected immutable common revision through LokeshPortfolioDomain. Verify public pages, published article/media, guest API rejection, secure login and shared owner access. Preserve prior code/artifact versions for rollback.
 
-Local demonstration mode is explicit, loopback-only and unavailable under Lambda runtime variables. It uses curated SVGs and private, single-process local file storage. It preserves stable-key replay/conflict handling and supports direct pack-to-blog-draft creation. It is not a distributed queue or paid inference substitute. Real text/image generation is a separate disabled integration; the new Go worker is still not deployed.
+## Current retirement and rollback boundary
 
-The old standalone Ollama/SQLite prototype has been removed. Long-running production generation belongs to Go through the existing queue, rather than an untracked task inside Next.js. S3 upload, hosted generation and retries remain paused.
+The common revision is rev-pyfyj. Previous portfolio revision rev-jjh5n and API revision rev-wygsg are retained. The legacy API and preview endpoints require IAM. The old studio distribution and default HTTP API endpoint are disabled using retireLegacyStudio; Cognito permits only the canonical common callback/logout URLs.
 
-## Reviewed release still required
+Rollback is a reviewed coordinated infrastructure change: restoring only an old web revision is insufficient. Restore its required runtime settings, old API access policy, relevant legacy studio endpoints and callback URLs before selecting a prior architecture. Keep required TOTP MFA and stored data intact. Do not enable processing as part of rollback.
 
-Do not upload the common artifact through the previous code-only promotion path: the old frontend revision only has a backend URL, not the credentials and scoped permissions needed for native server routes. scripts/release-plan.mjs deliberately reports blockedForProduction with no release operations.
-
-1. Refresh AWS authentication and inspect current stacks/settings without changing them. Keep the existing stack/resource identities and stateful resources.
-2. Prepare an opt-in infrastructure change for the existing portfolio runtime: reuse the NoEcho owner email/session-secret parameters, BLOG_TABLE_NAME and the existing scoped table grant. Remove dependence on PORTFOLIO_API_URL for the new revision.
-3. Supply the exact existing TECHCANVAS_TABLE_NAME, TECHCANVAS_ASSETS_BUCKET and TECHCANVAS_OWNER_SUBJECT server-side. Review narrowly scoped jobs/table reads and private owner-prefix S3 reads. The common app only reads cloud jobs while inference is paused. No Bedrock grants, queue trigger activation or cross-region resources are needed for this consolidation.
-4. Configure the selected common Cognito MFA login using shared-owner-mfa.md. Reuse the existing owner pool/client and add exact common-app callback/logout URLs through the opt-in commonAppOrigin context. Confirm required TOTP MFA, the verified owner email/subject and allowed code flow. Supply server-only Cognito identifiers. Test a real staged MFA login and shared session across the editor/studio before promotion; previous password-only cookies must be rejected.
-5. Stage an approved common revision; test the existing published article, owner cookies, private draft isolation, cloud job ownership, expiring asset links and a reversible temporary draft. The local integration tests do not prove live IAM access or login equivalence.
-6. Promote the tested common revision through the existing custom-domain revision parameter. Preserve previous revision IDs for rollback. Do not delete the NestJS endpoint, studio hosting, Cognito pool or other old resources during this cutover.
-7. Retire unused endpoints/hosting in a later explicitly approved cleanup after observing the new revision. Recalculate costs; neither app consolidation nor quotas impose a hard ₹1,000 AWS bill cap.
-
-## Validation commands
-
-pnpm check; pnpm build; pnpm test:integration; pnpm test:browser; pnpm build:aws --target portfolio.
-
-Browser integration starts one Next.js server with temporary data. No NestJS process, standalone studio server, AWS call or paid inference is needed. Infrastructure compatibility tests continue checking the currently deployed split stacks and disabled triggers. Passing them is not a claim that production is already consolidated.
+Unused, unreferenced code revisions may be removed only after checking every endpoint selection and stack reference. Buckets, tables, queues, pool/client and rollback source are intentionally retained. No automatic deployment pipeline is installed; scripts/release-plan.mjs only describes a manual release and performs no AWS operations.

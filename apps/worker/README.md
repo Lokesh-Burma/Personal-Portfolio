@@ -38,9 +38,9 @@ docker run --rm techcanvas-worker:local
 
 The default container runs the credential-free demo once and exits. It is not a long-running SQS polling service. AWS Lambda delivers queue events when an approved event source mapping is enabled. The runtime image is optional for local portability; the prepared Lambda deployment uses the native binary in a ZIP, not a continuously billed container service.
 
-## Production remains disabled
+## Deployed, processing disabled
 
-The live worker has not been changed. The existing default CDK path remains Node.js. An explicit `goWorker=true` context selects the Go bootstrap for the existing GenerationWorker construct, preserving its function/queue/resource identities. It requires a reviewed Linux ARM64 artifact; the asset directory rejects unexpected files and wrong architecture.
+The existing worker now uses the Go bootstrap. The committed `goWorker=true` context selects the Go bootstrap for the existing GenerationWorker construct, preserving its function/queue/resource identities. It requires a reviewed Linux ARM64 artifact; the asset directory rejects unexpected files and wrong architecture.
 
 Example synthesis only, from apps/techcanvas/infra after building the artifact:
 
@@ -50,7 +50,7 @@ npm run synth -- -c goWorker=true
 
 Both event source mappings and BEDROCK_USAGE_APPROVED remain false, and the execution role still has no Bedrock permission. Runtime activation additionally requires TECHCANVAS_GO_WORKER_ENABLED=true, CLOUD_BACKEND_READY=true, valid owner/storage settings and the approved region. No flag alone grants model permissions. Do not enable triggers or inference to test this code.
 
-Activation is a separate reviewed release: refresh AWS authentication, recheck model access/cost, inspect the exact code/runtime/IAM change set, deploy with triggers/inference still off, then obtain explicit approval before paid processing. Rollback selects the previous Node artifact/runtime and leaves job data intact. The root app-code-only release lane must not silently switch worker runtime.
+Paid processing activation is a separate reviewed release: refresh AWS authentication, recheck model access/cost, inspect the exact code/runtime/IAM change set, deploy with triggers/inference still off, then obtain explicit approval before paid processing. Rollback selects the previous Node artifact/runtime and leaves job data intact. The root app-code-only release lane must not silently switch worker runtime.
 
 ## IAM analysis
 

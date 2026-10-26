@@ -1,9 +1,5 @@
-# Existing TechCanvas infrastructure
+# Shared TechCanvas infrastructure
 
-The stack preserves the current owner pool/client, static frontend, API, private assets, jobs/quota/outbox table and event consumers. Required TOTP MFA remains enabled. Paid inference and both processing triggers remain disabled.
+This stack retains existing owner identity, job data, private assets and queue identities. Required TOTP MFA remains enabled. Committed contexts select the Go worker and canonical common-app callback; retireLegacyStudio disables the old distribution/default HTTP API without deleting data. Both processing mappings and paid inference remain disabled.
 
-Use npm ci, npm test and npm run synth. package-site.mjs/publish-site.mjs maintain the still-deployed static frontend. inventory.mjs inspects a local synthesized template only. The opt-in live storage contract test is not a default local check.
-
-commonAppOrigin adds the common application's exact Cognito callback/logout targets and email scope without replacing the existing pool/client. goWorker selects the approved Go artifact without activating inference or processing. Neither option deploys anything by itself.
-
-See ../../../docs/shared-owner-mfa.md and ../../../docs/unified-app-migration.md before a reviewed release. Preserve resource identities and current settings; do not use partial client-update commands.
+Use npm ci, npm test and npm run synth after building the Go artifact (or root pnpm infra:synth). Legacy site packaging remains for coordinated rollback only. Inventory inspects local templates; live contract tests require explicit test-write approval. See ../../../docs/unified-app-migration.md.

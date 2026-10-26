@@ -1,34 +1,18 @@
-# Architecture and deployment status
+# Architecture
 
-## Currently deployed
+The production application at https://lokeshburma.com is one Next.js Lambda Web Function behind CloudFront and a signed IAM origin. It serves portfolio pages, blog APIs/editor and TechCanvas Studio. One Cognito owner login with required authenticator MFA covers both private areas. Vercel continues managing DNS; its obsolete Git deployment remains disabled.
 
-lokeshburma.com uses CloudFront with an IAM-protected Next.js Lambda Web Function origin. A separate NestJS Lambda Web Function owns the blog database and portfolio password session. DynamoDB holds posts, slug lookups and index entries. Vercel manages DNS; vercel.json disables its obsolete Git deployment integration and must remain until that project is disconnected.
+DynamoDB retains existing blog and TechCanvas records. The common runtime has blog read/write access, studio table reads and private asset reads restricted to the configured owner prefix. Cloud generation and retries remain paused. Current visuals are curated SVGs, not image-model output.
 
-The earlier TechCanvas studio is a separate S3/CloudFront frontend, Cognito MFA user pool, HTTP API, DynamoDB jobs/quota/outbox table, private asset bucket, dispatcher and Node generation worker. The processing mappings and paid inference remain disabled in the source template. These resources are not redundant until an approved cutover is verified.
+The separate Go Lambda worker uses the existing queue/job/asset contracts and provided.al2023 runtime. Both processing mappings are disabled, BEDROCK_USAGE_APPROVED is false and its role has no Bedrock invocation permission. Docker builds portable artifacts locally; production runs Lambda ZIP artifacts rather than an always-on container fleet.
 
 | Stack | Responsibility |
 | --- | --- |
 | LokeshPlatformData | Retained blog table and versioned build artifacts |
-| LokeshPlatformPreview | Existing portfolio/API web functions and revision endpoints |
-| LokeshPortfolioDomain | Custom domain, CloudFront, signed origin and selected portfolio revision |
-| TechCanvasFoundation | Existing studio frontend, owner authentication, job storage and event processing |
+| LokeshPlatformPreview | Common application, retained API and IAM-protected preview endpoints |
+| LokeshPortfolioDomain | Domain, CloudFront, signed origin and selected common revision |
+| TechCanvasFoundation | Shared Cognito, jobs/assets/queues, dispatcher and Go worker |
 
-Regional application resources stay ap-southeast-2. The existing CloudFront certificate is in us-east-1 as required by that global service. Do not add regional services elsewhere.
+The legacy static studio distribution and default HTTP API endpoint are disabled. The old NestJS function and previous working portfolio revision remain for rollback; neither is the public application path. No stored content, user directory, queue or bucket was deleted.
 
-## Implemented, awaiting release
-
-One Next.js process in apps/portfolio now owns public pages, blog storage/routes, shared Cognito MFA owner authentication and the native TechCanvas studio. Browser-facing routes share /api/admin, /api/blogs and /api/techcanvas on the same hostname. No NestJS process or separate studio server is needed for this target application.
-
-The Go event worker remains separate because queued generation has a different execution lifecycle. It preserves the existing job/message/storage contracts and quota reservations. Its optional provided.al2023 runtime selection reuses the existing worker identity and leaves triggers/inference disabled. No additional repository or always-on container fleet is needed.
-
-Canonical studio code lives in apps/portfolio/lib/studio. The deployed event-handler entrypoints re-export those modules for compatibility. The old Ollama/SQLite prototype and unused filesystem/Supabase blog implementations were removed. The retained NestJS source cannot be removed before the production API is retired.
-
-Real image-model generation is not implemented or enabled. Current visuals use code-rendered SVGs. Any future image provider needs a separate approved model/region/budget decision and quality trial; do not represent a model proposal as an active capability.
-
-## Reliability boundaries
-
-Public blog reads recheck the current post status; withdrawing a draft cannot rely on a stale index entry. Slug ownership and version updates use conditional transactions. Storage failure is reported as unavailable, rather than silently returning sample posts or claiming the library is empty.
-
-One Cognito MFA session covers both private areas in the combined app. The existing deployed portfolio login has not changed yet. Read shared-owner-mfa.md for the implemented session checks and unified-app-migration.md for the release boundary.
-
-Go reservations count uncertain outcomes and prevent automatic duplicate model calls. Private assets, draft creation and publishing remain distinct: generated material does not publish automatically.
+Regional services remain ap-southeast-2; the existing CloudFront certificate in us-east-1 is the global-service exception. Public reads recheck publication status, slug/version changes use conditional transactions and storage failures surface as unavailable. Draft creation and publication remain separate owner actions. See operations.md and unified-app-migration.md for release controls.

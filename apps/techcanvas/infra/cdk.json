@@ -3,6 +3,9 @@
   "versionReporting": false,
   "context": {
     "@aws-cdk/aws-iam:minimizePolicies": true,
-    "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy": true
+    "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy": true,
+    "goWorker": true,
+    "commonAppOrigin": "https://lokeshburma.com",
+    "retireLegacyStudio": true
   }
 }

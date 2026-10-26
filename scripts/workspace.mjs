@@ -27,6 +27,7 @@ if(action==='install'){
   }
   console.log('\nClean Linux build output: '+output+'\nNo deployment or runtime activation performed.');
 }else if(action==='synth'){
+  if(selected.some(t=>['portfolio','worker'].includes(t)))for(const command of projects.worker.build)run(command,join(root,projects.worker.directory));
   if(selected.includes('portfolio'))run(['npm','run','synth'],join(root,'infra'));
   if(selected.some(t=>['portfolio','worker'].includes(t)))run(['npm','--prefix','infra','run','synth'],join(root,'apps/techcanvas'));
 }else if(action==='browser'){

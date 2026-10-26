@@ -1,6 +1,6 @@
 # One owner login with MFA
 
-Status: implemented and tested locally. No live user pool, app client, account, secret, deployment or paid service has been changed.
+Status: deployed on 2026-10-26. The owner completed a real staged MFA login and confirmed shared access to both private areas. The existing owner email was marked verified only after explicit ownership attestation and approval.
 
 ## User flow
 
@@ -20,19 +20,19 @@ Sign out is a same-origin POST. It clears the current common session, flow cooki
 
 ## Existing Cognito configuration
 
-The implementation reuses TechCanvasFoundation's owner pool and public BrowserClient, which already require TOTP MFA and code flow. The optional CDK commonAppOrigin context adds the exact /api/auth/callback and / logout targets alongside the old studio URLs, plus the email OIDC scope for verified-owner email checks. It does not replace resource identities, create another user directory, upgrade the feature plan, enable SMS, or activate processing/inference.
+The implementation reuses TechCanvasFoundation's owner pool and public BrowserClient, which already require TOTP MFA and code flow. The optional CDK commonAppOrigin context adds the exact /api/auth/callback and / logout targets ; retireLegacyStudio removes old studio and temporary preview URLs, plus the email OIDC scope for verified-owner email checks. It does not replace resource identities, create another user directory, upgrade the feature plan, enable SMS, or activate processing/inference.
 
 Example synthesis only, after building the current handlers:
 
     npm --prefix apps/techcanvas/infra run synth -- -c commonAppOrigin=https://lokeshburma.com
 
-The context must be an exact HTTPS origin without credentials, query, fragment, port or trailing slash. Default synthesis leaves the current app-client callbacks unchanged. Use CloudFormation/CDK for a reviewed update; do not run a partial update-user-pool-client command, because that API replaces omitted client settings.
+The context must be an exact HTTPS origin without credentials, query, fragment, port or trailing slash. The committed retireLegacyStudio context now restricts callbacks/logout to the canonical common application. Use CloudFormation/CDK for a reviewed update; do not run a partial update-user-pool-client command, because that API replaces omitted client settings.
 
 The common server needs COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID, COGNITO_LOGIN_DOMAIN, ADMIN_EMAIL, TECHCANVAS_OWNER_SUBJECT, SITE_ORIGIN and its existing random SESSION_SECRET (minimum 32 characters). These are server settings; do not introduce client secrets or AWS credentials into the browser. The pool/client IDs and domain are identifiers, not API credentials.
 
-## Release validation still required
+## Release validation
 
-The user has selected a shared Cognito MFA login. That decision does not deploy the common app or change AWS settings by itself. Complete unified-app-migration.md: inspect actual MFA/client/account settings, add callbacks with the opt-in context, configure the common revision and existing scoped storage access, and perform an approved staged real login/MFA plus draft/asset isolation check. Keep the prior deployment available for rollback until promotion. Paid inference remains disabled.
+The approved staged real MFA check and production promotion are complete. Preserve required software-token MFA, strict verified email/subject checks and the canonical callback. Future authentication changes require renewed staged verification; follow unified-app-migration.md. Paid inference remains disabled.
 
 ## Local testing
 

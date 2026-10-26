@@ -3,6 +3,9 @@
   "versionReporting": false,
   "context": {
     "@aws-cdk/aws-iam:minimizePolicies": true,
-    "@aws-cdk/core:defaultCrossStackReferences": "strong"
+    "@aws-cdk/core:defaultCrossStackReferences": "strong",
+    "commonApp": true,
+    "protectLegacyApi": true,
+    "closeCommonPreview": true
   }
 }

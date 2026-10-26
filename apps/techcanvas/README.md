@@ -1,7 +1,5 @@
-# Current production studio compatibility
+# TechCanvas shared infrastructure and rollback source
 
-public/ contains the currently deployed static studio. infra/ contains its existing stack, Node event handlers, build/publish tools and safety tests. They remain necessary until the combined Next.js studio is deployed and the old endpoints are explicitly retired.
+The active Studio is part of ../portfolio. public/ retains the old static frontend for rollback; its distribution and default HTTP API endpoint are disabled. infra/ still owns the shared Cognito pool/client, private assets, jobs/quotas/outbox, queues, dispatcher and deployed Go worker. Both processing mappings and paid inference remain disabled.
 
-The standalone local Ollama/SQLite prototype was removed. Use pnpm dev from the root for the common application. Canonical rendering and job modules are in ../portfolio/lib/studio; infrastructure entrypoints preserve compatibility without a second implementation.
-
-No deployment or model activation is implied by local builds. See ../../docs/architecture.md and ../../docs/operations.md.
+Canonical studio modules live in ../portfolio/lib/studio. Use pnpm dev from the root. See ../../docs/architecture.md and ../../docs/unified-app-migration.md.

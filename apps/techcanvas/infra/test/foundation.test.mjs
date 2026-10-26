@@ -98,3 +98,8 @@ test('common MFA login adds exact callbacks without replacing the pool or client
  assert.ok(!JSON.stringify(common).includes('bedrock:'));assert.ok(Object.values(common.Resources).filter(r=>r.Type==='AWS::Lambda::EventSourceMapping').every(r=>r.Properties.Enabled===false));
  for(const value of ['http://lokeshburma.com','https://lokeshburma.com/','https://evil.test/?redirect=bad'])assert.throws(()=>new FoundationStack(new App({context:{commonAppOrigin:value}}),'BadOrigin',{env:{region:'ap-southeast-2'}}));
 });
+
+test('legacy studio entrypoints retire without deleting shared identity, storage or job resources',()=>{
+ const a=new App({context:{commonAppOrigin:'https://lokeshburma.com',retireLegacyStudio:true}}),t=Template.fromStack(new FoundationStack(a,'TestFoundation',{env:{region:'ap-southeast-2'}})).toJSON();assert.deepEqual(Object.keys(t.Resources),Object.keys(template.Resources));const all=Object.values(t.Resources);
+ assert.equal(all.find(r=>r.Type==='AWS::CloudFront::Distribution').Properties.DistributionConfig.Enabled,false);assert.equal(all.find(r=>r.Type==='AWS::ApiGatewayV2::Api').Properties.DisableExecuteApiEndpoint,true);assert.equal(all.find(r=>r.Type==='AWS::Cognito::UserPool').Properties.MfaConfiguration,'ON');const c=all.find(r=>r.Type==='AWS::Cognito::UserPoolClient').Properties;assert.deepEqual(c.CallbackURLs,['https://lokeshburma.com/api/auth/callback']);assert.deepEqual(c.LogoutURLs,['https://lokeshburma.com/']);for(const r of all.filter(r=>['AWS::DynamoDB::Table','AWS::S3::Bucket','AWS::Cognito::UserPool'].includes(r.Type)))assert.equal(r.DeletionPolicy,'Retain');assert.ok(all.filter(r=>r.Type==='AWS::Lambda::EventSourceMapping').every(r=>r.Properties.Enabled===false));assert.ok(!JSON.stringify(t).includes('bedrock:'));
+});
