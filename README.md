@@ -97,3 +97,9 @@ See [design](docs/design.md), [learning map](docs/learning.md), [AWS cost plan](
 ## Visual memory aids
 
 Each pack also includes `memory.svg`: a square diagram using icons, connections and a short recall cue. Curated topics use purpose-built flow diagrams (cache hit/miss and invalidation; idempotency retries and replay; queue delivery and retry). Custom local-AI topics use a concept map of the generated ideas without assuming a sequence. Download it as an editable SVG or a 1080 × 1080 PNG from the Visuals view. Existing saved packs receive this extra asset on first access, without another model call. No extra service or paid API is used.
+
+## AWS deployment proposal
+
+The [Sydney deployment proposal](docs/aws-deployment-plan.md) describes the changes required for hosted generation while the Mac is off. The [cost estimate](docs/aws-costs.md) and [public pricing snapshot](docs/aws-pricing-sydney.json) are reproducible with `python3 scripts/estimate-aws-costs.py`. This is a design proposal; no cloud backend, quota or deployment has been enabled.
+
+The Sydney infrastructure foundation is now available in [infra/README.md](infra/README.md), with local synthesis, security checks and a resource inventory. The owner frontend and cloud backend are published in Sydney; see [deployment status](infra/deployment-status.md) and [backend operating details](docs/cloud-backend.md). Owner enrollment requires completing the invitation and TOTP flow. Paid inference and processing remain disabled pending activation approval.

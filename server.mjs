@@ -60,8 +60,8 @@ export async function createApp({directory=resolve(process.env.DATA_DIR||join(ro
           return send(200,await uploadToS3(store,id));
         }
       }
-      const files={'/':'index.html','/app.js':'app.js','/style.css':'style.css'};
-      if(req.method==='GET'&&files[path]) return send(200,await readFile(join(root,'public',files[path])),path.endsWith('.js')?'text/javascript':path.endsWith('.css')?'text/css':'text/html; charset=utf-8');
+      const files={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/cloud-config.json':'cloud-config.json','/cloud-session.mjs':'cloud-session.mjs'};
+      if(req.method==='GET'&&files[path]) return send(200,await readFile(join(root,'public',files[path])),(path.endsWith('.js')||path.endsWith('.mjs'))?'text/javascript':path.endsWith('.css')?'text/css':path.endsWith('.json')?'application/json':'text/html; charset=utf-8');
       send(404,{error:'Not found.'});
     } catch(error) { send(error.status||500,{error:error.status?error.message:'The operation failed. Check local configuration and try again.'}); }
   });

@@ -1,0 +1,14 @@
+import { readFile, writeFile, mkdir, rm, copyFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { validateCloudConfig } from '../../public/cloud-session.mjs';
+const input = process.argv[2];
+if (!input) throw new Error('Usage: node infra/bin/package-site.mjs /absolute/path/to/cdk-outputs.json');
+const raw = JSON.parse(await readFile(input,'utf8'));
+const outputs = raw.TechCanvasFoundation || raw;
+const config = { cloud: true, apiUrl: outputs.ApiUrl, clientId: outputs.ClientId, loginDomain: outputs.LoginDomain, frontendUrl: outputs.FrontendUrl };
+validateCloudConfig(config,config.frontendUrl);
+const root=fileURLToPath(new URL('../',import.meta.url));
+await rm(root+'site-build',{recursive:true,force:true});await mkdir(root+'site-build',{recursive:true});
+for (const name of ['index.html','app.js','style.css','cloud-session.mjs']) await copyFile(root+'../public/'+name,root+'site-build/'+name);
+await writeFile(root+'site-build/cloud-config.json',JSON.stringify(config,null,2)+'\n');
+console.log('Prepared cloud frontend in infra/site-build. No upload performed.');

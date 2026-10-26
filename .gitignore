@@ -3,3 +3,9 @@ data/
 node_modules/
 .DS_Store
 coverage/
+
+# Generated infrastructure artifacts
+infra/cdk.out/
+infra/cdk.context.json
+infra/build/
+infra/site-build/
