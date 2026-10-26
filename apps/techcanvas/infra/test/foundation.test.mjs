@@ -67,3 +67,22 @@ test('stream filters select only real owner outbox INSERT events', () => {
   assert.deepEqual(pattern.dynamodb.NewImage.kind.S,['outbox']);
   assert.deepEqual(pattern.dynamodb.Keys.pk.S,[{prefix:'OWNER#'}]);
 });
+
+test('Go runtime is opt-in, reuses resource identities and keeps inference/triggers disabled', async () => {
+  const {mkdtempSync,writeFileSync,rmSync}=await import('node:fs');
+  const {tmpdir}=await import('node:os');const {join}=await import('node:path');
+  const path=mkdtempSync(join(tmpdir(),'go-worker-cdk-'));
+  try {
+    const binary=Buffer.alloc(64);binary.write('7f454c46',0,'hex');binary[4]=2;binary[5]=1;binary.writeUInt16LE(183,18);writeFileSync(join(path,'bootstrap'),binary);
+    const goApp=new App({context:{goWorker:true,goWorkerAssetPath:path}});
+    const goStack=new FoundationStack(goApp,'TestFoundation',{env:{region:'ap-southeast-2'}});
+    const goTemplate=Template.fromStack(goStack).toJSON();
+    assert.deepEqual(Object.keys(goTemplate.Resources),Object.keys(template.Resources));
+    const functions=Object.values(goTemplate.Resources).filter(r=>r.Type==='AWS::Lambda::Function');
+    const goFunction=functions.find(r=>r.Properties.Runtime==='provided.al2023');
+    assert.ok(goFunction);assert.equal(goFunction.Properties.Handler,'bootstrap');assert.equal(goFunction.Properties.Environment.Variables.BEDROCK_USAGE_APPROVED,'false');
+    assert.equal(functions.filter(r=>r.Properties.Runtime==='nodejs24.x').length,2);
+    assert.ok(Object.values(goTemplate.Resources).filter(r=>r.Type==='AWS::Lambda::EventSourceMapping').every(r=>r.Properties.Enabled===false));
+    assert.ok(!JSON.stringify(goTemplate).includes('bedrock:'));
+  } finally {rmSync(path,{recursive:true,force:true});}
+});

@@ -21,6 +21,10 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: apps/worker/go.mod
+          cache-dependency-path: apps/worker/go.sum
       - run: corepack enable && corepack prepare pnpm@10.17.1 --activate
       - run: pnpm install:all
       - run: pnpm check

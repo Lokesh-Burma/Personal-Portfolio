@@ -6,6 +6,7 @@ One repository for the portfolio, its API and TechCanvas. The applications keep 
 apps/
   portfolio/        Next.js portfolio, writing editor and public assets
   api/              NestJS blog API, PostgreSQL/DynamoDB adapters
+  worker/           Go SQS worker, deterministic assets and guarded Lambda adapter
   techcanvas/       Visual learning studio and its cloud backend
     infra/          Existing TechCanvasFoundation stack and runtime
 infra/              Existing portfolio data, app and custom-domain stacks
@@ -17,7 +18,7 @@ Canonical repository: https://github.com/Lokesh-Burma/Personal-Portfolio
 
 ## Quick start
 
-Use Node 24+ and pnpm 10.17.1. The root package has no dependencies. Each application keeps its existing lockfile and isolated package configuration; no Turborepo or cross-project dependency hoisting is needed.
+Use Node 24+, pnpm 10.17.1 and Go 1.27.3. The root package has no dependencies. Each application keeps its existing lockfile and isolated package configuration; no Turborepo or cross-project dependency hoisting is needed.
 
 ```sh
 pnpm install:all
@@ -27,6 +28,7 @@ pnpm dev:portfolio
 # Separate terminals as needed:
 pnpm dev:api
 pnpm dev:techcanvas
+pnpm demo:worker    # local curated Go job; no AWS calls
 ```
 
 Configure private environment files inside the corresponding app directory using its examples. Existing local portfolio credentials were moved to apps/portfolio/.env.local and remain ignored. The API's Docker Compose/PostgreSQL setup remains in apps/api. TechCanvas's existing external Ollama service can still be used; model files and runtime data are not imported into Git.
@@ -65,3 +67,7 @@ The API and TechCanvas histories were imported with git subtree without squash. 
 See [custom domain](docs/custom-domain.md), [media publication](docs/blog-media-publication.md) and the application READMEs for implementation details. Historical documentation may describe the pre-monorepo rollout; this README and the migration/deployment plan define current paths.
 
 The root vercel.json disables legacy automatic Vercel Git builds for this AWS-hosted repository. DNS remains managed in Vercel; this configuration does not change domain records. If intentionally returning to Vercel hosting later, review this setting and configure apps/portfolio as the project root.
+
+## Docker and Go
+
+Docker builds the Linux deployment packages; production currently runs Lambda and S3/CloudFront rather than an ECS/EC2 container fleet. Optional local runtime Dockerfiles now exist in apps/portfolio, apps/api, apps/techcanvas and apps/worker. See [runtime explanation](docs/runtime-and-containers.md) and the [Go worker](apps/worker/README.md). The Go worker is implemented and tested but production still selects Node by default; processing and paid inference stay disabled.

@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.17.1",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "install:all": "node scripts/workspace.mjs install",
     "check": "node scripts/workspace.mjs check",
@@ -15,6 +17,8 @@
     "test:browser": "node scripts/workspace.mjs browser",
     "dev:portfolio": "node scripts/workspace.mjs dev portfolio",
     "dev:api": "node scripts/workspace.mjs dev api",
-    "dev:techcanvas": "node scripts/workspace.mjs dev techcanvas"
+    "dev:techcanvas": "node scripts/workspace.mjs dev techcanvas",
+    "demo:worker": "node scripts/workspace.mjs dev worker",
+    "worker:build": "node scripts/build-go-worker.mjs"
   }
 }

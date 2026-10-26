@@ -1,0 +1,81 @@
+{
+  "catalog": {
+    "Cache Aside": {
+      "sentence": "Cache aside loads data into a cache on demand while the database remains the source of truth.",
+      "paragraph": "The application checks the cache before reading the database. On a miss, it fetches the record and caches it with a TTL. Writes update the database and invalidate the cached entry. This improves read latency, but TTLs and invalidation races mean readers can temporarily see stale data.",
+      "concepts": [
+        {
+          "title": "Read through the cache",
+          "body": "Look up the key first. A hit avoids a database round trip."
+        },
+        {
+          "title": "Fill on a miss",
+          "body": "Read the database, then cache the result with a bounded TTL."
+        },
+        {
+          "title": "Invalidate on writes",
+          "body": "Update the source of truth and remove its cached value. Consider races and stale reads."
+        }
+      ],
+      "example": "For a product catalogue, cache product:42 for 60 seconds. A price update writes to the database and deletes product:42. The next reader refills the cache.",
+      "tradeoff": "Short TTLs improve freshness but increase database load. Hot-key misses may need request coalescing to avoid a cache stampede."
+    },
+    "Idempotency": {
+      "sentence": "Idempotency makes repeated requests have the same intended effect as one request.",
+      "paragraph": "A client supplies a stable idempotency key for one logical operation. The server atomically claims the key and stores the result, returning that result for matching retries. It rejects reuse with different input. This prevents duplicate effects when clients retry after a timeout, but requires careful handling of concurrency, expiry, and external side effects.",
+      "concepts": [
+        {
+          "title": "Identify the operation",
+          "body": "Use one client-generated key per logical operation and bind it to a request fingerprint."
+        },
+        {
+          "title": "Claim atomically",
+          "body": "A unique constraint ensures concurrent retries cannot both perform the operation."
+        },
+        {
+          "title": "Replay the result",
+          "body": "Save the outcome and return it for matching retries. Reject conflicting payloads."
+        }
+      ],
+      "example": "A checkout request uses key checkout-42. If the response is lost, retrying with that same key returns the saved order rather than creating a second order.",
+      "tradeoff": "Database transactions cannot automatically make an external charge atomic. Coordinate external effects with provider idempotency or an outbox."
+    },
+    "Message Queues": {
+      "sentence": "Message queues decouple producers and consumers by buffering work for asynchronous processing.",
+      "paragraph": "A producer publishes work and a consumer processes it independently. The consumer acknowledges successful work; failures may be retried or routed to a dead-letter queue. Many queues deliver at least once, so consumers must tolerate duplicates. Monitor queue depth and processing age to detect a growing backlog.",
+      "concepts": [
+        {
+          "title": "Publish work",
+          "body": "A producer submits a message so work can continue asynchronously."
+        },
+        {
+          "title": "Process and acknowledge",
+          "body": "Workers process messages and acknowledge success. Failed attempts may be redelivered."
+        },
+        {
+          "title": "Handle duplicates",
+          "body": "Make consumers idempotent and isolate poison messages with bounded retries."
+        }
+      ],
+      "example": "After an order is saved, an outbox relays an email job. A worker sends the receipt and records the operation key so a redelivery does not send another receipt.",
+      "tradeoff": "Asynchronous workflows introduce eventual consistency. Queue durability, ordering and acknowledgement semantics vary by product."
+    }
+  },
+  "references": {
+    "database indexing": {
+      "title": "PostgreSQL: Introduction to indexes",
+      "url": "https://www.postgresql.org/docs/current/indexes-intro.html",
+      "notes": "An index is an auxiliary lookup structure used to find matching rows without always scanning a table. A query planner can prefer a sequential scan, so faster queries are not guaranteed. The database updates indexes as data changes, adding write and storage costs. Example: CREATE INDEX employees_department_idx ON employees(department) can help SELECT * FROM employees WHERE department = 'Engineering'. A composite index covers multiple columns but is not automatically unique. Do not claim an index on id speeds filtering on department."
+    },
+    "circuit breakers": {
+      "title": "Microsoft Azure Architecture: Circuit Breaker pattern",
+      "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker",
+      "notes": "This is the SOFTWARE resilience pattern for calls to a remote service, not an electrical device. Closed allows requests and tracks failures. Open rejects calls quickly after a configured failure threshold. After a cooldown, Half-open allows limited probe requests; success closes it and failures reopen it. It protects resources while a dependency recovers but does not repair that dependency or guarantee success. Example: stop calling a failing payments API temporarily. Retries and timeouts are separate policies. Never discuss fuses or backup power as the mechanism."
+    },
+    "consistent hashing": {
+      "title": "Dynamo paper: Partitioning algorithm, sections 4.2–4.3",
+      "url": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf",
+      "notes": "Hash keys and node tokens onto a ring; assign a key to its first clockwise node token. Adding/removing nodes remaps only affected ranges instead of all keys. Multiple virtual nodes per physical machine improve balance and can reflect capacity; they do not guarantee exactly equal key counts or load. Example ring positions A=20, B=60, C=90: key hash 50 belongs to B; adding D=55 moves that key to D, while key 70 stays at C. Main costs: metadata, uneven load/hot keys and data movement. Replication is separate; consistent hashing alone does not guarantee availability. There is no virtual root."
+    }
+  }
+}

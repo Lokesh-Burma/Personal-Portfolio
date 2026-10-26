@@ -21,3 +21,6 @@ apps/portfolio/content/drafts/
 apps/techcanvas/data/
 apps/techcanvas/infra/build/
 apps/techcanvas/infra/site-build/
+
+# Go build/demo artifacts
+.build/

@@ -20,7 +20,8 @@ Every main push runs validation. Only successful, eligible source revisions can 
 | --- | --- |
 | apps/portfolio/** | Portfolio code, then production portfolio revision promotion |
 | apps/api/** | API code; stable backend endpoint URL remains unchanged |
-| apps/techcanvas/** | Studio backend/frontend in TechCanvasFoundation |
+| apps/techcanvas/** | Studio backend/frontend in TechCanvasFoundation; shared content/worker contracts include Go checks |
+| apps/worker/** | Go worker checks/build and studio compatibility; runtime switch remains a reviewed infrastructure action |
 | infra/** | Portfolio + API infrastructure review; no automatic resource changes |
 | scripts/**, ci/**, package.json | Validate all apps; review deployment-tool changes |
 | docs/** | Documentation checks; no application deployment needed |
@@ -75,3 +76,5 @@ Check included Actions minutes, ARM runner availability and artifact storage rat
 - https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
 - https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
 - https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency
+
+The Go worker adds a fourth source target, not a new stack or repository. Its optional provided.al2023 runtime reuses GenerationWorker and keeps triggers/inference disabled. A Node→Go runtime change is excluded from automatic code-only promotion and requires its own reviewed release. Runtime/container details are in runtime-and-containers.md.

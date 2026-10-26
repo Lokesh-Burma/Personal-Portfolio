@@ -1,5 +1,7 @@
 import { Stack, Validations, Duration, RemovalPolicy, CfnParameter, CfnOutput, aws_s3 as s3, aws_cloudfront as cf, aws_cloudfront_origins as origins, aws_dynamodb as db, aws_sqs as sqs, aws_lambda as lambda, aws_lambda_event_sources as sources, aws_logs as logs, aws_iam as iam, aws_cognito as cognito, aws_apigatewayv2 as api } from 'aws-cdk-lib';
 import { fileURLToPath } from 'node:url';
+import { readFileSync, readdirSync, lstatSync } from 'node:fs';
+import { join } from 'node:path';
 export class FoundationStack extends Stack {
   constructor(scope, id, props = {}) {
     if (props.env?.region !== 'ap-southeast-2') throw new Error('Only the selected Sydney Region is supported');
@@ -20,10 +22,17 @@ export class FoundationStack extends Stack {
     const queue = new sqs.Queue(this, 'GenerationQueue', { fifo: true, encryption: sqs.QueueEncryption.SQS_MANAGED, enforceSSL: true, visibilityTimeout: Duration.minutes(15), deadLetterQueue: { queue: dead, maxReceiveCount: 2 } });
     const streamDead = new sqs.Queue(this, 'DispatchDeadLetter', { encryption: sqs.QueueEncryption.SQS_MANAGED, enforceSSL: true, retentionPeriod: Duration.days(14) });
     const makeFunction = (name, handler) => {
+      const useGo = name === 'GenerationWorker' && ['true',true].includes(this.node.tryGetContext('goWorker'));
+      const goPath = useGo ? (this.node.tryGetContext('goWorkerAssetPath') || fileURLToPath(new URL('../../../worker/.build/aws', import.meta.url))) : undefined;
+      if (useGo) {
+        for (const file of readdirSync(goPath)) if (!['bootstrap','bootstrap.sha256','build-manifest.json'].includes(file) || !lstatSync(join(goPath,file)).isFile()) throw new Error('Go asset directory must contain only reviewed build outputs.');
+        const binary=readFileSync(join(goPath,'bootstrap'));
+        if(binary.length<64 || binary.subarray(0,4).toString('hex')!=='7f454c46' || binary[4]!==2 || binary[5]!==1 || binary.readUInt16LE(18)!==183)throw new Error('Build the Go worker for Linux ARM64 first.');
+      }
       const logGroup = new logs.LogGroup(this, `${name}Logs`, { retention: logs.RetentionDays.ONE_WEEK, removalPolicy: RemovalPolicy.DESTROY });
       const role = new iam.Role(this, `${name}Role`, { assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com') });
       logGroup.grantWrite(role);
-      return new lambda.Function(this, name, { runtime: lambda.Runtime.NODEJS_24_X, architecture: lambda.Architecture.ARM_64, code: lambda.Code.fromAsset(fileURLToPath(new URL('../build', import.meta.url))), handler: `${handler}-entry.handler`, timeout: Duration.seconds(120), memorySize: 512, logGroup, role, environment: { CLOUD_BACKEND_READY: 'true', BEDROCK_USAGE_APPROVED: 'false', OWNER_SUBJECT: owner.valueAsString, TABLE_NAME: table.tableName, ASSETS_BUCKET: generated.bucketName, QUEUE_URL: queue.queueUrl, MONTHLY_ATTEMPT_LIMIT: '300', DAILY_ATTEMPT_LIMIT: '20', MAX_INPUT_BYTES: '6000', MAX_OUTPUT_TOKENS: '1600' } });
+      return new lambda.Function(this, name, { runtime: useGo ? lambda.Runtime.PROVIDED_AL2023 : lambda.Runtime.NODEJS_24_X, architecture: lambda.Architecture.ARM_64, code: lambda.Code.fromAsset(useGo ? goPath : fileURLToPath(new URL('../build', import.meta.url))), handler: useGo ? 'bootstrap' : `${handler}-entry.handler`, timeout: Duration.seconds(120), memorySize: 512, logGroup, role, environment: { ...(useGo ? { TECHCANVAS_GO_WORKER_ENABLED: 'true' } : {}), CLOUD_BACKEND_READY: 'true', BEDROCK_USAGE_APPROVED: 'false', OWNER_SUBJECT: owner.valueAsString, TABLE_NAME: table.tableName, ASSETS_BUCKET: generated.bucketName, QUEUE_URL: queue.queueUrl, MONTHLY_ATTEMPT_LIMIT: '300', DAILY_ATTEMPT_LIMIT: '20', MAX_INPUT_BYTES: '6000', MAX_OUTPUT_TOKENS: '1600' } });
     };
     const backend = makeFunction('ApiHandler', 'api');
     const dispatcher = makeFunction('OutboxDispatcher', 'dispatcher');
