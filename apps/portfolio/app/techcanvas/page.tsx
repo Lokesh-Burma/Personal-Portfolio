@@ -31,7 +31,7 @@ export default function TechCanvasPage() {
             <a href="/techcanvas/studio" className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink">Open owner studio</a>
             <Link href="/admin" className="rounded-md border border-line bg-panel px-4 py-2 text-sm font-semibold text-ink">Open the blog editor</Link>
           </div>
-          <p className="mt-4 text-sm text-muted">The studio uses the same owner login as the blog editor. Save a completed pack directly as an unpublished draft, then review it in the editor. JSON import and export remain available.</p>
+          <p className="mt-4 text-sm text-muted">The studio and blog editor share one owner login with MFA. Save a completed pack directly as an unpublished draft, then review it in the editor. JSON import and export remain available.</p>
         </div>
       </Section>
     </main>

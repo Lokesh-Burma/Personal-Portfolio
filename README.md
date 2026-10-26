@@ -13,7 +13,8 @@ pnpm dev
 
 Open http://127.0.0.1:3000. The first run creates private local configuration without overwriting your existing .env.local. Local owner login details are in apps/portfolio/.local-platform/local-login.txt. Both that directory and .env.unified.local are ignored by Git and excluded from Docker/Lambda packages. Local demo data is a single-process JSON file; it is not an AWS database replacement.
 
-- /admin: owner login and blog editor.
+- /login: shared Cognito MFA login in production; local demo entry in development.
+- /admin: blog editor, using the same owner session as TechCanvas.
 - /techcanvas/studio: same owner session, topic packs, asset previews/downloads and direct Save blog draft.
 - /blog: published posts only; withdrawing a post hides it immediately.
 - /api/admin/*, /api/blogs/* and /api/techcanvas/*: native server routes in the same app. No HTTP bridge, NestJS process or separate studio server is needed.
@@ -60,3 +61,5 @@ Docker is optional for local runtime portability and Linux ARM64 artifact builds
 This consolidation is implemented and verified locally, not released to AWS. The existing stacks still describe the previous split application. The plan-only release command explicitly blocks the old code-only promotion path until the common app has reviewed owner secrets and scoped access to the existing blog/studio resources. No resources, data, DNS, Cognito settings, paid inference or processing triggers were changed.
 
 Before deploying, follow docs/unified-app-migration.md. CI templates remain inactive; pushing main does not deploy this consolidation. The total budget target remains around ₹1,000/month. Real image generation is a separate proposal in docs/image-generation-plan.md.
+
+Production uses one Cognito MFA login for both areas. Password-only login is restricted to explicit local demo mode. See docs/shared-owner-mfa.md for cookie/session behavior and the pending staged release checks.

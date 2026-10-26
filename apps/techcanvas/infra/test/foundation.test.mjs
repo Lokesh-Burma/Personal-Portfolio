@@ -86,3 +86,15 @@ test('Go runtime is opt-in, reuses resource identities and keeps inference/trigg
     assert.ok(!JSON.stringify(goTemplate).includes('bedrock:'));
   } finally {rmSync(path,{recursive:true,force:true});}
 });
+
+test('common MFA login adds exact callbacks without replacing the pool or client',()=>{
+ const commonApp=new App({context:{commonAppOrigin:'https://lokeshburma.com'}});
+ const common=Template.fromStack(new FoundationStack(commonApp,'TestFoundation',{env:{region:'ap-southeast-2'}})).toJSON();
+ assert.deepEqual(Object.keys(common.Resources),Object.keys(template.Resources));
+ const pool=Object.values(common.Resources).find(r=>r.Type==='AWS::Cognito::UserPool');
+ assert.equal(pool.Properties.MfaConfiguration,'ON');assert.ok(pool.Properties.EnabledMfas.includes('SOFTWARE_TOKEN_MFA'));
+ const client=Object.values(common.Resources).find(r=>r.Type==='AWS::Cognito::UserPoolClient');
+ assert.ok(client.Properties.CallbackURLs.includes('https://lokeshburma.com/api/auth/callback'));assert.ok(client.Properties.LogoutURLs.includes('https://lokeshburma.com/'));assert.equal(client.Properties.GenerateSecret,false);assert.deepEqual(client.Properties.AllowedOAuthFlows,['code']);assert.equal(client.Properties.CallbackURLs.length,2);assert.ok(client.Properties.AllowedOAuthScopes.includes('email'));
+ assert.ok(!JSON.stringify(common).includes('bedrock:'));assert.ok(Object.values(common.Resources).filter(r=>r.Type==='AWS::Lambda::EventSourceMapping').every(r=>r.Properties.Enabled===false));
+ for(const value of ['http://lokeshburma.com','https://lokeshburma.com/','https://evil.test/?redirect=bad'])assert.throws(()=>new FoundationStack(new App({context:{commonAppOrigin:value}}),'BadOrigin',{env:{region:'ap-southeast-2'}}));
+});

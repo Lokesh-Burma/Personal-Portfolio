@@ -10,3 +10,5 @@
 - Do not delete or archive the old API/TechCanvas repositories or their runtime data without explicit authorization. Their app histories are imported here without squash.
 
 - The combined app has not been deployed. Block the previous code-only promotion path until the common app credentials and scoped storage grants are reviewed. Use docs/unified-app-migration.md. Local development uses private .env.unified.local and .local-platform; never package these files.
+
+- Production owner authentication is shared Cognito MFA for the editor and studio. Never re-enable password-only production sessions. Local demo passwords are explicitly separate. Preserve required software-token MFA and existing pool/client identities; callback changes need reviewed deployment. See docs/shared-owner-mfa.md.

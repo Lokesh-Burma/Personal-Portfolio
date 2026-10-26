@@ -53,7 +53,13 @@ export class FoundationStack extends Stack {
     acknowledge(worker.role, 'AwsSolutions-IAM5[Resource::<GeneratedAssets5E416C5B.Arn>/owners/*]', 'Worker writes only validated generated files under the private owners prefix.');
     const pool = new cognito.UserPool(this, 'OwnerPool', { selfSignUpEnabled: false, signInAliases: { email: true }, mfa: cognito.Mfa.REQUIRED, mfaSecondFactor: { sms: false, otp: true }, passwordPolicy: { minLength: 14, requireDigits: true, requireLowercase: true, requireUppercase: true, requireSymbols: true }, removalPolicy: RemovalPolicy.RETAIN });
     const resourceServer = pool.addResourceServer('ApiScope', { identifier: 'techcanvas', scopes: [new cognito.ResourceServerScope({ scopeName: 'access', scopeDescription: 'Access the owner API' })] });
-    const client = pool.addClient('BrowserClient', { generateSecret: false, preventUserExistenceErrors: true, enableTokenRevocation: true, oAuth: { flows: { authorizationCodeGrant: true }, scopes: [cognito.OAuthScope.OPENID, cognito.OAuthScope.resourceServer(resourceServer, new cognito.ResourceServerScope({ scopeName: 'access', scopeDescription: 'Access the owner API' }))], callbackUrls: [frontendUrl], logoutUrls: [frontendUrl] } });
+    // Opt-in callback additions reuse the existing MFA-required pool and client.
+    const commonOrigin = this.node.tryGetContext('commonAppOrigin');
+    if (commonOrigin) {
+      const url = new URL(commonOrigin);
+      if(url.protocol!=='https:' || url.username || url.password || url.port || url.pathname!=='/' || url.search || url.hash || url.origin!==commonOrigin)throw new Error('commonAppOrigin must be an exact HTTPS origin without a trailing slash.');
+    }
+    const client = pool.addClient('BrowserClient', { generateSecret: false, preventUserExistenceErrors: true, enableTokenRevocation: true, oAuth: { flows: { authorizationCodeGrant: true }, scopes: [cognito.OAuthScope.OPENID, ...(commonOrigin ? [cognito.OAuthScope.EMAIL] : []), cognito.OAuthScope.resourceServer(resourceServer, new cognito.ResourceServerScope({ scopeName: 'access', scopeDescription: 'Access the owner API' }))], callbackUrls: [frontendUrl, ...(commonOrigin ? [commonOrigin+'/api/auth/callback'] : [])], logoutUrls: [frontendUrl, ...(commonOrigin ? [commonOrigin+'/'] : [])] } });
     const domain = pool.addDomain('HostedLogin', { cognitoDomain: { domainPrefix: `techcanvas-${this.account}-sydney` } });
     const http = new api.CfnApi(this, 'HttpApi', { name: 'TechCanvasOwnerApi', protocolType: 'HTTP', corsConfiguration: { allowOrigins: [frontendUrl], allowMethods: ['GET','POST'], allowHeaders: ['Authorization','Content-Type','Idempotency-Key'], maxAge: 300 } });
     const integration = new api.CfnIntegration(this, 'Integration', { apiId: http.ref, integrationType: 'AWS_PROXY', integrationUri: backend.functionArn, payloadFormatVersion: '2.0', timeoutInMillis: 29000 });

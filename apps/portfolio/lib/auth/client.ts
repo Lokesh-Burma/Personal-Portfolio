@@ -1,0 +1,1 @@
+export async function signOutOwner(){const response=await fetch("/api/admin/logout",{method:"POST"});if(!response.ok)throw new Error("Sign-out failed. Please try again.");const data=await response.json();window.dispatchEvent(new Event("owner-session-changed"));window.location.assign(data.redirectUrl || "/");}

@@ -12,6 +12,6 @@ Dockerfiles:
 
 The previous optional API/studio runtime Dockerfiles were removed. Docker is not required to host static files, and no ECS/EKS/EC2 fleet was created.
 
-Production has not been changed by this implementation. It still runs the previous portfolio and NestJS API in Lambda Web Functions, a static studio on S3/CloudFront and disabled Node event consumers. The Go binary is prepared for a provided.al2023 event runtime but not deployed. Read unified-app-migration.md before any deployment; the common artifact needs reviewed server credentials/storage grants, and shared-login security must be approved.
+Production has not been changed by this implementation. It still runs the previous portfolio and NestJS API in Lambda Web Functions, a static studio on S3/CloudFront and disabled Node event consumers. The Go binary is prepared for a provided.al2023 event runtime but not deployed. Read unified-app-migration.md before any deployment; the common artifact needs reviewed server credentials/storage grants, and shared Cognito MFA callbacks/settings must be verified.
 
 For local Docker use publish ports on host loopback and pass private runtime settings explicitly. A production Next build can be tested with local demo settings only outside Lambda; local development files are excluded from build contexts and Lambda packages. Do not deploy local demo credentials/data.

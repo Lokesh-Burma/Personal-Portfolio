@@ -21,7 +21,7 @@
     "demo:worker": "node scripts/workspace.mjs dev worker",
     "worker:build": "node scripts/build-go-worker.mjs",
     "dev": "node scripts/workspace.mjs dev portfolio",
-    "test:integration": "node scripts/check-unified-app.mjs",
+    "test:integration": "node scripts/check-unified-app.mjs && node scripts/check-mfa-boundary.mjs",
     "dev:setup": "node apps/portfolio/scripts/dev-unified.mjs --setup-only"
   }
 }

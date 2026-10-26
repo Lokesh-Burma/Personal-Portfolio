@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import {signOutOwner} from "@/lib/auth/client";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { MAX_TECHCANVAS_IMPORT_BYTES, parseTechCanvasDraft } from "@/lib/techcanvas-import";
@@ -49,6 +51,7 @@ export default function AdminPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
+  const [authMode,setAuthMode]=useState("pending");
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyPost);
@@ -75,6 +78,7 @@ export default function AdminPage() {
     fetch("/api/admin/session")
       .then((response) => response.json())
       .then((session) => {
+        setAuthMode(session.authMode || "cognito");
         setAuthenticated(session.authenticated);
         if (session.authenticated) {
           setEmail(session.email || "");
@@ -122,6 +126,7 @@ export default function AdminPage() {
     }
 
     setPassword("");
+    window.dispatchEvent(new Event("owner-session-changed"));
     setAuthenticated(true);
     await loadPosts();
   }
@@ -199,16 +204,14 @@ export default function AdminPage() {
     } finally { setBusy(false); }
   }
 
-  async function logout() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    setAuthenticated(false);
-    setPosts([]);
-  }
+  async function logout(){try{await signOutOwner();}catch(error){setMessage((error as Error).message);}}
+
+  if(!authenticated && authMode!=="local-demo")return <main className="mx-auto min-h-[60vh] max-w-xl px-5 py-20"><h1 className="text-3xl font-semibold">Owner workspace</h1><p className="my-5 text-muted">{authMode==="pending"?"Checking your session…":"One MFA-protected sign-in covers the blog editor and TechCanvas."}</p>{authMode!=="pending" && <Link href="/login?returnTo=%2Fadmin" className="rounded-md bg-accent px-4 py-2 font-semibold text-accent-ink">Continue to owner sign-in</Link>}</main>;
 
   if (!authenticated) {
     return (
       <main className="mx-auto flex min-h-[calc(100vh-72px)] w-full max-w-md flex-col justify-center px-5 py-16">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-accent-soft">Admin</p>
+        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-accent-soft">Local demo · password only</p>
         <h1 className="text-3xl font-semibold tracking-tight text-ink">Sign in</h1>
         <form onSubmit={login} className="mt-8 space-y-4">
           <input
