@@ -1,0 +1,10 @@
+# Populate server-only values through an approved secret configuration, never browser code.
+NODE_ENV=production
+BLOG_STORAGE=dynamodb
+BLOG_TABLE_NAME=REVIEWED_TABLE_NAME
+AWS_REGION=ap-southeast-2
+ADMIN_EMAIL=OWNER_EMAIL
+ADMIN_PASSWORD_HASH=PBKDF2_HASH
+SESSION_SECRET=RANDOM_SESSION_SECRET
+CORS_ORIGIN=https://lokeshburma.com
+ENABLE_API_DOCS=false

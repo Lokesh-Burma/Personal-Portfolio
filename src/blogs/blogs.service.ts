@@ -12,6 +12,7 @@ type BlogWriteModel = {
   cover_image?: string | null;
   tags?: string[];
   status?: BlogStatus;
+  published_at?: string|null;
 };
 
 @Injectable()
@@ -37,7 +38,7 @@ export class BlogsService {
   }
 
   async update(id: string, dto: UpdateBlogDto) {
-    const existing = (await this.blogsRepository.listAdmin()).find((post) => post.id === id);
+    const existing = await this.blogsRepository.findById(id);
     if (!existing) throw new NotFoundException('Post not found');
 
     const updated = await this.blogsRepository.update(
@@ -47,9 +48,10 @@ export class BlogsService {
         slug: dto.slug ?? existing.slug,
         summary: dto.summary ?? existing.summary,
         content_markdown: dto.content_markdown ?? existing.content_markdown,
-        cover_image: dto.cover_image ?? existing.cover_image,
+        cover_image: dto.cover_image !== undefined ? dto.cover_image : existing.cover_image,
         tags: dto.tags ?? existing.tags,
         status: dto.status ?? existing.status,
+        published_at: existing.published_at,
       }),
     );
 
@@ -71,7 +73,7 @@ export class BlogsService {
       cover_image: input.cover_image?.trim() || null,
       tags: input.tags?.map((tag) => tag.trim()).filter(Boolean) || [],
       status,
-      published_at: status === 'published' ? new Date().toISOString() : null,
+      published_at: status === 'published' ? input.published_at || new Date().toISOString() : null,
     };
   }
 

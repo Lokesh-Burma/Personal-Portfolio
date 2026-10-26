@@ -16,8 +16,8 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  login(@Body() dto: LoginDto, @Res({ passthrough: true }) response: Response) {
-    const token = this.authService.login(dto.email, dto.password);
+  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) response: Response) {
+    const token = await this.authService.login(dto.email, dto.password);
     response.cookie('portfolio_admin_session', token, {
       httpOnly: true,
       sameSite: 'lax',
@@ -28,9 +28,10 @@ export class AuthController {
     return { ok: true };
   }
 
+  @Public()
   @Post('logout')
   logout(@Res({ passthrough: true }) response: Response) {
-    response.clearCookie('portfolio_admin_session', { path: '/' });
+    response.clearCookie('portfolio_admin_session', { path: '/', httpOnly: true, sameSite: 'lax', secure: this.config.get('NODE_ENV')==='production' });
     return { ok: true };
   }
 

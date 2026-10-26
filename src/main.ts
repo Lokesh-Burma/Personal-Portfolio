@@ -1,41 +1,13 @@
 import 'reflect-metadata';
-import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const config = app.get(ConfigService);
-
-  app.use(helmet());
-  app.use(cookieParser());
-  app.enableCors({
-    origin: config.get<string>('CORS_ORIGIN')?.split(',') ?? true,
-    credentials: true,
-  });
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-  app.useGlobalFilters(new HttpExceptionFilter());
-
-  const docsConfig = new DocumentBuilder()
-    .setTitle('Portfolio API')
-    .setDescription('Standalone NestJS backend for portfolio content and admin workflows')
-    .setVersion('0.1.0')
-    .addCookieAuth('portfolio_admin_session')
-    .build();
-  SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, docsConfig));
-
-  await app.listen(config.get<number>('PORT') ?? 4000);
+import { configureApplication, listenAddress } from './application';
+export async function bootstrap() {
+  const app=configureApplication(await NestFactory.create(AppModule,{bodyParser:false}));
+  app.enableShutdownHooks();
+  const address=listenAddress(process.env.AWS_LAMBDA_HTTP_ENDPOINT,app.get(ConfigService).get<number>('PORT') ?? 4000);
+  await app.listen(address.port,address.host);
+  return app;
 }
-
-void bootstrap();
+if(require.main===module)void bootstrap();

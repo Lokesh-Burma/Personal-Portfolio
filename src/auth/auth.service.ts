@@ -1,6 +1,7 @@
+import { promisify } from 'node:util';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createHmac, pbkdf2Sync, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHmac, pbkdf2, pbkdf2Sync, randomBytes, timingSafeEqual } from 'node:crypto';
 
 export type AdminSession = {
   email: string;
@@ -18,7 +19,7 @@ export class AuthService {
     return 'pbkdf2:' + iterations + ':' + salt + ':' + hash;
   }
 
-  verifyPassword(password: string) {
+  async verifyPassword(password: string) {
     const configuredHash = this.config.getOrThrow<string>('ADMIN_PASSWORD_HASH');
     const [scheme, iterationsValue, salt, storedHash] = configuredHash.split(':');
 
@@ -27,14 +28,15 @@ export class AuthService {
     }
 
     const iterations = Number(iterationsValue);
-    const actual = Buffer.from(pbkdf2Sync(password, salt, iterations, 32, 'sha256').toString('base64url'));
+    const derived=await promisify(pbkdf2)(password,salt,iterations,32,'sha256');
+    const actual = Buffer.from(derived.toString('base64url'));
     const expected = Buffer.from(storedHash);
 
     return actual.length === expected.length && timingSafeEqual(actual, expected);
   }
 
-  login(email: string, password: string) {
-    if (email !== this.config.getOrThrow<string>('ADMIN_EMAIL') || !this.verifyPassword(password)) {
+  async login(email: string, password: string) {
+    if (email !== this.config.getOrThrow<string>('ADMIN_EMAIL') || !await this.verifyPassword(password)) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -51,12 +53,16 @@ export class AuthService {
   readSession(token?: string): AdminSession | null {
     if (!token) return null;
 
-    const [encodedPayload, signature] = token.split('.');
-    if (!encodedPayload || !signature || this.sign(encodedPayload) !== signature) return null;
+    if(token.length>8192)return null;
+    const parts=token.split('.');if(parts.length!==2)return null;
+    const [encodedPayload,signature]=parts;
+    if(!encodedPayload || !signature)return null;
+    const expected=Buffer.from(this.sign(encodedPayload)),actual=Buffer.from(signature);
+    if(expected.length!==actual.length || !timingSafeEqual(expected,actual))return null;
 
     try {
       const session = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString()) as AdminSession;
-      if (session.exp < Math.floor(Date.now() / 1000)) return null;
+      if (!Number.isSafeInteger(session.exp) || session.exp <= Math.floor(Date.now() / 1000)) return null;
       if (session.email !== this.config.getOrThrow<string>('ADMIN_EMAIL')) return null;
       return session;
     } catch {

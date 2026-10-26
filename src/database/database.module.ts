@@ -10,18 +10,19 @@ export const PG_POOL = Symbol('PG_POOL');
     {
       provide: PG_POOL,
       inject: [ConfigService],
-      useFactory: (config: ConfigService) =>
+      useFactory: (config: ConfigService) => config.get('BLOG_STORAGE')==='dynamodb'?null:
         new Pool({
           connectionString: config.getOrThrow<string>('DATABASE_URL'),
+          max: 2, connectionTimeoutMillis: 5000, idleTimeoutMillis: 10000,
         }),
     },
   ],
   exports: [PG_POOL],
 })
 export class DatabaseModule implements OnApplicationShutdown {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool|null) {}
 
   async onApplicationShutdown() {
-    await this.pool.end();
+    await this.pool?.end();
   }
 }
