@@ -111,3 +111,12 @@ test('image inference is off with no configured image region or model grants',()
  }
  assert.ok(!JSON.stringify(t).includes('bedrock:InvokeModel'));
 });
+
+test('manual image trial allows only fixed models and a single job without enabling event sources',()=>{
+ const id='0000000000-22222222-2222-4222-8222-222222222222';
+ const a=new App({context:{goWorker:true,manualImageTrialJobId:id}}),s=new FoundationStack(a,'ManualTrial',{env:{region:'ap-southeast-2'}}),t=Template.fromStack(s).toJSON();
+ for(const r of Object.values(t.Resources).filter(r=>r.Type==='AWS::Lambda::EventSourceMapping'))assert.equal(r.Properties.Enabled,false);
+ const worker=Object.values(t.Resources).find(r=>r.Type==='AWS::Lambda::Function' && r.Properties.Runtime==='provided.al2023');assert.equal(worker.Properties.Environment.Variables.TECHCANVAS_TRIAL_JOB_ID,id);assert.equal(worker.Properties.Environment.Variables.BEDROCK_IMAGE_REGION,'us-west-2');
+ const statements=Object.values(t.Resources).filter(r=>r.Type==='AWS::IAM::Policy').flatMap(r=>r.Properties.PolicyDocument.Statement).filter(s=>JSON.stringify(s.Action).includes('bedrock:'));
+ assert.equal(statements.length,1);assert.equal(statements[0].Action,'bedrock:InvokeModel');assert.equal(statements[0].Resource.length,2);assert.ok(!JSON.stringify(statements).includes('aws-marketplace:'));
+});

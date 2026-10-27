@@ -17,8 +17,8 @@ The legacy static studio distribution and default HTTP API endpoint are disabled
 
 Regional services remain ap-southeast-2; the existing CloudFront certificate in us-east-1 is the global-service exception. Public reads recheck publication status, slug/version changes use conditional transactions and storage failures surface as unavailable. Draft creation and publication remain separate owner actions. See operations.md and unified-app-migration.md for release controls.
 
-## Prepared image-generation code
+## Image-generation code (deployed, paused)
 
-The common app now has gated cloud create/retry actions using the existing transactional job/outbox flow. The optional Go image stage stores a validated private PNG alongside editable SVG assets. Text and image stages have separate reservations; image failures preserve the text pack. This code is not yet deployed or activated.
+The common app now has gated cloud create/retry actions using the existing transactional job/outbox flow. The optional Go image stage stores a validated private PNG alongside editable SVG assets. Text and image stages have separate reservations; image failures preserve the text pack. This code was deployed on 2026-10-27 with generation paused.
 
-Stable Image Core in us-west-2 is a candidate adapter, not an approved regional service. No image client is created unless both parent inference and image approval settings permit it. The committed infrastructure keeps all inference flags and processing mappings off and adds no model permissions. A separately reviewed cloudJobWrites context can grant only owner-partition PutItem access; default synthesis retains read-only Studio access for the web app.
+The approved single-job trial targets Stable Image Core in us-west-2, but cannot run until its provider agreement is available to this AWS account. The current role is denied access to agreement offers by an organization policy. No image client is created unless both parent inference and image approval settings permit it. The committed infrastructure keeps all inference flags and processing mappings off and adds no model permissions. A separately reviewed cloudJobWrites context can grant only owner-partition PutItem access; default synthesis retains read-only Studio access for the web app.

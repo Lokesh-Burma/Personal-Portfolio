@@ -2,6 +2,7 @@ package awsio
 
 import (
 	"errors"
+	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/engine"
 	"os"
 	"regexp"
 )
@@ -11,6 +12,7 @@ var ownerID = regexp.MustCompile(`^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-
 type Settings struct {
 	Enabled              bool
 	ImageEnabled         bool
+	TrialJobID           string
 	Owner, Table, Bucket string
 }
 
@@ -25,6 +27,10 @@ func SettingsFrom(get func(string) string) (Settings, error) {
 	s.ImageEnabled = s.Enabled && get("BEDROCK_IMAGE_USAGE_APPROVED") == "true"
 	if s.ImageEnabled && get("BEDROCK_IMAGE_REGION") != ImageRegion {
 		return s, errors.New("image model region requires explicit approved configuration")
+	}
+	s.TrialJobID = get("TECHCANVAS_TRIAL_JOB_ID")
+	if s.TrialJobID != "" && !engine.JobID.MatchString(s.TrialJobID) {
+		return s, errors.New("invalid trial job identity")
 	}
 	return s, nil
 }

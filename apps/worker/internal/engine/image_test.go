@@ -201,3 +201,25 @@ func TestImageQuotaIsAtomicAcrossDifferentJobs(t *testing.T) {
 		t.Fatal("concurrent jobs exceeded image daily limit")
 	}
 }
+
+func TestSingleJobTrialRejectsOtherJobsAndRevisionsBeforeAnyCall(t *testing.T) {
+	w, r, m, calls, _ := imageSetup(t)
+	w.TrialJobID = m.ID
+	if w.Work(context.Background(), message(2)) == nil {
+		t.Fatal("other job accepted by trial")
+	}
+	revised := m
+	revised.Revision = 1
+	if w.Work(context.Background(), revised) == nil {
+		t.Fatal("second paid attempt accepted by trial")
+	}
+	if calls.Load() != 0 || job(t, r, m)["status"] != "queued" {
+		t.Fatal("trial rejection mutated approved job")
+	}
+	if err := w.Work(context.Background(), m); err != nil {
+		t.Fatal(err)
+	}
+	if calls.Load() != 1 {
+		t.Fatal("approved trial did not run once")
+	}
+}

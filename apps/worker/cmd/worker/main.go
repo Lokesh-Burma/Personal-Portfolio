@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Invalid worker configuration")
 	}
-	w := &engine.Worker{Enabled: settings.Enabled, ImageEnabled: settings.ImageEnabled}
+	w := &engine.Worker{Enabled: settings.Enabled, ImageEnabled: settings.ImageEnabled, TrialJobID: settings.TrialJobID}
 	if settings.Enabled {
 		cfg, err := awsio.Configuration(context.Background())
 		if err != nil {

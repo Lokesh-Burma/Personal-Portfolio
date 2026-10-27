@@ -38,6 +38,7 @@ type Worker struct {
 	Provider     Provider
 	Images       ImageProvider
 	ImageEnabled bool
+	TrialJobID   string
 	Assets       Assets
 	Now          func() time.Time
 	Enabled      bool
@@ -154,6 +155,9 @@ func (w *Worker) reserve(ctx context.Context, m Message, bytes int) (Item, error
 func (w *Worker) Work(ctx context.Context, m Message) error {
 	if !w.Enabled {
 		return ErrDisabled
+	}
+	if w.TrialJobID != "" && (m.ID != w.TrialJobID || m.Revision != 0) {
+		return errors.New("job is outside the approved single-attempt trial")
 	}
 	if !JobID.MatchString(m.ID) || m.Owner == "" || m.Revision < 0 || m.Revision >= 2 {
 		return errors.New("invalid queue message")

@@ -6,6 +6,8 @@ export class FoundationStack extends Stack {
   constructor(scope, id, props = {}) {
     if (props.env?.region !== 'ap-southeast-2') throw new Error('Only the selected Sydney Region is supported');
     super(scope, id, { ...props, terminationProtection: true });
+    const trialJob = this.node.tryGetContext('manualImageTrialJobId');
+    if(trialJob && !/^[a-z0-9]{10}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(trialJob))throw new Error('Manual image trial requires one exact valid job ID.');
     const legacyDisabled = ['true',true].includes(this.node.tryGetContext('retireLegacyStudio'));
     const commonOrigin = this.node.tryGetContext('commonAppOrigin');
     if(legacyDisabled && !commonOrigin)throw new Error('Retiring the legacy studio requires the common app origin.');
@@ -41,11 +43,23 @@ export class FoundationStack extends Stack {
     const backend = makeFunction('ApiHandler', 'api');
     const dispatcher = makeFunction('OutboxDispatcher', 'dispatcher');
     const worker = makeFunction('GenerationWorker', 'worker');
+    if(trialJob){
+      if(!['true',true].includes(this.node.tryGetContext('goWorker')))throw new Error('Image trials require the Go worker.');
+      worker.addEnvironment('BEDROCK_USAGE_APPROVED','true');
+      worker.addEnvironment('BEDROCK_IMAGE_USAGE_APPROVED','true');
+      worker.addEnvironment('BEDROCK_IMAGE_REGION','us-west-2');
+      worker.addEnvironment('TECHCANVAS_TRIAL_JOB_ID',trialJob);
+      dispatcher.addEnvironment('BEDROCK_USAGE_APPROVED','true');
+      worker.addToRolePolicy(new iam.PolicyStatement({actions:['bedrock:InvokeModel'],resources:[
+        this.formatArn({service:'bedrock',region:'ap-southeast-2',account:'',resource:'foundation-model',resourceName:'amazon.nova-lite-v1:0'}),
+        this.formatArn({service:'bedrock',region:'us-west-2',account:'',resource:'foundation-model',resourceName:'stability.stable-image-core-v1:1'})
+      ]}));
+    }
     worker.addEventSource(new sources.SqsEventSource(queue, { enabled: false, batchSize: 1, maxConcurrency: 2, reportBatchItemFailures: true }));
     dispatcher.addEventSource(new sources.DynamoEventSource(table, { enabled: false, filters: [lambda.FilterCriteria.filter({ eventName: ['INSERT'], dynamodb: { NewImage: { kind: { S: ['outbox'] } }, Keys: { pk: { S: [{ prefix: 'OWNER#' }] } } } })], startingPosition: lambda.StartingPosition.LATEST, batchSize: 1, retryAttempts: 2, bisectBatchOnError: true, onFailure: new sources.SqsDlq(streamDead), reportBatchItemFailures: true }));
     queue.grantSendMessages(dispatcher);
     // CDK resource grants scope the SDK baseline to this table and owner asset prefix.
-    // Model invocation permissions are intentionally absent from this release.
+    // Default releases have no model permission; manual trials scope it to two exact models.
     for (const fn of [backend, dispatcher, worker]) table.grantReadWriteData(fn);
     generated.grantRead(backend, 'owners/*');
     generated.grantPut(worker, 'owners/*');

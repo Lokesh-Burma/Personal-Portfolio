@@ -40,10 +40,14 @@ Prefer the existing on-demand services. Do not add GPU instances, provisioned mo
 
 ## Image trial preparation
 
-The new image pipeline is implemented but not deployed. Local tests use fake Bedrock/S3 clients and valid PNG fixtures; the demo remains credential-free SVG output. No test invokes a paid model.
+The image pipeline was deployed on 2026-10-27 with generation paused. Local tests use fake Bedrock/S3 clients and valid PNG fixtures; the demo remains credential-free SVG output. No test invokes a paid model.
 
-Before a trial, review the chosen image model, its region, current rates and an explicit spending allowance. The candidate adapter uses Stable Image Core in us-west-2; existing infrastructure stays in its current region. Do not enable another region or grant model invocation merely to run local checks.
+Before a trial, review the chosen image model, its region, current rates and an explicit spending allowance. The adapter uses Stable Image Core in us-west-2; application infrastructure stays in its current region. Do not enable another region or grant model invocation merely to run local checks.
 
 A reviewed activation must coordinate: owner-partition cloudJobWrites permissions, server-side TECHCANVAS_JOB_CREATION_APPROVED and BEDROCK_USAGE_APPROVED, worker inference permissions, and then (separately) TECHCANVAS_IMAGE_CREATION_APPROVED, BEDROCK_IMAGE_USAGE_APPROVED and BEDROCK_IMAGE_REGION. Committed values remain false/empty, and both queue mappings remain disabled. First invoke isolated approved jobs manually with triggers off; inspect existing outbox and queue records before enabling consumers so stale jobs are not processed unexpectedly.
 
 Initial image limits are one reserved attempt per UTC day and five per UTC month, one image per requested job. These are attempt limits, not a currency cap. Text reservations keep their existing limits. Unknown outcomes are never refunded or automatically retried. A failed optional image leaves a completed text pack with an image error; publication remains manual. Private preview links expire after five minutes and must not become public article URLs.
+
+The owner approved one paid image test, but it has not run: GetFoundationModelAvailability reported the provider agreement unavailable, and an organization service control policy denied bedrock:ListFoundationModelAgreementOffers. Resolve model agreement access with the organization administrator before enabling inference. Do not change organization policies or substitute another provider as a workaround. No quota counters or test jobs were created for this blocked trial.
+
+The manualImageTrialJobId context prepares an isolated worker trial for one exact job ID and revision zero, with invocation limited to the fixed text/image models. It never enables event sources or web job creation. Default synthesis removes those invocation grants and keeps inference disabled. Retain the previous working revision and captured immutable artifacts when preparing any trial or rollback.
