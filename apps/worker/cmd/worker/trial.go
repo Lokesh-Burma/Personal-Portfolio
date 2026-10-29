@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -38,11 +39,15 @@ func runImageTrial(ctx context.Context, topic, output string, provider engine.Im
 	if err != nil {
 		return errors.New("trial already reserved or output unavailable; do not repeat an uncertain image attempt")
 	}
-	record := map[string]any{"provider": "stability", "model": "stable-image-core", "creditsReserved": stability.CreditCost, "topic": topic, "status": "reserved", "created": time.Now().UTC().Format(time.RFC3339)}
+	digest := sha256.Sum256([]byte(brief))
+	record := map[string]any{"promptSha256": fmt.Sprintf("%x", digest), "provider": "stability", "model": "stable-image-core", "creditsReserved": stability.CreditCost, "topic": topic, "status": "reserved", "created": time.Now().UTC().Format(time.RFC3339)}
 	err = json.NewEncoder(f).Encode(record)
 	closeErr := f.Close()
 	if err != nil || closeErr != nil {
 		return errors.New("could not record trial reservation; no model call made")
+	}
+	if err = os.WriteFile(filepath.Join(output, "prompt.txt"), []byte(brief+"\n"), 0o600); err != nil {
+		return errors.New("could not save trial prompt; no request made")
 	}
 	body, err := provider.Generate(ctx, brief)
 	if err != nil {

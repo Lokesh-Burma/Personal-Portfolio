@@ -3,7 +3,10 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"image"
 	"image/png"
 	"os"
@@ -36,7 +39,20 @@ func TestTrialRunsOnceAndRefusesDuplicateSpend(t *testing.T) {
 	if err != nil || !bytes.Equal(image, b.Bytes()) {
 		t.Fatal("image not saved")
 	}
-	for _, name := range []string{"illustration.png", "image-attempt.json"} {
+	prompt, err := os.ReadFile(filepath.Join(dir, "prompt.txt"))
+	if err != nil {
+		t.Fatal("trial prompt missing")
+	}
+	var receipt map[string]any
+	raw, _ := os.ReadFile(filepath.Join(dir, "image-attempt.json"))
+	if json.Unmarshal(raw, &receipt) != nil {
+		t.Fatal("invalid receipt")
+	}
+	digest := sha256.Sum256(bytes.TrimSuffix(prompt, []byte("\n")))
+	if receipt["promptSha256"] != fmt.Sprintf("%x", digest) {
+		t.Fatal("trial prompt checksum mismatch")
+	}
+	for _, name := range []string{"illustration.png", "image-attempt.json", "prompt.txt"} {
 		info, _ := os.Stat(filepath.Join(dir, name))
 		if info.Mode().Perm() != 0o600 {
 			t.Fatal("private trial file permissions lost")

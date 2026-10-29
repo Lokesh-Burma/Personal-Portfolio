@@ -54,7 +54,7 @@ The manualImageTrialJobId context prepares an isolated worker trial for one exac
 
 ## Direct Stability AI
 
-A direct HTTPS Core adapter now avoids the blocked Bedrock image agreement. On 2026-10-29, one local request succeeded with a validated private PNG. The documented price is three credits ($0.03); no AWS inference or automatic credit purchase was used. The result matched the visual palette but was a generic software illustration, so technical diagrams still need explicit labels and reviewed relationships.
+A direct HTTPS Core adapter now avoids the blocked Bedrock image agreement. On 2026-10-29, one local request succeeded with a validated private PNG. The documented price is three credits ($0.03); no AWS inference or automatic credit purchase was used. The first result matched the visual palette but was a generic software illustration. A second 3-credit trial used explicit cache-hit/cache-miss layout instructions and a negative prompt. It produced a flowchart with garbled labels and unreliable relationships, so that experimental prompt was not adopted as the worker default. Both outputs and the second trial's exact prompt remain private; no extra generation was attempted.
 
 The adapter is implemented and tested but not yet deployed. IMAGE_PROVIDER=stability selects it; STABILITY_USAGE_APPROVED and the existing parent processing gate must both permit it. STABILITY_API_KEY is server-only and must never be put in CDK context, source, logs or browser configuration. Configure it through a reviewed private deployment before activation. The normal worker still uses Nova Lite for text; the standalone --stability-trial command uses curated notes and therefore needs no AWS inference.
 
