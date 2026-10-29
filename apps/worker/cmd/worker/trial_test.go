@@ -11,6 +11,7 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -78,5 +79,22 @@ func TestTrialRejectsInvalidTopicBeforeProvider(t *testing.T) {
 	p := &trialProvider{}
 	if runImageTrial(context.Background(), "not a curated topic", t.TempDir(), p) == nil || p.calls != 0 {
 		t.Fatal("unknown topic reached provider")
+	}
+}
+
+func TestExplicitTrialPromptIsSavedAndInvalidPromptNeverCallsProvider(t *testing.T) {
+	p := &trialProvider{err: errors.New("test stops before any real request")}
+	dir := t.TempDir()
+	const prompt = "Three unlabeled shapes with clear arrows."
+	if runImageTrialWithPrompt(context.Background(), "Cache Aside", dir, p, prompt) == nil {
+		t.Fatal("fake provider failure lost")
+	}
+	body, err := os.ReadFile(filepath.Join(dir, "prompt.txt"))
+	if err != nil || string(body) != prompt+"\n" || p.calls != 1 {
+		t.Fatal("explicit prompt was not preserved")
+	}
+	p.calls = 0
+	if runImageTrialWithPrompt(context.Background(), "Cache Aside", t.TempDir(), p, strings.Repeat("x", 2401)) == nil || p.calls != 0 {
+		t.Fatal("unbounded prompt reached provider")
 	}
 }

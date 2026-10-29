@@ -37,3 +37,5 @@ STABILITY_USAGE_APPROVED=true go run ./cmd/worker --stability-trial --topic "Cac
 ```
 
 This makes one 3-credit image request using curated reference notes and no AWS calls. The private output contains illustration.png and an attempt receipt. Reusing the output directory refuses another request, including after a timeout. No credits are purchased automatically. Keep keys and generated trial files out of Git; see [operations](../../docs/operations.md) for activation controls.
+
+For controlled prompt comparisons, add --image-prompt-file with a private UTF-8 text file of at most 2,400 bytes. The exact prompt and checksum are saved with the attempt receipt; normal worker prompts remain unchanged.

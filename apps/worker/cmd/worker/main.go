@@ -11,12 +11,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 )
 
 func main() {
+	promptFile := flag.String("image-prompt-file", "", "Explicit bounded prompt file for a direct Stability trial")
 	imageTrial := flag.Bool("stability-trial", false, "One direct Core image from curated notes; no AWS calls")
 	demo := flag.Bool("demo", false, "Run a local curated fixture: no AWS calls or credentials")
 	topic := flag.String("topic", "Cache Aside", "Curated demo topic")
@@ -39,10 +41,29 @@ func main() {
 		if !explicitOutput {
 			destination = ".build/stability-trial"
 		}
-		if err := runImageTrial(context.Background(), *topic, destination, &stability.Provider{APIKey: os.Getenv("STABILITY_API_KEY"), Approved: true}); err != nil {
+		customPrompt := ""
+		if *promptFile != "" {
+			file, err := os.Open(*promptFile)
+			if err != nil {
+				log.Fatal("Trial prompt file unavailable; no request made")
+			}
+			body, err := io.ReadAll(io.LimitReader(file, 2401))
+			_ = file.Close()
+			if err != nil {
+				log.Fatal("Trial prompt file unavailable; no request made")
+			}
+			customPrompt = string(body)
+			if customPrompt == "" {
+				log.Fatal("Trial prompt is empty; no request made")
+			}
+		}
+		if err := runImageTrialWithPrompt(context.Background(), *topic, destination, &stability.Provider{APIKey: os.Getenv("STABILITY_API_KEY"), Approved: true}, customPrompt); err != nil {
 			log.Fatal(err)
 		}
 		return
+	}
+	if *promptFile != "" {
+		log.Fatal("Image prompt files require --stability-trial")
 	}
 	if *demo {
 		if err := runDemo(*topic, *output); err != nil {

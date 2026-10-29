@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/engine"
 	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/stability"
@@ -17,6 +19,9 @@ import (
 // An exclusive marker reserves the single trial before any provider call.
 // Unknown outcomes keep their reservation; repeating a command never spends twice.
 func runImageTrial(ctx context.Context, topic, output string, provider engine.ImageProvider) error {
+	return runImageTrialWithPrompt(ctx, topic, output, provider, "")
+}
+func runImageTrialWithPrompt(ctx context.Context, topic, output string, provider engine.ImageProvider, override string) error {
 	content, err := engine.DemoContent(topic)
 	if err != nil {
 		return err
@@ -24,6 +29,12 @@ func runImageTrial(ctx context.Context, topic, output string, provider engine.Im
 	brief, err := engine.ImageBrief(topic, content)
 	if err != nil {
 		return err
+	}
+	if override != "" {
+		brief = override
+	}
+	if !utf8.ValidString(brief) || len(brief) > 2400 || strings.ContainsRune(brief, 0) {
+		return errors.New("invalid bounded trial prompt; no request made")
 	}
 	if err = os.MkdirAll(output, 0o700); err != nil {
 		return errors.New("trial output directory unavailable")
