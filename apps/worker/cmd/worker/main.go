@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/awsio"
 	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/engine"
+	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/stability"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -16,10 +17,33 @@ import (
 )
 
 func main() {
+	imageTrial := flag.Bool("stability-trial", false, "One direct Core image from curated notes; no AWS calls")
 	demo := flag.Bool("demo", false, "Run a local curated fixture: no AWS calls or credentials")
 	topic := flag.String("topic", "Cache Aside", "Curated demo topic")
 	output := flag.String("output", ".build/demo", "Local demo output directory")
 	flag.Parse()
+	if *imageTrial {
+		if *demo || os.Getenv("STABILITY_USAGE_APPROVED") != "true" {
+			log.Fatal("The image trial needs explicit STABILITY_USAGE_APPROVED=true and cannot run with demo mode")
+		}
+		if !stability.ValidKey(os.Getenv("STABILITY_API_KEY")) {
+			log.Fatal("Stability API key is missing or invalid; no request made")
+		}
+		destination := *output
+		explicitOutput := false
+		flag.Visit(func(f *flag.Flag) {
+			if f.Name == "output" {
+				explicitOutput = true
+			}
+		})
+		if !explicitOutput {
+			destination = ".build/stability-trial"
+		}
+		if err := runImageTrial(context.Background(), *topic, destination, &stability.Provider{APIKey: os.Getenv("STABILITY_API_KEY"), Approved: true}); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
 	if *demo {
 		if err := runDemo(*topic, *output); err != nil {
 			log.Fatal(err)
@@ -40,7 +64,11 @@ func main() {
 		w.Assets = &awsio.Assets{Bucket: settings.Bucket, Client: s3.NewFromConfig(cfg)}
 		w.Provider = &awsio.Provider{Client: bedrockruntime.NewFromConfig(cfg)}
 		if settings.ImageEnabled {
-			w.Images = &awsio.ImageProvider{Client: bedrockruntime.NewFromConfig(cfg, func(o *bedrockruntime.Options) { o.Region = awsio.ImageRegion }), Approved: true, Region: awsio.ImageRegion}
+			if settings.ImageProvider == "stability" {
+				w.Images = &stability.Provider{APIKey: settings.StabilityAPIKey, Approved: true}
+			} else {
+				w.Images = &awsio.ImageProvider{Client: bedrockruntime.NewFromConfig(cfg, func(o *bedrockruntime.Options) { o.Region = awsio.ImageRegion }), Approved: true, Region: awsio.ImageRegion}
+			}
 		}
 	}
 	lambda.Start(engine.Handler(w, settings.Owner))

@@ -4,7 +4,7 @@ A Go Lambda worker for queued TechCanvas jobs. It validates messages, reserves q
 
 The worker is deployed as a Linux ARM64 binary using `provided.al2023`. Both processing triggers and paid inference remain disabled, and its role has no Bedrock invocation permission.
 
-The candidate image adapter uses Bedrock Stable Image Core in `us-west-2`; A single paid trial was approved, but the provider agreement is inactive and the current account role is blocked from listing agreement offers by an organization policy. No model call has been made. It reserves at most one image attempt per day and five per month, including failed or uncertain calls. Image failures preserve the text pack; no automatic image retry occurs.
+The new direct Stability AI adapter is tested locally and awaits deployment. It uses Stable Image Core over HTTPS and a private STABILITY_API_KEY, without Bedrock image permissions or another AWS region. Production generation remains paused. Cloud image attempts keep the one/day and five/month limits; image failures preserve the text pack.
 
 ## Local demo and checks
 
@@ -27,3 +27,13 @@ go run ./cmd/worker --demo --topic Idempotency --output .build/idempotency
 `pnpm build:aws --target worker` builds the artifact through Docker from the repository root. Production uses a Lambda ZIP, not a continuously running container.
 
 Infrastructure is managed in [../techcanvas/infra](../techcanvas/infra). See [release and rollback](../../docs/unified-app-migration.md) before changing the runtime or enabling processing.
+
+## Direct Stability trial
+
+Set STABILITY_API_KEY privately in the process environment, then run from this directory:
+
+```sh
+STABILITY_USAGE_APPROVED=true go run ./cmd/worker --stability-trial --topic "Cache Aside" --output .build/stability-trial
+```
+
+This makes one 3-credit image request using curated reference notes and no AWS calls. The private output contains illustration.png and an attempt receipt. Reusing the output directory refuses another request, including after a timeout. No credits are purchased automatically. Keep keys and generated trial files out of Git; see [operations](../../docs/operations.md) for activation controls.

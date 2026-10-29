@@ -114,3 +114,30 @@ func TestImageSettingsRequireExplicitRegionAndParentActivation(t *testing.T) {
 		t.Fatal("parent gate bypassed")
 	}
 }
+
+func TestDirectStabilityUsesSeparateApprovalAndKeyWithoutBedrockImageRegion(t *testing.T) {
+	env := map[string]string{"TECHCANVAS_GO_WORKER_ENABLED": "true", "CLOUD_BACKEND_READY": "true", "BEDROCK_USAGE_APPROVED": "true", "OWNER_SUBJECT": "11111111-1111-4111-8111-111111111111", "TABLE_NAME": "table", "ASSETS_BUCKET": "bucket", "IMAGE_PROVIDER": "stability", "BEDROCK_IMAGE_USAGE_APPROVED": "true"}
+	get := func(k string) string { return env[k] }
+	s, err := SettingsFrom(get)
+	if err != nil || s.ImageEnabled {
+		t.Fatal("Bedrock image approval incorrectly enabled direct Stability")
+	}
+	env["STABILITY_USAGE_APPROVED"] = "true"
+	if _, err = SettingsFrom(get); err == nil {
+		t.Fatal("direct provider enabled without key")
+	}
+	env["STABILITY_API_KEY"] = "sk-unused-test-key-not-a-credential"
+	s, err = SettingsFrom(get)
+	if err != nil || !s.ImageEnabled || s.ImageProvider != "stability" {
+		t.Fatal("valid direct configuration rejected")
+	}
+	env["BEDROCK_USAGE_APPROVED"] = "false"
+	s, err = SettingsFrom(get)
+	if err != nil || s.Enabled || s.ImageEnabled {
+		t.Fatal("parent processing gate bypassed")
+	}
+	env["IMAGE_PROVIDER"] = "unknown"
+	if _, err = SettingsFrom(get); err == nil {
+		t.Fatal("unknown provider accepted")
+	}
+}
