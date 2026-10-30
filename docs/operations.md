@@ -59,3 +59,25 @@ A direct HTTPS Core adapter avoids the blocked Bedrock image agreement. On 2026-
 The adapter is implemented and tested but not yet deployed. IMAGE_PROVIDER=stability selects it; STABILITY_USAGE_APPROVED and the existing parent processing gate must both permit it. STABILITY_API_KEY is server-only and must never be put in CDK context, source, logs or browser configuration. Configure it through a reviewed private deployment before activation. The normal worker still uses Nova Lite for text; the standalone --stability-trial command uses curated notes and therefore needs no AWS inference.
 
 The previous manualImageTrialJobId infrastructure context targets Bedrock images only; do not use it to activate the direct API. Keep event mappings and web creation off until the direct provider release is explicitly configured. Cloud quotas remain one reserved image attempt per day and five per month. The local trial command reserves one attempt per output directory and refuses to repeat an uncertain request. Generated trial images remain private and are not published automatically.
+
+## Nano Banana images
+
+The Go worker supports `IMAGE_PROVIDER=gemini` with the fixed `gemini-nano-banana-2.1` model through Google's generateContent API. Activation requires `GEMINI_IMAGE_USAGE_APPROVED=true`, a server-only `GEMINI_API_KEY`, and the existing parent worker/cloud/Bedrock-text approvals. This is source support; production remains paused until a reviewed deployment configures the secret and enables processing.
+
+Each attempt requests one 1K image with minimal thinking and a 4,096-token output cap. The adapter blocks redirects and makes no automatic retry or model fallback. PNG and JPEG responses are validated; JPEG is normalized to the existing private PNG asset contract. Existing one/day and five/month image quotas include failed or uncertain attempts. A failed image preserves the text pack.
+
+Keep the key out of source, CDK context, logs and frontend bundles. Configure a restricted Gemini key and private server-side delivery during deployment. Billing and model access must be active in the Gemini project. Generated diagrams remain drafts requiring human review, especially arrow endpoints and labels; prompt instructions cannot guarantee correctness.
+
+For reference-guided rendering, `GEMINI_STYLE_REFERENCE_KEY` selects a private, content-addressed PNG/JPEG in `ASSETS_BUCKET`: `style-references/<sha256>.jpg` or `.png`. The worker verifies the checksum, byte limit, dimensions and decoded format before sending it as a Gemini input. The key is controlled by deployment configuration, never by a job or URL. A configured unreadable/invalid reference fails without inference; an absent setting uses the versioned written style recipe only.
+
+The chosen draft is not packaged or made public. Uploading an approved reference and granting `s3:GetObject` on its exact object remain future deployment steps; existing production resources and permissions are unchanged. Including the reference incurs image-input tokens. The pinned recipe and reference improve consistency, but human review remains required and no automatic regeneration is performed for visual defects.
+
+## Studio library, refinement and exports
+
+Library search uses bounded, owner-partition queries and paginated results; it does not scan the table. Review markers change job metadata only. Cloud review writes require `TECHCANVAS_LIBRARY_WRITES_APPROVED=true` plus the existing owner-partition write grant. Local demo review/search/export need no AWS services.
+
+Image refinement requires `TECHCANVAS_IMAGE_REFINEMENT_APPROVED=true` on the common app and `GEMINI_IMAGE_REFINEMENT_APPROVED=true` on the Go worker, in addition to existing creation/image/parent gates. It creates an idempotent child job, reuses validated parent text, reads the parent's private PNG and saves a separate image. Future deployment must grant the worker a scoped `s3:GetObject` permission for that owner's job images. Do not enable these flags or broaden permissions as part of local feature verification.
+
+Cost summaries show reserved image attempts and usage-based estimates for app-worker requests only. Unknown-cost attempts are explicitly excluded from known totals. Gemini's prepaid balance, earlier manual trials, AWS charges, taxes and exchange fees are not inferred. Current rate assumptions are dated in the pricing module; the displayed planning estimate is not a monetary spending cap. Existing one/day and five/month image quotas still apply to original and refinement attempts together.
+
+PNG, 1200×630 social and 1600×2000 poster exports are produced locally from saved images without cropping or new inference. Print / save PDF opens a printable learning sheet; the browser saves the PDF. Exports remain private until the owner separately shares them and do not publish blog drafts.

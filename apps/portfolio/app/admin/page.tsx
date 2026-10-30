@@ -236,7 +236,7 @@ export default function AdminPage() {
             {busy ? "Signing in..." : "Sign in"}
           </button>
         </form>
-        {message ? <p className="mt-4 text-sm text-red-600">{message}</p> : null}
+        {message ? <p className="mt-4 text-sm text-danger">{message}</p> : null}
       </main>
     );
   }
@@ -380,7 +380,7 @@ export default function AdminPage() {
               </button>
               {selectedId ? (
                 <button
-                  className="rounded-md border border-red-300 px-4 py-2 text-sm font-semibold text-red-600"
+                  className="rounded-md border border-danger-line px-4 py-2 text-sm font-semibold text-danger"
                   type="button"
                   onClick={removePost}
                   disabled={busy}

@@ -17,6 +17,17 @@ const ImageByteLimit = 5 * 1024 * 1024
 type ImageProvider interface {
 	Generate(context.Context, string) ([]byte, error)
 }
+
+// ImageBriefBuilder lets a provider request labeled diagrams from the validated text pack.
+type ImageBriefBuilder interface {
+	BuildBrief(string, Content) (string, error)
+}
+type ImageRefiner interface {
+	Refine(context.Context, string, []byte, string) ([]byte, error)
+}
+type ImageSource interface {
+	LoadImage(context.Context, string, string, int) ([]byte, error)
+}
 type ImageAssets interface {
 	PutImage(context.Context, string, string, int, []byte) error
 }
@@ -93,11 +104,19 @@ func (w *Worker) reserveImage(ctx context.Context, m Message) error {
 		}
 		next := copyItem(j)
 		next["imageStatus"] = "running"
-		return w.Repo.Commit(ctx, []Change{{pk, "JOB#" + m.ID, j, next}, {"QUOTA#IMAGES", "DAY#" + t.Format("2006-01-02"), day, Item{"kind": "image-quota", "count": number(day["count"]) + 1, "expiresAt": t.Add(60 * 24 * time.Hour).Unix()}}, {"QUOTA#IMAGES", "MONTH#" + t.Format("2006-01"), month, Item{"kind": "image-quota", "count": number(month["count"]) + 1, "expiresAt": t.Add(400 * 24 * time.Hour).Unix()}}})
+		next["imageAttemptMonth"] = t.Format("2006-01")
+		monthNext := copyItem(month)
+		monthNext["kind"] = "image-quota"
+		monthNext["count"] = number(month["count"]) + 1
+		monthNext["expiresAt"] = t.Add(400 * 24 * time.Hour).Unix()
+		return w.Repo.Commit(ctx, []Change{{pk, "JOB#" + m.ID, j, next}, {"QUOTA#IMAGES", "DAY#" + t.Format("2006-01-02"), day, Item{"kind": "image-quota", "count": number(day["count"]) + 1, "expiresAt": t.Add(60 * 24 * time.Hour).Unix()}}, {"QUOTA#IMAGES", "MONTH#" + t.Format("2006-01"), month, monthNext}})
 	})
 }
 func (w *Worker) generateImage(ctx context.Context, m Message, topic string, c Content) error {
 	brief, err := ImageBrief(topic, c)
+	if builder, ok := w.Images.(ImageBriefBuilder); ok && err == nil {
+		brief, err = builder.BuildBrief(topic, c)
+	}
 	if err != nil {
 		return err
 	}
@@ -105,7 +124,14 @@ func (w *Worker) generateImage(ctx context.Context, m Message, topic string, c C
 		return err
 	}
 	// Reservation is never refunded, even if the provider times out or rejects content.
-	body, err := w.Images.Generate(ctx, brief)
+	var usage *ImageUsage
+	op := WithImageUsage(ctx, func(u ImageUsage) { usage = &u })
+	body, err := w.Images.Generate(op, brief)
+	if usage != nil {
+		if saveErr := w.saveImageUsage(ctx, m, *usage); saveErr != nil {
+			return saveErr
+		}
+	}
 	if err != nil {
 		return err
 	}

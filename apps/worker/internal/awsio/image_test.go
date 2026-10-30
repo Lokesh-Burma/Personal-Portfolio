@@ -141,3 +141,53 @@ func TestDirectStabilityUsesSeparateApprovalAndKeyWithoutBedrockImageRegion(t *t
 		t.Fatal("unknown provider accepted")
 	}
 }
+
+func TestGeminiRequiresOwnApprovalPrivateKeyAndParentGate(t *testing.T) {
+	env := map[string]string{"TECHCANVAS_GO_WORKER_ENABLED": "true", "CLOUD_BACKEND_READY": "true", "BEDROCK_USAGE_APPROVED": "true", "OWNER_SUBJECT": "11111111-1111-4111-8111-111111111111", "TABLE_NAME": "table", "ASSETS_BUCKET": "bucket", "IMAGE_PROVIDER": "gemini", "STABILITY_USAGE_APPROVED": "true", "BEDROCK_IMAGE_USAGE_APPROVED": "true"}
+	get := func(k string) string { return env[k] }
+	s, err := SettingsFrom(get)
+	if err != nil || s.ImageEnabled {
+		t.Fatal("unrelated approval enabled Gemini")
+	}
+	env["GEMINI_IMAGE_USAGE_APPROVED"] = "true"
+	if _, err = SettingsFrom(get); err == nil {
+		t.Fatal("missing key accepted")
+	}
+	env["GEMINI_API_KEY"] = "unused-gemini-test-credential"
+	s, err = SettingsFrom(get)
+	if err != nil || !s.ImageEnabled || s.ImageProvider != "gemini" || s.GeminiAPIKey != env["GEMINI_API_KEY"] {
+		t.Fatal("valid Gemini settings rejected")
+	}
+	env["BEDROCK_USAGE_APPROVED"] = "false"
+	s, err = SettingsFrom(get)
+	if err != nil || s.ImageEnabled || s.GeminiAPIKey != "" {
+		t.Fatal("parent disabled but images active or secret loaded")
+	}
+}
+
+type readableImageStore struct {
+	fakeS3
+	referenceReader
+}
+
+func TestRefinementReadsOnlyValidatedPrivatePNGPaths(t *testing.T) {
+	body := pngFixture(t)
+	client := &readableImageStore{referenceReader: referenceReader{body: body}}
+	a := &Assets{Bucket: "private", Client: client}
+	owner := "11111111-1111-4111-8111-111111111111"
+	id := "0000000000-22222222-2222-4222-8222-222222222222"
+	if _, err := a.LoadImage(context.Background(), owner, id, 0); err != nil {
+		t.Fatal(err)
+	}
+	if aws.ToString(client.input.Key) != "owners/"+owner+"/jobs/"+id+"/0/illustration.png" {
+		t.Fatal("wrong private source")
+	}
+	calls := client.referenceReader.calls
+	if _, err := a.LoadImage(context.Background(), "../other", id, 0); err == nil || client.referenceReader.calls != calls {
+		t.Fatal("invalid owner reached storage")
+	}
+	client.body = []byte("corrupt")
+	if _, err := a.LoadImage(context.Background(), owner, id, 0); err == nil {
+		t.Fatal("corrupt parent accepted")
+	}
+}

@@ -6,6 +6,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -81,4 +83,30 @@ func (a *Assets) PutImage(ctx context.Context, owner, id string, revision int, b
 	defer cancel()
 	_, err := a.Client.PutObject(op, &s3.PutObjectInput{Bucket: aws.String(a.Bucket), Key: aws.String("owners/" + owner + "/jobs/" + id + "/" + strconv.Itoa(revision) + "/illustration.png"), Body: bytes.NewReader(body), ContentType: aws.String("image/png"), CacheControl: aws.String("private, no-store"), ServerSideEncryption: s3types.ServerSideEncryptionAes256})
 	return err
+}
+
+// LoadImage reads only an owner-scoped parent image selected by the worker's stored job.
+func (a *Assets) LoadImage(ctx context.Context, owner, id string, revision int) ([]byte, error) {
+	if !ownerID.MatchString(owner) || !engine.JobID.MatchString(id) || revision < 0 || revision >= 2 {
+		return nil, errors.New("invalid private image source")
+	}
+	reader, ok := a.Client.(ReferenceReader)
+	if !ok {
+		return nil, errors.New("image reads unavailable")
+	}
+	op, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	out, err := reader.GetObject(op, &s3.GetObjectInput{Bucket: aws.String(a.Bucket), Key: aws.String(fmt.Sprintf("owners/%s/jobs/%s/%d/illustration.png", owner, id, revision))})
+	if err != nil || out == nil || out.Body == nil {
+		return nil, errors.New("private parent image unavailable")
+	}
+	defer out.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(out.Body, engine.ImageByteLimit+1))
+	if err != nil {
+		return nil, errors.New("private parent image unreadable")
+	}
+	if err = engine.ValidatePNG(body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }

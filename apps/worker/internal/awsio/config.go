@@ -3,6 +3,7 @@ package awsio
 import (
 	"errors"
 	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/engine"
+	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/gemini"
 	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/stability"
 	"os"
 	"regexp"
@@ -11,12 +12,15 @@ import (
 var ownerID = regexp.MustCompile(`^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$`)
 
 type Settings struct {
-	Enabled              bool
-	ImageEnabled         bool
-	TrialJobID           string
-	ImageProvider        string
-	StabilityAPIKey      string
-	Owner, Table, Bucket string
+	Enabled                 bool
+	ImageEnabled            bool
+	TrialJobID              string
+	ImageProvider           string
+	StabilityAPIKey         string
+	GeminiAPIKey            string
+	GeminiStyleReferenceKey string
+	GeminiRefinementEnabled bool
+	Owner, Table, Bucket    string
 }
 
 func SettingsFrom(get func(string) string) (Settings, error) {
@@ -37,6 +41,19 @@ func SettingsFrom(get func(string) string) (Settings, error) {
 		s.ImageEnabled = s.Enabled && get("BEDROCK_IMAGE_USAGE_APPROVED") == "true"
 		if s.ImageEnabled && get("BEDROCK_IMAGE_REGION") != ImageRegion {
 			return s, errors.New("image model region requires explicit approved configuration")
+		}
+	case "gemini":
+		s.ImageEnabled = s.Enabled && get("GEMINI_IMAGE_USAGE_APPROVED") == "true"
+		if s.ImageEnabled {
+			s.GeminiRefinementEnabled = get("GEMINI_IMAGE_REFINEMENT_APPROVED") == "true"
+			s.GeminiStyleReferenceKey = get("GEMINI_STYLE_REFERENCE_KEY")
+			if s.GeminiStyleReferenceKey != "" && !styleReferenceKey.MatchString(s.GeminiStyleReferenceKey) {
+				return s, errors.New("invalid private style reference key")
+			}
+			s.GeminiAPIKey = get("GEMINI_API_KEY")
+			if !gemini.ValidKey(s.GeminiAPIKey) {
+				return s, errors.New("direct Gemini requires a private API key")
+			}
 		}
 	case "stability":
 		s.ImageEnabled = s.Enabled && get("STABILITY_USAGE_APPROVED") == "true"

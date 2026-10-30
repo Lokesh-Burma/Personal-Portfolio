@@ -223,3 +223,43 @@ func TestSingleJobTrialRejectsOtherJobsAndRevisionsBeforeAnyCall(t *testing.T) {
 		t.Fatal("approved trial did not run once")
 	}
 }
+
+type customBriefImage struct {
+	imageFunc
+	briefError error
+}
+
+func (p customBriefImage) BuildBrief(topic string, c Content) (string, error) {
+	if topic == "" || c.Sentence == "" {
+		return "", errors.New("missing validated content")
+	}
+	return "provider-specific labeled diagram", p.briefError
+}
+func TestProviderBriefUsedBeforeImageReservation(t *testing.T) {
+	for _, invalid := range []bool{false, true} {
+		w, r, m, _, sink := imageSetup(t)
+		calls := 0
+		p := customBriefImage{imageFunc: func(_ context.Context, brief string) ([]byte, error) {
+			calls++
+			if brief != "provider-specific labeled diagram" {
+				t.Fatal("provider brief ignored")
+			}
+			return fixturePNG(t), nil
+		}}
+		if invalid {
+			p.briefError = errors.New("invalid provider brief")
+		}
+		w.Images = p
+		if err := w.Work(context.Background(), m); err != nil {
+			t.Fatal(err)
+		}
+		quota, _ := r.Get(context.Background(), "QUOTA#IMAGES", "MONTH#2026-10")
+		if invalid {
+			if calls != 0 || sink.calls.Load() != 0 || number(quota["count"]) != 0 || job(t, r, m)["content"] == nil {
+				t.Fatal("invalid brief invoked model, consumed quota or lost text")
+			}
+		} else if calls != 1 || sink.calls.Load() != 1 || number(quota["count"]) != 1 {
+			t.Fatal("provider prompt did not reach storage with one reservation")
+		}
+	}
+}

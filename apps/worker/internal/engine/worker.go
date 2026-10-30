@@ -34,15 +34,16 @@ type Message struct {
 	Revision int    `json:"revision"`
 }
 type Worker struct {
-	Repo         Repository
-	Provider     Provider
-	Images       ImageProvider
-	ImageEnabled bool
-	TrialJobID   string
-	Assets       Assets
-	Now          func() time.Time
-	Enabled      bool
-	Demo         bool
+	Repo          Repository
+	Provider      Provider
+	Images        ImageProvider
+	ImageEnabled  bool
+	RefineEnabled bool
+	TrialJobID    string
+	Assets        Assets
+	Now           func() time.Time
+	Enabled       bool
+	Demo          bool
 }
 
 var JobID = regexp.MustCompile(`^[a-z0-9]{10}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
@@ -184,6 +185,12 @@ func (w *Worker) Work(ctx context.Context, m Message) error {
 		if _, ok := w.Assets.(ImageAssets); !w.ImageEnabled || w.Images == nil || !ok {
 			return w.finish(ctx, m, "failed", "queued", Item{"error": "Image generation awaits separate activation approval. No model call was made."})
 		}
+	}
+	if j["parentId"] != nil {
+		if !w.RefineEnabled {
+			return w.finish(ctx, m, "failed", "queued", Item{"error": "Image refinement awaits separate activation approval. No model call was made."})
+		}
+		return w.refineImageJob(ctx, m, j)
 	}
 	topic, ok := j["topic"].(string)
 	if !ok {

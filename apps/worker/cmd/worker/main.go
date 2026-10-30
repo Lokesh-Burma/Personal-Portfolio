@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/awsio"
 	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/engine"
+	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/gemini"
 	"github.com/Lokesh-Burma/Personal-Portfolio/apps/worker/internal/stability"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
@@ -75,7 +76,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Invalid worker configuration")
 	}
-	w := &engine.Worker{Enabled: settings.Enabled, ImageEnabled: settings.ImageEnabled, TrialJobID: settings.TrialJobID}
+	w := &engine.Worker{Enabled: settings.Enabled, ImageEnabled: settings.ImageEnabled, RefineEnabled: settings.GeminiRefinementEnabled, TrialJobID: settings.TrialJobID}
 	if settings.Enabled {
 		cfg, err := awsio.Configuration(context.Background())
 		if err != nil {
@@ -85,7 +86,14 @@ func main() {
 		w.Assets = &awsio.Assets{Bucket: settings.Bucket, Client: s3.NewFromConfig(cfg)}
 		w.Provider = &awsio.Provider{Client: bedrockruntime.NewFromConfig(cfg)}
 		if settings.ImageEnabled {
-			if settings.ImageProvider == "stability" {
+			if settings.ImageProvider == "gemini" {
+				images := &gemini.Provider{APIKey: settings.GeminiAPIKey, Approved: true}
+				if settings.GeminiStyleReferenceKey != "" {
+					reference := &awsio.StyleReference{Bucket: settings.Bucket, Key: settings.GeminiStyleReferenceKey, Client: s3.NewFromConfig(cfg)}
+					images.Reference = reference.Load
+				}
+				w.Images = images
+			} else if settings.ImageProvider == "stability" {
 				w.Images = &stability.Provider{APIKey: settings.StabilityAPIKey, Approved: true}
 			} else {
 				w.Images = &awsio.ImageProvider{Client: bedrockruntime.NewFromConfig(cfg, func(o *bedrockruntime.Options) { o.Region = awsio.ImageRegion }), Approved: true, Region: awsio.ImageRegion}

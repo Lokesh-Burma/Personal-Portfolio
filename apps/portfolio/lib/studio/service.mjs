@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { catalog, validateContent, renderSvg, markdown, assetNames } from './content.mjs';
 import { renderMemorySvg } from './memory.mjs';
 import { referenceFor } from './reference-notes.mjs';
+import {refinementInput,imagePricing} from './pricing.mjs';
 import { Conflict } from './repository.mjs';
 export const LIMITS = Object.freeze({ monthly: 300, daily: 20, inputBytes: 6000, output: 1600, queue: 5, runs: 2 });
 export const MODEL = 'amazon.nova-lite-v1:0';
@@ -10,7 +11,7 @@ const ownerPk = owner => `OWNER#${owner}`;
 const change = (pk, sk, before, value) => ({ pk, sk, before, value });
 export const jobIdValid = id => typeof id === 'string' && /^[a-z0-9]{10}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(id);
 export class HttpError extends Error { constructor(status, message) { super(message); this.status = status; } }
-export const publicJob = j => ({ id: j.id, topic: j.topic, status: j.status, created: j.created, provider: 'bedrock', attempts: j.attempts, revision: j.revision, error: j.error, content: j.content, generateImage: j.generateImage === true, imageStatus: j.imageStatus, imageError: j.imageError });
+export const publicJob = j => ({ id: j.id, topic: j.topic, status: j.status, created: j.created, provider: 'bedrock', attempts: j.attempts, revision: j.revision, error: j.error, content: j.content, generateImage: j.generateImage === true, imageStatus: j.imageStatus, imageError: j.imageError, parentId:j.parentId, parentRevision:j.parentRevision, refinementInstructions:j.refinementInstructions, reviewed:j.reviewed===true, reviewedAt:j.reviewedAt, imageUsage:j.imageUsage });
 export function topicInput(topic) {
   if (typeof topic !== 'string' || topic.trim().length < 3 || topic.trim().length > 120 || /[\u0000-\u001f\u007f]/.test(topic)) throw new HttpError(400, 'Topic must contain 3–120 characters without control characters.');
   return topic.trim();
@@ -53,18 +54,29 @@ export function renderAssets(topic, c, provider = 'bedrock') {
 export function createService({ repo, now = () => new Date(), uuid = randomUUID, provider, assets, queue, enabled = false }) {
   const get = (owner, id) => repo.get(ownerPk(owner), 'JOB#' + id);
   const retryConflict = async fn => { for (let i=0;i<5;i++) { try { return await fn(); } catch(e) { if (!(e instanceof Conflict)) throw e; } } throw new HttpError(409, 'Concurrent update. Retry with the same request key.'); };
-  async function create(owner, topic, key, retryId, { generateImage = false } = {}) {
+  /** @param {{generateImage?:boolean,parentId?:string,instructions?:string}} [options] */
+  async function create(owner, topic, key, retryId, options = {}) {
+    const {generateImage=false,parentId}=options;
+    let {instructions}=options;
+    if(parentId && (!jobIdValid(parentId)||retryId||!generateImage))throw new HttpError(400,"Invalid refinement source.");
+    if(parentId)instructions=refinementInput({instructions});
     if(typeof generateImage!=='boolean')throw new HttpError(400,'Invalid image selection.');
     topic = retryId ? undefined : topicInput(topic);
-    const pk = ownerPk(owner), idem = idempotency(key), fingerprint = hash(JSON.stringify({ topic, retryId, ...(generateImage && !retryId ? { generateImage:true } : {}) }));
+    const pk = ownerPk(owner), idem = idempotency(key), fingerprint = hash(JSON.stringify({ topic, retryId, ...(generateImage && !retryId ? { generateImage:true } : {}),...(parentId?{parentId,instructions}:{}) }));
     return retryConflict(async () => {
       const existing = await repo.get(pk, idem);
       if (existing) { if (existing.fingerprint !== fingerprint) throw new HttpError(409, 'This request key was already used for different input.'); return get(owner, existing.id); }
       const timestamp = now(), id = retryId || `${timestamp.getTime().toString(36).padStart(10,'0')}-${uuid()}`;
-      const [previous, slots] = await Promise.all([retryId ? get(owner,id) : undefined, repo.get(pk, 'QUEUE')]);
+      const [previous, slots, parent] = await Promise.all([retryId ? get(owner,id) : undefined, repo.get(pk, 'QUEUE'),parentId?get(owner,parentId):undefined]);
+      if(parentId && (!parent||parent.status!=='completed'||parent.imageStatus!=='completed'||parent.topic!==topic))throw new HttpError(409,'Refine a completed image from your library.');
+      if(generateImage||previous?.generateImage){
+        const date=now().toISOString().slice(0,10);
+        const [day,month]=await Promise.all([repo.get('QUOTA#IMAGES','DAY#'+date),repo.get('QUOTA#IMAGES','MONTH#'+date.slice(0,7))]);
+        if((day?.count||0)>=imagePricing.dailyLimit||(month?.count||0)>=imagePricing.monthlyLimit)throw new HttpError(429,'Image attempt quota exhausted. No model call was made.');
+      }
       if (retryId && (!previous || previous.status !== 'failed' || previous.revision >= LIMITS.runs-1)) throw new HttpError(409, 'Only a failed job with fewer than two runs can be retried.');
       if ((slots?.count || 0) >= LIMITS.queue) throw new HttpError(429, 'Generation queue is full.');
-      const job = retryId ? { ...previous, status: 'queued', revision: previous.revision+1, error: null, imageStatus:undefined,imageError:undefined, updated: timestamp.toISOString() } : { kind: 'job', id, topic, owner, generateImage, status: 'queued', attempts: 0, revision: 0, created: timestamp.toISOString() };
+      const job = retryId ? { ...previous, status: 'queued', revision: previous.revision+1, error: null, imageStatus:undefined,imageError:undefined,imageUsage:undefined,imageAttemptMonth:undefined, updated: timestamp.toISOString() } : { kind: 'job', id, topic, owner, generateImage, ...(parentId?{parentId,parentRevision:parent.assetRevision,refinementInstructions:instructions}:{}), status: 'queued', attempts: 0, revision: 0, created: timestamp.toISOString() };
       await repo.commit([
         change(pk, 'JOB#'+id, previous, job),
         change(pk, idem, undefined, { kind: 'idempotency', id, fingerprint }),
@@ -151,5 +163,14 @@ export function createService({ repo, now = () => new Date(), uuid = randomUUID,
     const [d,m] = await Promise.all([repo.get('QUOTA#GLOBAL','DAY#'+date),repo.get('QUOTA#GLOBAL','MONTH#'+date.slice(0,7))]);
     return { dailyUsed: d?.count || 0, monthlyUsed: m?.count || 0, ...LIMITS };
   }
-  return { create, get, list, quota, work, dispatch, reserve, finish, catalogTopics: Object.keys(catalog), assetNames };
+  async function review(owner,id,reviewed){
+    if(!jobIdValid(id)||typeof reviewed!=='boolean')throw new HttpError(400,'Invalid review selection.');
+    return retryConflict(async()=>{const pk=ownerPk(owner),job=await get(owner,id);if(!job||job.status!=='completed')throw new HttpError(409,'Review a completed pack.');const next={...job,reviewed,reviewedAt:reviewed?now().toISOString():null};await repo.commit([change(pk,'JOB#'+id,job,next)]);return publicJob(next);});
+  }
+  async function imageQuota(){
+    const date=now().toISOString().slice(0,10);
+    const [d,m]=await Promise.all([repo.get('QUOTA#IMAGES','DAY#'+date),repo.get('QUOTA#IMAGES','MONTH#'+date.slice(0,7))]);
+    return {month:date.slice(0,7),dailyUsed:d?.count||0,monthlyUsed:m?.count||0,knownCostUSD:m?.knownCostUSD||0,knownUsageCount:m?.knownUsageCount||0,unknownCostAttempts:Math.max(0,(m?.count||0)-(m?.knownUsageCount||0)),pricing:imagePricing};
+  }
+  return { create, get, list, quota, imageQuota, review, work, dispatch, reserve, finish, catalogTopics: Object.keys(catalog), assetNames };
 }

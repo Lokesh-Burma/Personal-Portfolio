@@ -6,6 +6,7 @@ import { createService,publicJob,jobIdValid,renderAssets } from "./service.mjs";
 import { Repository } from "./repository.mjs";
 import { generationControls,cloudJobInput,cloudRetryInput } from "./activation.mjs";
 import { privateAssets } from "./aws-assets.mjs";
+import {imagePricing,refinementInput} from "./pricing.mjs";
 const hash=(s:string)=>createHash("sha256").update(s).digest("hex");
 const topics=Object.keys(catalog);
 let cloudInstance: {owner:string;assets:ReturnType<typeof privateAssets>;service:ReturnType<typeof createService>} | undefined;
@@ -18,7 +19,7 @@ function cloud() {
 }
 export async function studioConfig() {
  const demo=localDemoEnabled(),controls=generationControls();
- return {mode:demo?"demo":"cloud",ready:demo || controls.ready,imageGeneration:!demo && controls.imageGeneration,topics,notice:demo?"Curated demo: SVG visuals, no model calls.":controls.ready?"Cloud generation uses reserved attempts. Review all content before publishing.":"Paid generation is paused. Existing jobs remain available when storage is configured."};
+ return {mode:demo?"demo":"cloud",ready:demo || controls.ready,imageGeneration:!demo && controls.imageGeneration,refinement:!demo && controls.imageGeneration && process.env.TECHCANVAS_IMAGE_REFINEMENT_APPROVED==="true",pricing:imagePricing,reviewReady:demo||process.env.TECHCANVAS_LIBRARY_WRITES_APPROVED==="true",topics,notice:demo?"Curated demo: SVG visuals, no model calls.":controls.ready?"Cloud generation uses reserved attempts. Review all content before publishing.":"Paid generation is paused. Existing jobs remain available when storage is configured."};
 }
 export async function studioList(cursor?:string) { if(!localDemoEnabled()){const c=cloud();return c.service.list(c.owner,cursor);}return localState(s=>({jobs:Object.values(s.jobs || {}).map((j:any)=>({...publicJob(j),provider:"demo"})),nextCursor:null})); }
 export async function studioGet(id:string):Promise<any> {
@@ -61,4 +62,35 @@ export async function studioAsset(id:string,name:string):Promise<{body?:string;u
 export async function studioDraft(id:string) {const asset=await studioAsset(id,"portfolio.json");if(asset.body)return asset.body;
  const response=await fetch(asset.url!,{cache:"no-store",redirect:"error",signal:AbortSignal.timeout(5000)});if(!response.ok)throw new RequestError(503,"Draft asset unavailable.");
  const reader=response.body?.getReader();if(!reader)throw new RequestError(503,"Draft unavailable.");const chunks=[];let bytes=0;for(;;){const {done,value}=await reader.read();if(done)break;bytes+=value.length;if(bytes>256000){await reader.cancel();throw new RequestError(413,"Draft is too large.");}chunks.push(value);}return Buffer.concat(chunks).toString("utf8");
+}
+
+export async function studioLibrary(cursor?:string,search="",status="all",reviewed=false){
+ if(search.length>120||!["all","completed","failed","queued","running"].includes(status))throw new RequestError(400,"Invalid library filter.");
+ const jobs:any[]=[];let next=cursor||undefined;
+ for(let page=0;page<10;page++){
+  const result=await studioList(next);
+  jobs.push(...result.jobs.filter((j:any)=>j.topic.toLowerCase().includes(search.toLowerCase())&&(status==="all"||j.status===status)&&(!reviewed||j.reviewed)));
+  next=result.nextCursor||undefined;
+  if(!next||jobs.length>=25)break;
+ }
+ return {jobs,nextCursor:next||null};
+}
+export async function studioUsage(){
+ if(localDemoEnabled())return {month:new Date().toISOString().slice(0,7),dailyUsed:0,monthlyUsed:0,knownCostUSD:0,knownUsageCount:0,unknownCostAttempts:0,pricing:imagePricing,demo:true};
+ return cloud().service.imageQuota();
+}
+export async function studioReview(id:string,input:any){
+ if(!jobIdValid(id)||!input||typeof input!=="object"||Array.isArray(input)||Object.keys(input).length!==1||typeof input.reviewed!=="boolean")throw new RequestError(400,"Expected a reviewed flag.");
+ if(localDemoEnabled())return localState(s=>{const job=s.jobs?.[id];if(!job||job.status!=="completed")throw new RequestError(404,"Completed pack not found.");job.reviewed=input.reviewed;job.reviewedAt=input.reviewed?new Date().toISOString():null;return {...publicJob(job),provider:"demo"};});
+ if(process.env.TECHCANVAS_LIBRARY_WRITES_APPROVED!=="true")throw new RequestError(503,"Library review writes await configuration approval.");
+ const c=cloud();return c.service.review(c.owner,id,input.reviewed);
+}
+export async function studioRefine(id:string,input:any,key:string|null){
+ const controls=generationControls();
+ if(localDemoEnabled()||!controls.imageGeneration||process.env.TECHCANVAS_IMAGE_REFINEMENT_APPROVED!=="true")throw new RequestError(503,"Image refinement awaits activation approval. No paid call was made.");
+ const instructions=refinementInput(input);
+ if(!jobIdValid(id))throw new RequestError(404,"Image not found.");
+ const c=cloud();const parent=await c.service.get(c.owner,id);
+ if(!parent||parent.status!=="completed"||parent.imageStatus!=="completed")throw new RequestError(409,"Refine a completed image.");
+ return publicJob(await c.service.create(c.owner,parent.topic,key,undefined,{generateImage:true,parentId:id,instructions}));
 }
