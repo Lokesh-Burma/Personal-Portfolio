@@ -8,6 +8,10 @@ export class FoundationStack extends Stack {
     super(scope, id, { ...props, terminationProtection: true });
     const trialJob = this.node.tryGetContext('manualImageTrialJobId');
     if(trialJob && !/^[a-z0-9]{10}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(trialJob))throw new Error('Manual image trial requires one exact valid job ID.');
+    const nanoBanana = ['true',true].includes(this.node.tryGetContext('nanoBanana'));
+    const processingTriggers = ['true',true].includes(this.node.tryGetContext('processingTriggers'));
+    if(nanoBanana && (trialJob || !['true',true].includes(this.node.tryGetContext('goWorker'))))throw new Error('Nano Banana requires the Go worker and cannot share a manual Bedrock image trial.');
+    if(processingTriggers && !nanoBanana)throw new Error('Processing triggers require configured Nano Banana generation.');
     const legacyDisabled = ['true',true].includes(this.node.tryGetContext('retireLegacyStudio'));
     const commonOrigin = this.node.tryGetContext('commonAppOrigin');
     if(legacyDisabled && !commonOrigin)throw new Error('Retiring the legacy studio requires the common app origin.');
@@ -55,11 +59,22 @@ export class FoundationStack extends Stack {
         this.formatArn({service:'bedrock',region:'us-west-2',account:'',resource:'foundation-model',resourceName:'stability.stable-image-core-v1:1'})
       ]}));
     }
-    worker.addEventSource(new sources.SqsEventSource(queue, { enabled: false, batchSize: 1, maxConcurrency: 2, reportBatchItemFailures: true }));
-    dispatcher.addEventSource(new sources.DynamoEventSource(table, { enabled: false, filters: [lambda.FilterCriteria.filter({ eventName: ['INSERT'], dynamodb: { NewImage: { kind: { S: ['outbox'] } }, Keys: { pk: { S: [{ prefix: 'OWNER#' }] } } } })], startingPosition: lambda.StartingPosition.LATEST, batchSize: 1, retryAttempts: 2, bisectBatchOnError: true, onFailure: new sources.SqsDlq(streamDead), reportBatchItemFailures: true }));
+    if(nanoBanana){
+      const key = new CfnParameter(this,'GeminiApiKey',{noEcho:true,minLength:16,maxLength:512,description:'Server-only Gemini API key; supply privately, never through CDK context.'});
+      worker.addEnvironment('BEDROCK_USAGE_APPROVED','true');
+      worker.addEnvironment('IMAGE_PROVIDER','gemini');
+      worker.addEnvironment('GEMINI_IMAGE_USAGE_APPROVED','true');
+      worker.addEnvironment('GEMINI_API_KEY',key.valueAsString);
+      dispatcher.addEnvironment('BEDROCK_USAGE_APPROVED','true');
+      worker.addToRolePolicy(new iam.PolicyStatement({actions:['bedrock:InvokeModel'],resources:[
+        this.formatArn({service:'bedrock',region:'ap-southeast-2',account:'',resource:'foundation-model',resourceName:'amazon.nova-lite-v1:0'})
+      ]}));
+    }
+    worker.addEventSource(new sources.SqsEventSource(queue, { enabled: processingTriggers, batchSize: 1, maxConcurrency: 2, reportBatchItemFailures: true }));
+    dispatcher.addEventSource(new sources.DynamoEventSource(table, { enabled: processingTriggers, filters: [lambda.FilterCriteria.filter({ eventName: ['INSERT'], dynamodb: { NewImage: { kind: { S: ['outbox'] } }, Keys: { pk: { S: [{ prefix: 'OWNER#' }] } } } })], startingPosition: lambda.StartingPosition.LATEST, batchSize: 1, retryAttempts: 2, bisectBatchOnError: true, onFailure: new sources.SqsDlq(streamDead), reportBatchItemFailures: true }));
     queue.grantSendMessages(dispatcher);
     // CDK resource grants scope the SDK baseline to this table and owner asset prefix.
-    // Default releases have no model permission; manual trials scope it to two exact models.
+    // Paused releases have no model permission; Nano Banana grants only regional Nova text invocation.
     for (const fn of [backend, dispatcher, worker]) table.grantReadWriteData(fn);
     generated.grantRead(backend, 'owners/*');
     generated.grantPut(worker, 'owners/*');

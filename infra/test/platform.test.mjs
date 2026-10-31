@@ -36,3 +36,14 @@ test('cloud job writes are opt-in and restricted to the configured owner partiti
  assert.equal(t.Resources.portfolioRevision.Properties.ServiceConfig.EnvironmentVariables.TECHCANVAS_LIBRARY_WRITES_APPROVED,'true');
  assert.ok(!JSON.stringify(t).includes('bedrock:'));
 });
+
+
+test('approved image activation opens only common generation gates with scoped owner writes',()=>{
+ const context={commonApp:true,cloudJobWrites:true,imageGeneration:true,closeCommonPreview:true,protectLegacyApi:true};
+ const a=new App({context}),d=new PlatformData(a,'Data',{env}),p=new PlatformPreview(a,'Preview',{env,data:d}),t=Template.fromStack(p).toJSON();
+ const e=t.Resources.portfolioRevision.Properties.ServiceConfig.EnvironmentVariables;
+ for(const key of ['BEDROCK_USAGE_APPROVED','TECHCANVAS_JOB_CREATION_APPROVED','TECHCANVAS_IMAGE_CREATION_APPROVED'])assert.equal(e[key],'true');
+ assert.equal(e.TECHCANVAS_IMAGE_REFINEMENT_APPROVED,undefined);assert.equal(e.GEMINI_API_KEY,undefined);
+ assert.ok(Object.values(t.Resources).filter(r=>r.Type==='AWS::Lambda::WebFunctionEndpoint').every(r=>r.Properties.AuthType==='IamAuth'));
+ assert.throws(()=>{const b=new App({context:{commonApp:true,imageGeneration:true}}),data=new PlatformData(b,'Data',{env});new PlatformPreview(b,'Bad',{env,data});},/owner-partition/);
+});

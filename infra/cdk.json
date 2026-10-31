@@ -6,6 +6,8 @@
     "@aws-cdk/core:defaultCrossStackReferences": "strong",
     "commonApp": true,
     "protectLegacyApi": true,
-    "closeCommonPreview": true
+    "closeCommonPreview": true,
+    "cloudJobWrites": true,
+    "imageGeneration": true
   }
 }

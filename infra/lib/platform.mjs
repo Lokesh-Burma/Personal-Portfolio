@@ -22,6 +22,8 @@ export class PlatformPreview extends Stack {
   const common = this.node.tryGetContext('commonApp') === 'true' || this.node.tryGetContext('commonApp') === true;
   const protectLegacyApi = ['true',true].includes(this.node.tryGetContext('protectLegacyApi'));
   const cloudJobWrites = ['true',true].includes(this.node.tryGetContext('cloudJobWrites'));
+  const imageGeneration = ['true',true].includes(this.node.tryGetContext('imageGeneration'));
+  if(imageGeneration && (!common || !cloudJobWrites))throw new Error('Image generation requires the common app and owner-partition writes.');
   if(cloudJobWrites && !common)throw new Error('Cloud job writes require the common app.');
   const closeCommonPreview = ['true',true].includes(this.node.tryGetContext('closeCommonPreview'));
   if((protectLegacyApi || closeCommonPreview) && !common)throw new Error('Endpoint protection is only valid after common-app cutover.');
@@ -70,7 +72,7 @@ export class PlatformPreview extends Stack {
     SITE_ORIGIN:commonParams.site.valueAsString,TECHCANVAS_TABLE_NAME:commonParams.table.valueAsString,
     TECHCANVAS_ASSETS_BUCKET:commonParams.bucket.valueAsString,TECHCANVAS_OWNER_SUBJECT:commonParams.owner.valueAsString,
     COGNITO_USER_POOL_ID:commonParams.pool.valueAsString,COGNITO_CLIENT_ID:commonParams.client.valueAsString,COGNITO_LOGIN_DOMAIN:commonParams.login.valueAsString,
-    BEDROCK_USAGE_APPROVED:'false',TECHCANVAS_JOB_CREATION_APPROVED:'false',TECHCANVAS_IMAGE_CREATION_APPROVED:'false',
+    BEDROCK_USAGE_APPROVED:imageGeneration?'true':'false',TECHCANVAS_JOB_CREATION_APPROVED:imageGeneration?'true':'false',TECHCANVAS_IMAGE_CREATION_APPROVED:imageGeneration?'true':'false',
     TECHCANVAS_LIBRARY_WRITES_APPROVED:cloudJobWrites?'true':'false',
   } : {PORTFOLIO_API_URL:api.url,SITE_ORIGIN:siteOrigin.valueAsString});
   new CfnOutput(this,'ApiPreviewUrl',{value:api.url});new CfnOutput(this,'PortfolioPreviewUrl',{value:portfolio.url});

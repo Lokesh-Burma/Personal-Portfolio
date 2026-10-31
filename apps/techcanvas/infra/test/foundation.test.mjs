@@ -120,3 +120,19 @@ test('manual image trial allows only fixed models and a single job without enabl
  const statements=Object.values(t.Resources).filter(r=>r.Type==='AWS::IAM::Policy').flatMap(r=>r.Properties.PolicyDocument.Statement).filter(s=>JSON.stringify(s.Action).includes('bedrock:'));
  assert.equal(statements.length,1);assert.equal(statements[0].Action,'bedrock:InvokeModel');assert.equal(statements[0].Resource.length,2);assert.ok(!JSON.stringify(statements).includes('aws-marketplace:'));
 });
+
+
+test('Nano Banana activation keeps secrets masked, grants only regional text inference and controls both triggers',()=>{
+ for(const processingTriggers of [false,true]){
+  const a=new App({context:{goWorker:true,nanoBanana:true,processingTriggers}}),t=Template.fromStack(new FoundationStack(a,'TestFoundation',{env:{region:'ap-southeast-2'}})).toJSON();
+  assert.deepEqual(Object.keys(t.Resources),Object.keys(template.Resources));assert.equal(t.Parameters.GeminiApiKey.NoEcho,true);
+  const f=Object.values(t.Resources).filter(r=>r.Type==='AWS::Lambda::Function'),w=f.find(r=>r.Properties.Runtime==='provided.al2023'),e=w.Properties.Environment.Variables;
+  assert.equal(e.IMAGE_PROVIDER,'gemini');assert.equal(e.GEMINI_IMAGE_USAGE_APPROVED,'true');assert.deepEqual(e.GEMINI_API_KEY,{Ref:'GeminiApiKey'});assert.equal(e.BEDROCK_IMAGE_USAGE_APPROVED,'false');assert.equal(e.GEMINI_IMAGE_REFINEMENT_APPROVED,undefined);
+  assert.ok(Object.values(t.Resources).filter(r=>r.Type==='AWS::Lambda::EventSourceMapping').every(r=>r.Properties.Enabled===processingTriggers));
+  const invocations=Object.values(t.Resources).filter(r=>r.Type==='AWS::IAM::Policy').flatMap(r=>r.Properties.PolicyDocument.Statement).filter(s=>JSON.stringify(s.Action).includes('bedrock:'));
+  assert.equal(invocations.length,1);assert.equal(invocations[0].Action,'bedrock:InvokeModel');assert.ok(JSON.stringify(invocations[0].Resource).includes('amazon.nova-lite-v1:0'));assert.ok(!JSON.stringify(invocations).includes('us-west-2'));
+  assert.equal(Object.values(t.Resources).find(r=>r.Type==='AWS::Cognito::UserPool').Properties.MfaConfiguration,'ON');
+ }
+ assert.throws(()=>new FoundationStack(new App({context:{nanoBanana:true}}),'Bad',{env:{region:'ap-southeast-2'}}),/Go worker/);
+ assert.throws(()=>new FoundationStack(new App({context:{processingTriggers:true}}),'Bad',{env:{region:'ap-southeast-2'}}),/configured Nano Banana/);
+});

@@ -6,6 +6,8 @@
     "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy": true,
     "goWorker": true,
     "commonAppOrigin": "https://lokeshburma.com",
-    "retireLegacyStudio": true
+    "retireLegacyStudio": true,
+    "nanoBanana": true,
+    "processingTriggers": true
   }
 }
