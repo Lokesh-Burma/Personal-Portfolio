@@ -32,7 +32,7 @@ The common server needs COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID, COGNITO_LOGIN_D
 
 ## Release validation
 
-The approved staged real MFA check and production promotion are complete. Preserve required software-token MFA, strict verified email/subject checks and the canonical callback. Future authentication changes require renewed staged verification; follow unified-app-migration.md. Paid inference remains disabled.
+The approved staged real MFA check and production promotion are complete. Preserve required software-token MFA, strict verified email/subject checks and the canonical callback. Future authentication changes require renewed staged verification; follow unified-app-migration.md. Generation activation is independent of authentication; see operations.md for current controls.
 
 ## Local testing
 

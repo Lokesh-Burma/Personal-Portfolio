@@ -127,6 +127,8 @@ test('Nano Banana activation keeps secrets masked, grants only regional text inf
   const a=new App({context:{goWorker:true,nanoBanana:true,processingTriggers}}),t=Template.fromStack(new FoundationStack(a,'TestFoundation',{env:{region:'ap-southeast-2'}})).toJSON();
   assert.deepEqual(Object.keys(t.Resources),Object.keys(template.Resources));assert.equal(t.Parameters.GeminiApiKey.NoEcho,true);
   const f=Object.values(t.Resources).filter(r=>r.Type==='AWS::Lambda::Function'),w=f.find(r=>r.Properties.Runtime==='provided.al2023'),e=w.Properties.Environment.Variables;
+  assert.equal(w.Properties.Timeout,180);
+  const queue=Object.values(t.Resources).find(r=>r.Type==='AWS::SQS::Queue' && r.Properties.VisibilityTimeout);assert.ok(queue.Properties.VisibilityTimeout>=6*w.Properties.Timeout);
   assert.equal(e.IMAGE_PROVIDER,'gemini');assert.equal(e.GEMINI_IMAGE_USAGE_APPROVED,'true');assert.deepEqual(e.GEMINI_API_KEY,{Ref:'GeminiApiKey'});assert.equal(e.BEDROCK_IMAGE_USAGE_APPROVED,'false');assert.equal(e.GEMINI_IMAGE_REFINEMENT_APPROVED,undefined);
   assert.ok(Object.values(t.Resources).filter(r=>r.Type==='AWS::Lambda::EventSourceMapping').every(r=>r.Properties.Enabled===processingTriggers));
   const invocations=Object.values(t.Resources).filter(r=>r.Type==='AWS::IAM::Policy').flatMap(r=>r.Properties.PolicyDocument.Statement).filter(s=>JSON.stringify(s.Action).includes('bedrock:'));

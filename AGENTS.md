@@ -1,6 +1,6 @@
 # Lokesh Platform
 
-- Production runtimes: common Next.js app at apps/portfolio and Go worker at apps/worker. Shared MFA is live; Go processing remains disabled. apps/api and apps/techcanvas/public are retained rollback source; their old public entrypoints are disabled or IAM protected.
+- Production runtimes: common Next.js app at apps/portfolio and Go worker at apps/worker. Shared MFA and Go processing are live. The owner approved Nova Lite text plus Nano Banana images on 2026-10-31, capped at one image attempt per UTC day and five per month. apps/api and apps/techcanvas/public are retained rollback source; their old public entrypoints are disabled or IAM protected.
 - Node 24+, pnpm 10.17.1, Go 1.27.3. Preserve relevant lockfiles. Use root pnpm install:all, pnpm check, pnpm build, pnpm test:integration and pnpm test:browser.
 - Keep canonical studio code in apps/portfolio/lib/studio. Retained event-handler entrypoints are compatibility wrappers, not independent copies.
 - Keep only necessary source, tests and operational guidance. Do not add historical snapshots, duplicate plans or generated reports to Git. Preserve authored drafts, credentials and runtime data privately; never package them.
@@ -8,5 +8,5 @@
 - Preserve stack/resource identities. LokeshPlatformPreview still coordinates the existing portfolio/API; LokeshPortfolioDomain promotes the selected portfolio revision. TechCanvasFoundation is separate. No cloud resource cleanup is authorized by repository cleanup.
 - Shared Cognito MFA is the approved target for both private areas. Never enable password-only production sessions. Local demo credentials are explicitly separate. Preserve required TOTP MFA and pool/client identities. See docs/shared-owner-mfa.md.
 - Preserve the deployed common runtime settings/grants and canonical Cognito callback during promotion. Follow docs/unified-app-migration.md. scripts/release-plan.mjs makes no AWS calls. No automatic deployment pipeline is installed.
-- Paid inference and both processing mappings stay disabled unless explicitly approved. Code work does not authorize deployment, data migration, invitations, draft publication, quota resets or cloud/repository deletion.
+- Preserve the approved nanoBanana/processingTriggers and common-app imageGeneration contexts. Do not raise image quotas, enable refinement, change providers or upload private style references without approval. Code work does not authorize deployment, data migration, invitations, draft publication, quota resets or cloud/repository deletion.
 - Old external API/TechCanvas repositories and runtime data remain untouched. Their histories remain in Git. See README.md, docs/architecture.md and docs/operations.md for the current boundaries.

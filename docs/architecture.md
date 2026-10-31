@@ -1,28 +1,17 @@
 # Architecture
 
-The production application at https://lokeshburma.com is one Next.js Lambda Web Function behind CloudFront and a signed IAM origin. It serves portfolio pages, blog APIs/editor and TechCanvas Studio. One Cognito owner login with required authenticator MFA covers both private areas. Vercel continues managing DNS; its obsolete Git deployment remains disabled.
+The portfolio, blog APIs/editor and TechCanvas Studio run in one Next.js Lambda Web Function behind CloudFront at https://lokeshburma.com. The origin requires IAM signatures. One Cognito owner login with required authenticator MFA covers both private areas. Vercel manages DNS.
 
-DynamoDB retains existing blog and TechCanvas records. The common runtime has blog read/write access, studio table reads and private asset reads restricted to the configured owner prefix. Cloud generation and retries remain paused. Current production visuals are curated SVGs, not image-model output.
+The web app reads/writes the existing blog table. Studio reads the jobs table and saves jobs, idempotency records, review markers and outbox entries only in the configured owner's partition. Private asset reads are restricted to that owner's job prefix. DynamoDB transactions protect job state and quota reservations.
 
-The separate Go Lambda worker uses the existing queue/job/asset contracts and provided.al2023 runtime. Both processing mappings are disabled, BEDROCK_USAGE_APPROVED is false and its role has no Bedrock invocation permission. Docker builds portable artifacts locally; production runs Lambda ZIP artifacts rather than an always-on container fleet.
+A DynamoDB stream dispatches new outbox entries to the existing FIFO queue. The separate Go Lambda worker generates validated text with regional Nova Lite, then optionally requests one Nano Banana image through Google's API. It saves editable SVG/text assets and the validated PNG privately in S3. Both processing mappings are enabled following owner approval on 2026-10-31.
 
-| Stack | Responsibility |
-| --- | --- |
-| LokeshPlatformData | Retained blog table and versioned build artifacts |
-| LokeshPlatformPreview | Common application, retained API and IAM-protected preview endpoints |
-| LokeshPortfolioDomain | Domain, CloudFront, signed origin and selected common revision |
-| TechCanvasFoundation | Shared Cognito, jobs/assets/queues, dispatcher and Go worker |
+Images are capped at one reserved attempt per UTC day and five per UTC month. Failed and uncertain requests remain counted; duplicate delivery never repeats inference. Image failure preserves a completed text pack. Refinement is implemented but inactive. The written visual recipe is active; the optional private style reference has not been uploaded.
 
-The legacy static studio distribution and default HTTP API endpoint are disabled. The old NestJS function and previous working portfolio revision remain for rollback; neither is the public application path. No stored content, user directory, queue or bucket was deleted.
+The Gemini key is server-only, supplied through a masked deployment parameter and the worker's encrypted environment. It is never sent to the web app or browser. Bedrock image invocation and Stability AI remain inactive; the worker has permission to invoke only the fixed regional Nova Lite text model.
 
-Regional services remain ap-southeast-2; the existing CloudFront certificate in us-east-1 is the global-service exception. Public reads recheck publication status, slug/version changes use conditional transactions and storage failures surface as unavailable. Draft creation and publication remain separate owner actions. See operations.md and unified-app-migration.md for release controls.
+The Indigo interface supports system/light/dark themes, a searchable concept library, review markers, usage estimates and browser image/PDF exports. Generated content remains a private draft until separately reviewed and published.
 
-## Image-generation code (deployed, paused)
+Docker builds Linux ARM64 ZIP artifacts locally. Production uses a Node.js Web Function and a Go `provided.al2023` Event Function, without an always-on container fleet. Regional services remain ap-southeast-2; the existing CloudFront certificate in us-east-1 is the global-service exception.
 
-The common app now has gated cloud create/retry actions using the existing transactional job/outbox flow. The optional Go image stage stores a validated private PNG alongside editable SVG assets. Text and image stages have separate reservations; image failures preserve the text pack. This code was deployed on 2026-10-27 with generation paused.
-
-The approved single-job trial targets Stable Image Core in us-west-2, but cannot run until its provider agreement is available to this AWS account. The current role is denied access to agreement offers by an organization policy. No image client is created unless both parent inference and image approval settings permit it. The committed infrastructure keeps all inference flags and processing mappings off and adds no model permissions. A separately reviewed cloudJobWrites context can grant only owner-partition PutItem access; default synthesis retains read-only Studio access for the web app.
-
-The direct Stability AI adapter has now passed a local real-image trial without Bedrock. Its code is deployed; provider configuration and production generation remain paused. The worker can select the direct provider with separate approval and a server-only key while retaining the existing private PNG contract. The first test produced a decorative illustration; exact technical labels remain in the SVG assets.
-
-The 2026-10-31 code release also includes Nano Banana support, the Indigo light/dark interface, library review markers, usage views, image refinement and browser exports. Library reviews are enabled for the owner; refinement and all generation remain disabled. No Gemini key or private style reference is deployed.
+Previous immutable web revisions and artifacts are retained for rollback. The legacy NestJS API and preview require IAM; the old static Studio distribution and default HTTP API endpoint are disabled. Stored content, queues, buckets and Cognito identities are preserved. See [operations](operations.md) and [release and rollback](unified-app-migration.md).

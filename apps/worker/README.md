@@ -1,14 +1,10 @@
 # TechCanvas background worker
 
-A Go Lambda worker for queued TechCanvas jobs. It validates messages, reserves quota, prevents duplicate generation and saves private draft assets. Editable visuals are rendered SVGs. The optional PNG adapter is deployed but inactive.
+A Go Lambda worker for queued TechCanvas jobs. It generates validated text with regional Nova Lite and optional Nano Banana images, then saves private draft assets. Production processing is enabled following owner approval on 2026-10-31.
 
-The worker is deployed as a Linux ARM64 binary using `provided.al2023`. Both processing triggers and paid inference remain disabled, and its role has no Bedrock invocation permission.
+The worker runs a Linux ARM64 ZIP on `provided.al2023`. Docker is used for builds only. Existing DynamoDB-stream and SQS mappings dispatch jobs; duplicate delivery does not repeat model requests.
 
-Direct Nano Banana and Stability AI adapters are implemented in source and await deployment. Nano Banana uses Gemini Nano Banana 2.1 through generateContent, generates labeled draft diagrams at 1K, and validates PNG/JPEG responses before saving PNG assets.
-
-The direct Stability AI adapter uses Stable Image Core over HTTPS and a private STABILITY_API_KEY, without Bedrock image permissions or another AWS region. Production generation remains paused. Cloud image attempts keep the one/day and five/month limits; image failures preserve the text pack.
-
-## Local demo and checks
+## Local checks and build
 
 Requires Go 1.27.3. Run from the repository root:
 
@@ -16,50 +12,29 @@ Requires Go 1.27.3. Run from the repository root:
 pnpm demo:worker
 pnpm check --target worker
 pnpm worker:build
+pnpm build:aws --target worker
 ```
 
-The demo uses curated content and in-memory storage without AWS calls. Output is written to `apps/worker/.build/demo`; the build produces the Lambda bootstrap under `apps/worker/.build/aws`.
+The demo uses curated content and local storage without AWS or model calls. Tests use fake providers. Production infrastructure lives in [../techcanvas/infra](../techcanvas/infra).
 
-To select another demo topic, run from this directory:
+## Production configuration
 
-```sh
-go run ./cmd/worker --demo --topic Idempotency --output .build/idempotency
-```
+`IMAGE_PROVIDER=gemini`, `GEMINI_IMAGE_USAGE_APPROVED=true` and the parent worker/cloud/text gates enable images. The server-only key is supplied through the masked `GeminiApiKey` stack parameter into `GEMINI_API_KEY`. Preserve it on routine updates; never commit keys or put them in CDK context, artifacts, logs or browser configuration.
 
-`pnpm build:aws --target worker` builds the artifact through Docker from the repository root. Production uses a Lambda ZIP, not a continuously running container.
+The fixed model is `gemini-nano-banana-2.1` through generateContent. Requests ask for one 1K, 3:2 image with minimal thinking and a 4,096-token output cap. PNG/JPEG responses are validated and saved as private PNGs. Bedrock image generation and the retained Stability adapter are inactive.
 
-Infrastructure is managed in [../techcanvas/infra](../techcanvas/infra). See [release and rollback](../../docs/unified-app-migration.md) before changing the runtime or enabling processing.
+## Limits and failure handling
 
-## Direct Stability trial
+One image attempt per UTC day and five per UTC month, reserved transactionally across original and refinement jobs. Failed or uncertain calls stay counted. Redirects, automatic inference retries and model fallback are disabled. Image failure preserves the text pack. Text has separate existing quotas.
 
-Set STABILITY_API_KEY privately in the process environment, then run from this directory:
+The worker timeout is 180 seconds; the queue visibility timeout is 1,200 seconds. Token usage is stored with a usage-based USD estimate; unknown outcomes remain unknown. Estimates exclude provider balance, taxes, exchange fees and AWS charges.
 
-```sh
-STABILITY_USAGE_APPROVED=true go run ./cmd/worker --stability-trial --topic "Cache Aside" --output .build/stability-trial
-```
+## Visual style and refinement
 
-This makes one 3-credit image request using curated reference notes and no AWS calls. The private output contains illustration.png and an attempt receipt. Reusing the output directory refuses another request, including after a timeout. No credits are purchased automatically. Keep keys and generated trial files out of Git; see [operations](../../docs/operations.md) for activation controls.
+The active `techcanvas-dimensional-v1` written recipe uses a navy canvas, cyan/lavender accents, dimensional icons and numbered flows. Outputs still require review for labels and arrow direction.
 
-For controlled prompt comparisons, add --image-prompt-file with a private UTF-8 text file of at most 2,400 bytes. The exact prompt and checksum are saved with the attempt receipt; normal worker prompts remain unchanged.
+The optional `GEMINI_STYLE_REFERENCE_KEY=style-references/<sha256>.jpg` or `.png` is currently unset. Enabling it requires approval for the private upload and exact S3 read grant. The worker validates its hash, format, byte size and dimensions before inference.
 
-## Nano Banana configuration
+Image refinement is implemented but inactive. It requires separate web/worker approval flags and an owner-scoped parent-image read grant. It creates a child job and preserves the original image.
 
-Select `IMAGE_PROVIDER=gemini`, set `GEMINI_IMAGE_USAGE_APPROVED=true` and supply `GEMINI_API_KEY` privately to the worker process. The existing worker/cloud/text approval gates must also be enabled: text still uses Bedrock Nova Lite. A funded Gemini account is required; ChatGPT or Gemini consumer subscriptions do not configure this API.
-
-Requests are fixed to one 1K image, 3:2 aspect ratio, minimal thinking and a 4,096-token output cap. Redirects, retries, search tools and automatic model fallback are disabled. Existing image-attempt quotas remain one/day and five/month, including failed attempts. Images require human review for labels and arrow direction.
-
-Do not commit keys or put them in CDK context, browser configuration or logs. The adapter code was deployed on 2026-10-31. Production processing remains disabled; no local keys or private style reference were uploaded.
-
-### Consistent visual style
-
-Nano Banana uses the versioned `techcanvas-dimensional-v1` recipe: navy canvas, cyan/lavender accents, dimensional icons, readable typography and compact numbered flows. Cache Aside includes an explicit hit/miss layout and arrow endpoints; other topics use their own validated content.
-
-For the reference-guided quality demonstrated in the reviewed trial, configure `GEMINI_STYLE_REFERENCE_KEY=style-references/<64-character-sha256>.jpg` (or `.png`). The image is read privately from `ASSETS_BUCKET`, validated and hash-checked, then sent to Gemini as a style reference. Its topic and labels are not reused. A configured reference that fails validation stops before inference; it does not silently fall back or retry. Without this setting, generation uses the written recipe only.
-
-The reviewed draft stays private and is not bundled into code. A future approved deployment must place the approved reference in private storage and grant the worker `s3:GetObject` for that exact object. This change performs neither action. Reference images add input-token charges. Outputs still vary and require review; neither prompts nor image validation guarantee correct text or arrows.
-
-### Refinement and usage
-
-Refinement jobs reuse the parent's explanation and read its private PNG, then request one Nano Banana edit into a new job. The original is preserved. `GEMINI_IMAGE_REFINEMENT_APPROVED=true` is required in addition to the image and parent gates. A future reviewed deployment must grant `s3:GetObject` only for the configured owner's parent image objects. No permissions or processing are enabled by this code change.
-
-Each image request can report Gemini token usage. The worker atomically stores a usage-based USD estimate on the job and in its reserved UTC month's image quota record. Unknown costs remain unknown; timeouts are not refunded or automatically retried. Estimates use the dated model rates and exclude provider account balance, taxes, currency fees and AWS charges.
+See [operations](../../docs/operations.md) and [release and rollback](../../docs/unified-app-migration.md) for activation and pause controls.

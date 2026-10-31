@@ -2,7 +2,7 @@
 
 Reliable systems. Clearer ideas.
 
-The portfolio, blog and TechCanvas run in one Next.js application at [lokeshburma.com](https://lokeshburma.com). One Cognito MFA login covers the blog editor and Studio. A separate Go Lambda worker handles background jobs; processing and paid inference are currently disabled.
+The portfolio, blog and TechCanvas run in one Next.js application at [lokeshburma.com](https://lokeshburma.com). One Cognito MFA login covers the blog editor and Studio. A separate Go Lambda worker handles background jobs; processing is enabled with Nova Lite text generation and Nano Banana images. Image requests are limited to one attempt per UTC day and five per month.
 
 ## Local development
 
