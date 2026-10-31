@@ -1,7 +1,7 @@
 "use client";
 import { useEffect,useState,useRef } from "react";
 import Link from "next/link";
-import {signOutOwner} from "@/lib/auth/client";
+import {signOutOwner,readOwnerSession,readJSONResponse} from "@/lib/auth/client";
 import {exportPNG,printPack} from "@/lib/studio/share";
 type Job={id:string;topic:string;status:string;provider:string;created?:string;revision?:number;generateImage?:boolean;imageStatus?:string;imageError?:string;error?:string;parentId?:string;refinementInstructions?:string;reviewed?:boolean;imageUsage?:{estimatedUSD:number;promptTokens:number;outputTokens:number};content?:{paragraph:string;example:string;tradeoff:string};assets?:Record<string,string>};
 const button="rounded-md border border-line bg-panel px-4 py-2 text-sm font-semibold text-ink disabled:opacity-40";
@@ -10,9 +10,10 @@ const usd=(value:number)=>new Intl.NumberFormat("en-US",{style:"currency",curren
 export function Studio(){
  const [auth,setAuth]=useState<boolean|null>(null),[config,setConfig]=useState<any>(null),[jobs,setJobs]=useState<Job[]>([]),[selected,setSelected]=useState<Job|null>(null),[topic,setTopic]=useState("Cache Aside"),[notice,setNotice]=useState(""),[busy,setBusy]=useState(false),[cursor,setCursor]=useState<string|null>(null);
  const [generateImage,setGenerateImage]=useState(false),[search,setSearch]=useState(""),[status,setStatus]=useState("all"),[reviewedOnly,setReviewedOnly]=useState(false),[usage,setUsage]=useState<any>(null),[instructions,setInstructions]=useState(""),[parent,setParent]=useState<Job|null>(null);
+ const [sessionError,setSessionError]=useState(""),[sessionAttempt,setSessionAttempt]=useState(0);
  const pending=useRef<{fingerprint:string;key:string}|null>(null),listRequest=useRef(0),openRequest=useRef(0);
  function requestKey(fingerprint:string){if(pending.current?.fingerprint!==fingerprint)pending.current={fingerprint,key:crypto.randomUUID()};return pending.current.key;}
- async function call(path:string,init?:RequestInit){const response=await fetch("/api/techcanvas/"+path,{...init,cache:"no-store"});const data=await response.json();if(response.status===401)setAuth(false);if(!response.ok)throw new Error(data.error || "Request failed.");return data;}
+ async function call(path:string,init?:RequestInit){const response=await fetch("/api/techcanvas/"+path,{...init,cache:"no-store"});if(response.status===401)setAuth(false);return readJSONResponse(response);}
  async function load(more=false){
   const request=++listRequest.current,q=new URLSearchParams();
   if(more&&cursor)q.set("cursor",cursor);if(search)q.set("search",search);if(status!=="all")q.set("status",status);if(reviewedOnly)q.set("reviewed","true");
@@ -22,7 +23,14 @@ export function Studio(){
  }
  async function refreshUsage(){try{setUsage(await call("usage"));}catch{setUsage(null);}}
  useEffect(()=>{if(!config?.ready || !selected || !["queued","running"].includes(selected.status))return;let active=true,count=0;const id=selected.id;const timer=setInterval(()=>{if(++count>24){clearInterval(timer);return;}call("jobs/"+id).then(job=>{if(active){setSelected(job);if(!["queued","running"].includes(job.status)){void load();void refreshUsage();}}}).catch(e=>{if(active)setNotice(e.message);});},5000);return()=>{active=false;clearInterval(timer);};},[selected?.id,selected?.status,config?.ready,search,status,reviewedOnly]);
- useEffect(()=>{let active=true;fetch("/api/admin/session",{cache:"no-store"}).then(r=>r.json()).then(async s=>{if(!active)return;setAuth(s.authenticated);if(s.authenticated){setConfig(await call("config"));await refreshUsage();}}).catch(e=>{if(active)setNotice(e.message);});return()=>{active=false;};},[]);
+ useEffect(()=>{
+  let active=true,checked=false;setAuth(null);setSessionError("");
+  readOwnerSession().then(async session=>{
+   if(!active)return;checked=true;setAuth(session.authenticated);
+   if(session.authenticated){const next=await call("config");if(!active)return;setConfig(next);await refreshUsage();}
+  }).catch(error=>{if(active){const message=error instanceof Error?error.message:"Unable to check your session. Please retry.";if(checked)setNotice(message);else setSessionError(message);}});
+  return()=>{active=false;};
+ },[sessionAttempt]);
  useEffect(()=>{if(!auth)return;const timer=setTimeout(()=>load().catch(e=>setNotice(e.message)),200);return()=>clearTimeout(timer);},[auth,search,status,reviewedOnly]);
  async function open(id:string){const request=++openRequest.current;setNotice("");setParent(null);setInstructions("");try{const job=await call("jobs/"+id);if(request!==openRequest.current)return;setSelected(job);if(job.parentId){const original=await call("jobs/"+job.parentId);if(request===openRequest.current)setParent(original);}}catch(e){if(request===openRequest.current)setNotice((e as Error).message);}}
  async function generate(){setBusy(true);setNotice("");try{const job=await call("jobs",{method:"POST",headers:{"content-type":"application/json","idempotency-key":requestKey(JSON.stringify({topic,generateImage}))},body:JSON.stringify({topic,...(generateImage?{generateImage:true}:{})})});pending.current=null;await load();await open(job.id);await refreshUsage();}catch(e){setNotice((e as Error).message);}finally{setBusy(false);}}
@@ -33,7 +41,7 @@ export function Studio(){
  async function share(format:"image"|"social"|"poster"|"pdf"){if(!selected)return;setBusy(true);setNotice("");try{if(format==="pdf")await printPack(selected);else await exportPNG(selected,format);}catch(e){setNotice((e as Error).message);}finally{setBusy(false);}}
  const imageQuotaReached=usage&&(usage.dailyUsed>=usage.pricing.dailyLimit||usage.monthlyUsed>=usage.pricing.monthlyLimit);
  const quote=config?.pricing?`approximately ₹${Math.ceil(config.pricing.estimatedMaximumUSD*config.pricing.indicativeUSDtoINR)} per image attempt (planning estimate)`:"a separately billed image attempt";
- if(auth===null)return <p role="status">Checking owner session… {notice}</p>;
+ if(auth===null)return sessionError?<div role="alert" className="rounded-xl border border-line bg-panel p-6"><h2 className="text-xl font-semibold">Unable to check your session</h2><p className="my-4 text-muted">{sessionError}</p><button className={button} onClick={()=>setSessionAttempt(n=>n+1)}>Retry session check</button><a className={button+" ml-3 inline-block"} href="https://lokeshburma.com/techcanvas/studio">Open live workspace</a></div>:<p role="status">Checking owner session…</p>;
  if(!auth)return <div className="rounded-xl border border-line bg-panel p-6"><h2 className="text-xl font-semibold">Owner sign-in required</h2><p className="my-4 text-muted">Sign in once with MFA for both the studio and blog editor.</p><Link className={button} href="/login?returnTo=%2Ftechcanvas%2Fstudio">Sign in</Link><p className="mt-4 text-sm text-muted">You will return here after signing in.</p></div>;
  return <div className="space-y-6">
   <div className="rounded-xl border border-accent/30 bg-accent/10 p-5"><p>{config?.notice || "Loading studio configuration…"}</p><p className="mt-2 text-sm text-muted">{config?.imageGeneration?"AI illustrations need review. Editable SVG notes remain included.":"Real image-model generation is not enabled. Existing visuals are rendered SVGs."}</p></div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {signOutOwner} from "@/lib/auth/client";
+import {signOutOwner,readOwnerSession} from "@/lib/auth/client";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { MAX_TECHCANVAS_IMPORT_BYTES, parseTechCanvasDraft } from "@/lib/techcanvas-import";
@@ -75,16 +75,15 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    fetch("/api/admin/session")
-      .then((response) => response.json())
+    readOwnerSession()
       .then((session) => {
         setAuthMode(session.authMode || "cognito");
         setAuthenticated(session.authenticated);
         if (session.authenticated) {
           setEmail(session.email || "");
-          loadPosts();
+          return loadPosts();
         }
-      });
+      }).catch(() => {setAuthMode("cognito");setMessage("Unable to check your session. Please reload or sign in again.");});
   }, []);
 
   useEffect(() => {
@@ -206,7 +205,7 @@ export default function AdminPage() {
 
   async function logout(){try{await signOutOwner();}catch(error){setMessage((error as Error).message);}}
 
-  if(!authenticated && authMode!=="local-demo")return <main className="mx-auto min-h-[60vh] max-w-xl px-5 py-20"><h1 className="text-3xl font-semibold">Owner workspace</h1><p className="my-5 text-muted">{authMode==="pending"?"Checking your session…":"One MFA-protected sign-in covers the blog editor and TechCanvas."}</p>{authMode!=="pending" && <Link href="/login?returnTo=%2Fadmin" className="rounded-md bg-accent px-4 py-2 font-semibold text-accent-ink">Continue to owner sign-in</Link>}</main>;
+  if(!authenticated && authMode!=="local-demo")return <main className="mx-auto min-h-[60vh] max-w-xl px-5 py-20"><h1 className="text-3xl font-semibold">Owner workspace</h1><p className="my-5 text-muted">{message || (authMode==="pending"?"Checking your session…":"One MFA-protected sign-in covers the blog editor and TechCanvas.")}</p>{authMode!=="pending" && <Link href="/login?returnTo=%2Fadmin" className="rounded-md bg-accent px-4 py-2 font-semibold text-accent-ink">Continue to owner sign-in</Link>}</main>;
 
   if (!authenticated) {
     return (
