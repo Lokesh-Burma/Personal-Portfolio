@@ -5,11 +5,17 @@ const filename=(topic:string)=>topic.toLowerCase().replace(/[^a-z0-9]+/g,"-").re
 async function source(pack:SharePack){
  const url=pack.assets?.["illustration.png"]||pack.assets?.["memory.svg"];
  if(!url)throw new Error("This pack has no saved image to export.");
- const response=await fetch(url,{cache:"no-store",signal:AbortSignal.timeout(15000)});
- if(!response.ok)throw new Error("Image link expired. Reopen the pack and try again.");
- const blob=await response.blob();if(blob.size>5*1024*1024||!["image/png","image/jpeg","image/svg+xml"].includes(blob.type.split(";")[0]))throw new Error("Unsupported image export.");
- const objectURL=URL.createObjectURL(blob),image=new Image();
- try{image.src=objectURL;await image.decode();if(image.naturalWidth>4096||image.naturalHeight>4096)throw new Error("Image exceeds export bounds.");return image;}finally{URL.revokeObjectURL(objectURL);}
+ // Load through the image policy, not connect-src: production permits private S3
+ // images but intentionally restricts script fetches to this application's origin.
+ const image=new Image();image.crossOrigin="anonymous";
+ let timer:ReturnType<typeof setTimeout>|undefined;
+ try{
+  image.src=url;
+  await Promise.race([image.decode(),new Promise<never>((_,reject)=>{timer=setTimeout(()=>{image.src="";reject(new Error("Image link expired or unavailable. Reopen the pack and try again."));},15000);})]);
+  if(image.naturalWidth<1||image.naturalHeight<1||image.naturalWidth>4096||image.naturalHeight>4096)throw new Error("Image exceeds export bounds.");
+  return image;
+ }finally{if(timer)clearTimeout(timer);}
+
 }
 function lines(ctx:CanvasRenderingContext2D,text:string,width:number){
  const result:string[]=[];let line="";
