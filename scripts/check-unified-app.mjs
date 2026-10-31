@@ -93,15 +93,19 @@ try{
    await blocked.close();
    await page.getByLabel('Color theme',{exact:true}).selectOption('system');
    await page.setViewportSize({width:1280,height:900});
-   let sessionUnavailable=true;
-   await page.route('**/api/admin/session',route=>sessionUnavailable?route.fulfill({status:503,contentType:'text/html',body:'<!DOCTYPE html><h1>Temporary edge error</h1>'}):route.continue());
-   await page.goto(base+'/techcanvas/studio');
-   await page.getByRole('heading',{name:'Unable to check your session',exact:true}).waitFor();
-   assert.ok(!(await page.getByRole('alert').filter({hasText:'Unable to check your session'}).innerText()).includes('Unexpected token'));
-   sessionUnavailable=false;
-   await page.getByRole('button',{name:'Retry session check',exact:true}).click();
-   await page.getByRole('heading',{name:'Owner sign-in required',exact:true}).waitFor();
-   await page.unroute('**/api/admin/session');
+   for(const preference of ['light','dark']){
+    await page.getByLabel('Color theme',{exact:true}).selectOption(preference);
+    let sessionUnavailable=true;
+    await page.route('**/api/admin/session',route=>sessionUnavailable?route.fulfill({status:503,contentType:'text/html',body:'<!DOCTYPE html><h1>Temporary edge error</h1>'}):route.continue());
+    await page.goto(base+'/techcanvas/studio');
+    await page.getByRole('heading',{name:'Unable to check your session',exact:true}).waitFor();
+    assert.ok(!(await page.getByRole('alert').filter({hasText:'Unable to check your session'}).innerText()).includes('Unexpected token'));
+    sessionUnavailable=false;
+    await page.getByRole('button',{name:'Retry session check',exact:true}).click();
+    await page.getByRole('heading',{name:'Owner sign-in required',exact:true}).waitFor();
+    await expectThemeBg(preference==='light'?'rgb(248, 250, 252)':'rgb(15, 23, 42)');
+    await page.unroute('**/api/admin/session');
+   }
    await page.goto(base+'/admin');await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByRole('heading',{name:'Blog editor',exact:true}).waitFor();
    await page.goto(base+'/techcanvas/studio');await page.getByRole('button',{name:'Create demo pack',exact:true}).waitFor();await page.getByLabel('Concept',{exact:true}).selectOption('Idempotency');await page.getByRole('button',{name:'Create demo pack',exact:true}).click();await page.getByRole('heading',{name:'Idempotency',exact:true}).waitFor();
    const image=page.getByAltText('Idempotency memory diagram');await image.waitFor();await page.waitForFunction(()=>{const i=document.querySelector('img[alt="Idempotency memory diagram"]');return i && i.complete && i.naturalWidth>0;});
