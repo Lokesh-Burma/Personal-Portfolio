@@ -161,6 +161,14 @@ func ParseContent(text, stopReason, topic string) (Content, error) {
 	if stopReason != "end_turn" || len(text) == 0 || len(text) > 24000 || !utf8.ValidString(text) {
 		return Content{}, errors.New("incomplete or oversized model response")
 	}
+	// Accept one complete JSON code block, never prose, partial output or extra data.
+	text = strings.TrimSpace(text)
+	for _, prefix := range []string{"```json\n", "```\n"} {
+		if strings.HasPrefix(text, prefix) && strings.HasSuffix(text, "\n```") {
+			text = strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(text, prefix), "\n```"))
+			break
+		}
+	}
 	// The model cannot inject sources or unknown fields. Trusted sources are attached below.
 	var raw struct {
 		Sentence  string    `json:"sentence"`

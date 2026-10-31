@@ -101,6 +101,11 @@ func (w *Worker) finish(ctx context.Context, m Message, status, expected string,
 		}
 		next := copyItem(j)
 		next["status"] = status
+		if status == "completed" {
+			delete(next, "failureStage")
+			delete(next, "failureCode")
+			delete(next, "textStopReason")
+		}
 		next["updated"] = w.now().Format(time.RFC3339Nano)
 		for k, v := range extra {
 			next[k] = v
@@ -211,20 +216,24 @@ func (w *Worker) Work(ctx context.Context, m Message) error {
 		return nil
 	}
 	// Never refund a reservation or retry a potentially completed inference call.
+	stage := "text_generation"
 	text, stop, err := w.Provider.Invoke(ctx, prompt)
 	var content Content
 	var files map[string]string
 	if err == nil {
+		stage = "text_validation"
 		content, err = ParseContent(text, stop, topic)
 	}
 	if err == nil {
+		stage = "asset_render"
 		files, err = Render(topic, content, w.Demo)
 	}
 	if err == nil {
+		stage = "asset_storage"
 		err = w.Assets.Put(ctx, m.Owner, m.ID, m.Revision, files)
 	}
 	if err != nil {
-		return w.finish(ctx, m, "failed", "running", Item{"error": "Generation or asset storage failed. This reserved attempt remains counted. You may explicitly retry once."})
+		return w.finish(ctx, m, "failed", "running", generationFailure(m, stage, err, stop))
 	}
 	raw, err := encode(content)
 	if err != nil {
