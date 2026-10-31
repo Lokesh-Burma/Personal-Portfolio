@@ -17,7 +17,7 @@ test('common revision preserves identities, legacy login and scoped storage boun
  const revisions=Object.values(t.Resources).filter(r=>r.Type==='AWS::Lambda::WebFunctionRevision');
  const front=revisions.find(r=>r.Properties.FunctionName==='lokesh-portfolio').Properties.ServiceConfig.EnvironmentVariables;
  const api=revisions.find(r=>r.Properties.FunctionName==='lokesh-content-api').Properties.ServiceConfig.EnvironmentVariables;
- assert.ok(front.COGNITO_USER_POOL_ID);assert.ok(front.SESSION_SECRET);assert.ok(!front.ADMIN_PASSWORD_HASH);assert.ok(!front.PORTFOLIO_API_URL);assert.ok(!front.PLATFORM_LOCAL_DEMO);assert.deepEqual(api.CORS_ORIGIN,{Ref:'SiteOrigin'});assert.deepEqual(front.SITE_ORIGIN,{Ref:'CommonSiteOrigin'});assert.deepEqual(api.ADMIN_EMAIL,{Ref:'AdminEmail'});assert.deepEqual(front.ADMIN_EMAIL,{Ref:'CommonOwnerEmail'});assert.equal(t.Parameters.CommonOwnerEmail.NoEcho,true);
+ assert.equal(front.TECHCANVAS_LIBRARY_WRITES_APPROVED,'false');assert.ok(front.COGNITO_USER_POOL_ID);assert.ok(front.SESSION_SECRET);assert.ok(!front.ADMIN_PASSWORD_HASH);assert.ok(!front.PORTFOLIO_API_URL);assert.ok(!front.PLATFORM_LOCAL_DEMO);assert.deepEqual(api.CORS_ORIGIN,{Ref:'SiteOrigin'});assert.deepEqual(front.SITE_ORIGIN,{Ref:'CommonSiteOrigin'});assert.deepEqual(api.ADMIN_EMAIL,{Ref:'AdminEmail'});assert.deepEqual(front.ADMIN_EMAIL,{Ref:'CommonOwnerEmail'});assert.equal(t.Parameters.CommonOwnerEmail.NoEcho,true);
  assert.ok(!JSON.stringify(t).includes('bedrock:'));const policies=Object.values(t.Resources).filter(r=>r.Type==='AWS::IAM::Policy');const rolePolicy=policies.find(r=>JSON.stringify(r.Properties.Roles).includes('portfolioRole'));const statements=rolePolicy.Properties.PolicyDocument.Statement;assert.ok(statements.some(s=>JSON.stringify(s.Resource).includes('TechCanvasAssetsBucket')));assert.ok(!statements.some(s=>JSON.stringify(s.Action).includes('s3:PutObject')));
 });
 
@@ -33,5 +33,6 @@ test('cloud job writes are opt-in and restricted to the configured owner partiti
  assert.ok(write);assert.equal(write.Condition.Null['dynamodb:LeadingKeys'],'false');assert.ok(JSON.stringify(write.Condition['ForAllValues:StringEquals']['dynamodb:LeadingKeys']).includes('TechCanvasOwnerSubject'));
  assert.equal(t.Resources.portfolioRevision.Properties.ServiceConfig.EnvironmentVariables.TECHCANVAS_JOB_CREATION_APPROVED,'false');
  assert.equal(t.Resources.portfolioRevision.Properties.ServiceConfig.EnvironmentVariables.TECHCANVAS_IMAGE_CREATION_APPROVED,'false');
+ assert.equal(t.Resources.portfolioRevision.Properties.ServiceConfig.EnvironmentVariables.TECHCANVAS_LIBRARY_WRITES_APPROVED,'true');
  assert.ok(!JSON.stringify(t).includes('bedrock:'));
 });

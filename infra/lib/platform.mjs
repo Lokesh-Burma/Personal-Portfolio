@@ -71,6 +71,7 @@ export class PlatformPreview extends Stack {
     TECHCANVAS_ASSETS_BUCKET:commonParams.bucket.valueAsString,TECHCANVAS_OWNER_SUBJECT:commonParams.owner.valueAsString,
     COGNITO_USER_POOL_ID:commonParams.pool.valueAsString,COGNITO_CLIENT_ID:commonParams.client.valueAsString,COGNITO_LOGIN_DOMAIN:commonParams.login.valueAsString,
     BEDROCK_USAGE_APPROVED:'false',TECHCANVAS_JOB_CREATION_APPROVED:'false',TECHCANVAS_IMAGE_CREATION_APPROVED:'false',
+    TECHCANVAS_LIBRARY_WRITES_APPROVED:cloudJobWrites?'true':'false',
   } : {PORTFOLIO_API_URL:api.url,SITE_ORIGIN:siteOrigin.valueAsString});
   new CfnOutput(this,'ApiPreviewUrl',{value:api.url});new CfnOutput(this,'PortfolioPreviewUrl',{value:portfolio.url});
  }
