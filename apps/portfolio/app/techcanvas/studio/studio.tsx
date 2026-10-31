@@ -4,7 +4,7 @@ import Link from "next/link";
 import {signOutOwner,readOwnerSession,readJSONResponse} from "@/lib/auth/client";
 import {exportPNG,printPack} from "@/lib/studio/share";
 type Job={id:string;topic:string;status:string;provider:string;created?:string;revision?:number;generateImage?:boolean;imageStatus?:string;imageError?:string;error?:string;parentId?:string;refinementInstructions?:string;reviewed?:boolean;imageUsage?:{estimatedUSD:number;promptTokens:number;outputTokens:number};content?:{paragraph:string;example:string;tradeoff:string};assets?:Record<string,string>};
-const button="rounded-md border border-line bg-panel px-4 py-2 text-sm font-semibold text-ink disabled:opacity-40";
+const button="studio-action rounded-md border border-line bg-panel px-4 py-2 text-sm font-semibold text-ink disabled:opacity-40";
 const field="mt-2 block w-full rounded-md border border-line bg-panel p-3 text-ink";
 const usd=(value:number)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:4}).format(value);
 export function Studio(){

@@ -49,6 +49,15 @@ a { text-decoration: none; }
 :where(a, button, input, textarea, select):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
 :where(input, textarea, select) { color: var(--color-ink); background-color: var(--color-canvas); }
 button, a { touch-action: manipulation; }
+.studio-action { cursor: pointer; transition: background-color 150ms, border-color 150ms, color 150ms; }
+.studio-action:is(:hover, :focus-visible):not(:disabled) {
+  background-color: var(--color-panel-raised);
+  border-color: var(--color-accent);
+  color: var(--color-accent-soft);
+}
+.studio-action:active:not(:disabled) { background-color: color-mix(in srgb, var(--color-accent) 16%, var(--color-panel)); }
+.studio-action:disabled { cursor: not-allowed; }
+
 .canvas-hero { background: radial-gradient(ellipse at 85% 5%, color-mix(in srgb, var(--color-accent) 12%, transparent) 0, transparent 55%); }
 .canvas-grid { background-image: linear-gradient(color-mix(in srgb, var(--color-accent) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 5%, transparent) 1px, transparent 1px); background-size: 36px 36px; }
 /* Brand marks retain their reviewed dark-theme colors; use readable ink on light surfaces. */
