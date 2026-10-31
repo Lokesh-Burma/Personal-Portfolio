@@ -48,7 +48,7 @@ Select `IMAGE_PROVIDER=gemini`, set `GEMINI_IMAGE_USAGE_APPROVED=true` and suppl
 
 Requests are fixed to one 1K image, 3:2 aspect ratio, minimal thinking and a 4,096-token output cap. Redirects, retries, search tools and automatic model fallback are disabled. Existing image-attempt quotas remain one/day and five/month, including failed attempts. Images require human review for labels and arrow direction.
 
-Do not commit keys or put them in CDK context, browser configuration or logs. This source change does not deploy, upload local keys or enable production processing.
+Do not commit keys or put them in CDK context, browser configuration or logs. The adapter code was deployed on 2026-10-31. Production processing remains disabled; no local keys or private style reference were uploaded.
 
 ### Consistent visual style
 

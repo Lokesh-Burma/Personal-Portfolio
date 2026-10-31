@@ -26,6 +26,8 @@ The 2026-10-26 authenticated release verified all four application stacks, promo
 
 Use ~/.local/bin/aws with --profile aws-toolkit --region ap-southeast-2. An older /usr/local/bin/aws installation cannot read this login profile correctly. Reauthenticate when needed; never store exported credentials or private change-set parameters in Git.
 
+The 2026-10-31 release promoted the Indigo light/dark UI, concept library, usage views and saved-image exports, and updated the paused Go worker with Nano Banana support. Owner-only library review writes are enabled through a partition-scoped grant. Refinement, job/image creation, paid inference and both processing mappings remain disabled; no provider keys or private style reference were uploaded. Public routes, theme persistence, mobile layout, canonical Cognito redirect and guest API rejection passed live checks. Prior immutable revisions and artifacts are retained for rollback.
+
 ## Media and private data
 
 Published blog media uses content-addressed filenames under public/images/blog, cached immutably. Preserve the existing published architecture image. For new media, use a new hash/URL; do not overwrite an existing immutable URL. Publishing a post is an explicit owner action after review, not a code deployment side effect. Signed private preview URLs are not durable public covers.
@@ -56,13 +58,13 @@ The manualImageTrialJobId context prepares an isolated worker trial for one exac
 
 A direct HTTPS Core adapter avoids the blocked Bedrock image agreement. On 2026-10-29, three local requests returned validated private PNGs, each priced at three credits ($0.03), with no AWS inference or automatic credit purchase. Detailed layout instructions produced garbled labels and unreliable relationships; a simpler text-free prompt avoided gibberish but still failed the requested node roles and arrow layout. Core output is suitable only as reviewed decorative material, not an authoritative engineering diagram. Trial outputs and prompts remain private, and worker defaults were not changed by these experiments.
 
-The adapter is implemented and tested but not yet deployed. IMAGE_PROVIDER=stability selects it; STABILITY_USAGE_APPROVED and the existing parent processing gate must both permit it. STABILITY_API_KEY is server-only and must never be put in CDK context, source, logs or browser configuration. Configure it through a reviewed private deployment before activation. The normal worker still uses Nova Lite for text; the standalone --stability-trial command uses curated notes and therefore needs no AWS inference.
+The adapter code is deployed, with provider configuration and processing disabled. IMAGE_PROVIDER=stability selects it; STABILITY_USAGE_APPROVED and the existing parent processing gate must both permit it. STABILITY_API_KEY is server-only and must never be put in CDK context, source, logs or browser configuration. Configure it through a reviewed private deployment before activation. The normal worker still uses Nova Lite for text; the standalone --stability-trial command uses curated notes and therefore needs no AWS inference.
 
 The previous manualImageTrialJobId infrastructure context targets Bedrock images only; do not use it to activate the direct API. Keep event mappings and web creation off until the direct provider release is explicitly configured. Cloud quotas remain one reserved image attempt per day and five per month. The local trial command reserves one attempt per output directory and refuses to repeat an uncertain request. Generated trial images remain private and are not published automatically.
 
 ## Nano Banana images
 
-The Go worker supports `IMAGE_PROVIDER=gemini` with the fixed `gemini-nano-banana-2.1` model through Google's generateContent API. Activation requires `GEMINI_IMAGE_USAGE_APPROVED=true`, a server-only `GEMINI_API_KEY`, and the existing parent worker/cloud/Bedrock-text approvals. This is source support; production remains paused until a reviewed deployment configures the secret and enables processing.
+The Go worker supports `IMAGE_PROVIDER=gemini` with the fixed `gemini-nano-banana-2.1` model through Google's generateContent API. Activation requires `GEMINI_IMAGE_USAGE_APPROVED=true`, a server-only `GEMINI_API_KEY`, and the existing parent worker/cloud/Bedrock-text approvals. The adapter code is deployed; production generation remains paused until a separately approved release configures the secret and enables processing.
 
 Each attempt requests one 1K image with minimal thinking and a 4,096-token output cap. The adapter blocks redirects and makes no automatic retry or model fallback. PNG and JPEG responses are validated; JPEG is normalized to the existing private PNG asset contract. Existing one/day and five/month image quotas include failed or uncertain attempts. A failed image preserves the text pack.
 
